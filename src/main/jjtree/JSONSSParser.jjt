@@ -1,0 +1,540 @@
+
+options {
+  LOOKAHEAD = 1;
+  IGNORE_CASE = true;
+  STATIC = false;
+  USER_TOKEN_MANAGER=false;
+  USER_CHAR_STREAM=false;
+
+  // JJTree options
+
+  MULTI=true;
+  NODE_DEFAULT_VOID = true;
+}
+
+PARSER_BEGIN(JSONSSParser)
+
+package org.mm.parser;
+
+import org.mm.core.settings.ReferenceSettings;
+
+import java.util.*;
+
+public class JSONSSParser 
+{
+  private String defaultLocationValue = "";
+  private String defaultLiteral = "";
+
+  private int defaultReferenceType = -1;
+
+  private int defaultShiftSetting = -1;
+  private int defaultEmptyLocationSetting = -1;
+  private int defaultEmptyLiteralSetting = -1;
+  
+  private ReferenceSettings settings;
+  
+  public JSONSSParser(java.io.InputStream stream, ReferenceSettings settings, int unused)
+  {
+    this(stream);
+    changeGlobalReferenceSettings(settings);
+  }
+
+  public void changeGlobalReferenceSettings(ReferenceSettings settings)
+  {
+    defaultReferenceType = settings.getReferenceTypeSetting().getConstant();
+    defaultShiftSetting = settings.getShiftSetting().getConstant();
+    defaultEmptyLocationSetting = settings.getEmptyLocationSetting().getConstant();
+    defaultEmptyLiteralSetting = settings.getEmptyLiteralSetting().getConstant();
+  }
+}
+
+PARSER_END(JSONSSParser)
+
+/* White space */
+
+SKIP :
+{
+  " "
+| "\t"
+| "\n"
+| "\r"
+| "\f"
+}
+
+/* Comments */
+
+MORE :
+{
+  "//" : IN_SINGLE_LINE_COMMENT
+|  <"/**" ~["/"]> { input_stream.backup(1); } : IN_FORMAL_COMMENT
+|  "/*" : IN_MULTI_LINE_COMMENT
+}
+
+<IN_SINGLE_LINE_COMMENT>
+SPECIAL_TOKEN :
+{
+  <SINGLE_LINE_COMMENT: "\n" | "\r" | "\r\n" > : DEFAULT
+}
+
+<IN_FORMAL_COMMENT>
+SPECIAL_TOKEN :
+{
+  <FORMAL_COMMENT: "*/" > : DEFAULT
+}
+
+<IN_MULTI_LINE_COMMENT>
+SPECIAL_TOKEN :
+{
+  <MULTI_LINE_COMMENT: "*/" > : DEFAULT
+}
+
+<IN_SINGLE_LINE_COMMENT,IN_FORMAL_COMMENT,IN_MULTI_LINE_COMMENT>
+MORE :
+{
+  < ~[] >
+}
+
+TOKEN: {<TRUE: "true" | "TRUE">}
+TOKEN: {<FALSE: "false" | "FALSE">}
+
+TOKEN: { <JSON_STRING: "string" > }
+TOKEN: { <JSON_BYTE: "byte" > }
+TOKEN: { <JSON_SHORT: "short" > }
+TOKEN: { <JSON_INT: "int" > }
+TOKEN: { <JSON_LONG: "long" > }
+TOKEN: { <JSON_FLOAT: "float" > }
+TOKEN: { <JSON_DOUBLE: "double" > }
+TOKEN: { <JSON_BOOLEAN: "boolean" > }
+
+/* JSON-SS tokens */
+
+TOKEN: { <MM_LOCATION: "mm:Location"> }
+
+TOKEN: { <MM_NULL: "mm:null" > }
+
+TOKEN: { <MM_LITERAL: "mm:Literal"> }
+
+TOKEN: { <MM_DEFAULT_REFERENCE_TYPE: "mm:DefaultReferenceType"> }
+TOKEN: { <MM_DEFAULT_SHIFT: "mm:DefaultShift"> }
+
+TOKEN: { <MM_DEFAULT_EMPTY_LITERAL: "mm:DefaultEmptyLiteral"> }
+TOKEN: { <MM_DEFAULT_EMPTY_LOCATION: "mm:DefaultEmptyLocation"> }
+
+TOKEN: { <MM_UNTYPED: "mm:Untyped"> }
+TOKEN: { <CELL_WILDCARD: "*"> }
+
+TOKEN: { <MM_TO_UPPER_CASE: "mm:toUpperCase"> }
+TOKEN: { <MM_TO_LOWER_CASE: "mm:toLowerCase"> }
+TOKEN: { <MM_TRIM: "mm:trim"> }
+TOKEN: { <MM_CAPTURING: "mm:capturing"> }
+TOKEN: { <MM_REVERSE: "mm:reverse"> }
+TOKEN: { <MM_REPLACE: "mm:replace"> }
+TOKEN: { <MM_REPLACE_ALL: "mm:replaceAll"> }
+TOKEN: { <MM_REPLACE_FIRST: "mm:replaceFirst"> }
+TOKEN: { <MM_APPEND: "mm:append"> }
+TOKEN: { <MM_PREPEND: "mm:prepend"> }
+
+TOKEN: { <MM_DEFAULT_LOCATION_VALUE: "mm:DefaultLocationValue"> }
+TOKEN: { <MM_DEFAULT_LITERAL: "mm:DefaultLiteral"> }
+
+TOKEN: { <MM_NO_SHIFT: "mm:NoShift"> }
+TOKEN: { <MM_SHIFT_UP: "mm:ShiftUp"> }
+TOKEN: { <MM_SHIFT_DOWN: "mm:ShiftDown"> }
+TOKEN: { <MM_SHIFT_LEFT: "mm:ShiftLeft"> }
+TOKEN: { <MM_SHIFT_RIGHT: "mm:ShiftRight"> }
+
+TOKEN: { <MM_ERROR_IF_EMPTY_LOCATION: "mm:ErrorIfEmptyLocation"> }
+TOKEN: { <MM_WARNING_IF_EMPTY_LOCATION: "mm:WarningIfEmptyLocation"> }
+TOKEN: { <MM_SKIP_IF_EMPTY_LOCATION: "mm:SkipIfEmptyLocation"> }
+TOKEN: { <MM_PROCESS_IF_EMPTY_LOCATION: "mm:ProcessIfEmptyLocation"> }
+
+TOKEN: { <MM_PROCESS_IF_EMPTY_LITERAL: "mm:ProcessIfEmptyLiteral"> }
+TOKEN: { <MM_ERROR_IF_EMPTY_LITERAL: "mm:ErrorIfEmptyLiteral"> }
+TOKEN: { <MM_WARNING_IF_EMPTY_LITERAL: "mm:WarningIfEmptyLiteral"> }
+TOKEN: { <MM_SKIP_IF_EMPTY_LITERAL: "mm:SkipIfEmptyLiteral"> }
+
+TOKEN:
+{
+  <STRING_LITERAL: "\"" (~["\""])* ("\"\"" (~["\""])*)* ("\\\"")* "\"" >
+| <QUOTED_NAME_LITERAL: "'" (~["'"])* ("''" (~["'"])*)* "'" >
+| <IDENTIFIER: <LETTER> (<LETTER> | <DIGIT> | "_" | "-" | "#" | "." | ":" | "/" )* | "'" (~["'"])* "'"> 
+| <INTEGER_LITERAL: (["-"])? (<DIGIT>)+ > 
+| <LONG_LITERAL: (["-"])? (<DIGIT>)+> 
+| <FLOAT_LITERAL:   (["-"])? (<DIGIT>)+ "." (<DIGIT>)+ (<EXPONENT>)?
+                  | (["-"])? "." (<DIGIT>)+ (<EXPONENT>)?
+                  | (["-"])? (<DIGIT>)+ <EXPONENT>
+                  | (["-"])? (<DIGIT>)+ (<EXPONENT>)? > 
+|
+  <#LETTER: [ "a"-"z", "A"-"Z" ]>
+|
+  <#DIGIT: ["0"-"9"] >
+| 
+  <#EXPONENT: ["e", "E"] (["+", "-"])? (<DIGIT>)+ >
+| 
+  <LOCATION_SPECIFICATION: (<LETTER> | <DIGIT> | "_" | "-" | "#" | "." | ":" | "/" | "*" )+ | "'" (~["'"])* "'"> 
+}
+
+SimpleNode expression() #Expression : {}
+{
+  (  mm_expression()
+  ) <EOF>
+  {
+     return jjtThis;
+  }
+}
+
+void mm_expression() #MMExpression : {}
+{
+  <EOF>
+}
+
+void mm_default_shift_directive() #MMDefaultShiftSetting: 
+{
+  int shiftSetting;
+}
+{
+  <MM_DEFAULT_SHIFT> shiftSetting = shift_directive()
+
+  {
+    jjtThis.shiftSetting = shiftSetting;
+    defaultShiftSetting = shiftSetting;
+  }
+}
+
+void mm_default_empty_location_directive() #MMDefaultEmptyLocationSetting: 
+{
+  int emptyLocationSetting;
+}
+{
+  <MM_DEFAULT_EMPTY_LOCATION> emptyLocationSetting = empty_location_directive()
+
+  {
+    jjtThis.emptyLocationSetting = emptyLocationSetting;
+    defaultEmptyLocationSetting = emptyLocationSetting;
+  }
+}
+
+void mm_default_empty_literal_directive() #MMDefaultEmptyLiteralSetting: 
+{
+  int emptyLiteralSetting;
+}
+{
+  <MM_DEFAULT_EMPTY_LITERAL> emptyLiteralSetting = empty_literal_directive()
+
+  {
+    jjtThis.emptyLiteralSetting = emptyLiteralSetting;
+    defaultEmptyLiteralSetting = emptyLiteralSetting;
+  }
+}
+
+void mm_default_reference_type_directive() #MMDefaultReferenceType: 
+{
+  int referenceType;
+}
+{
+  <MM_DEFAULT_REFERENCE_TYPE> referenceType = reference_type()
+
+  {
+    defaultReferenceType = referenceType;
+  }
+}
+
+
+
+void literal() #Literal : {}
+{
+  (  integer_literal() 
+   | float_literal() 
+   | boolean_literal() 
+   | string_literal() 
+  )
+} 
+
+void integer_literal() #IntegerLiteral :
+{
+  Token t;
+}
+{
+  t = <INTEGER_LITERAL>
+
+  {
+    jjtThis.value = Integer.valueOf(token.image);
+  }
+}
+
+void float_literal() #FloatLiteral :
+{
+  Token t;
+}
+{
+  t = <FLOAT_LITERAL>
+
+  {
+    jjtThis.value = Float.valueOf(token.image);
+  }
+}
+
+
+String string() : 
+{
+  Token t;
+}
+{
+  t = <STRING_LITERAL> 
+
+  {
+    String s = t.image;
+    return s.substring(1, s.length() - 1);
+  }
+}
+
+void string_literal() #StringLiteral :
+{
+  String value;
+}
+{
+  value = string()
+
+  {
+    jjtThis.value = value;
+  }
+}
+
+void boolean_literal() #BooleanLiteral :
+{
+  boolean value;
+}
+{
+  ( <TRUE> { value = true; } | <FALSE> { value = false; } )
+
+  {
+    jjtThis.value = value;
+  }
+}
+
+String location_specification() :
+{
+  Token t;
+}
+{
+  t = <LOCATION_SPECIFICATION>
+
+  { return t.image; }
+}
+
+void source_specification() #SourceSpecification : 
+{
+  String source = null;
+  String location = null;
+  String literal = null;
+  Token t;
+}
+{ 
+  (
+     ( ( source = quoted_name() "!" )? ( location = location_specification()  ) )
+   | literal = string()
+  )
+
+  { 
+     jjtThis.source = source;
+     jjtThis.location = location;
+     jjtThis.literal = literal;
+  }
+}
+
+int integer_value() :
+{
+  Token t;
+}
+{
+  t=<INTEGER_LITERAL>
+  {
+    return Integer.parseInt(t.image);
+  }
+}
+
+void reference(int defaultReferenceType) #Reference : {}
+{
+   "@" source_specification()
+       ( LOOKAHEAD(2) 
+         "(" ( reference_type() )?
+             ( reference_directive() )*
+         ")"
+       )?
+  {
+    jjtThis.defaultReferenceDirectives = new DefaultReferenceDirectives(
+                        defaultReferenceType, defaultLocationValue,
+                        defaultLiteral,
+                        defaultShiftSetting, defaultEmptyLocationSetting,
+                        defaultEmptyLiteralSetting);
+
+  }
+}
+
+void reference_directive() : {}
+{
+  ( value_extraction_function() 
+   | default_location_value_directive() 
+   | default_literal_directive() 
+   | empty_literal_directive()
+   | empty_location_directive()
+   | shift_directive() 
+  ) 
+}
+
+int reference_type() #ReferenceType : 
+{
+  Token t;
+  int referenceType = defaultReferenceType;
+}
+{
+  (
+     t = <EOF> { referenceType = t.kind; }
+  ) 
+
+  {
+    jjtThis.referenceType = referenceType;
+    return referenceType;
+  }
+}
+
+int empty_location_directive() #EmptyLocationSetting :
+{
+  Token t;
+  int emptyLocationSetting;
+}
+{
+  (
+     t = <MM_ERROR_IF_EMPTY_LOCATION> { emptyLocationSetting = t.kind; }
+   | t = <MM_WARNING_IF_EMPTY_LOCATION> { emptyLocationSetting = t.kind; }
+   | t = <MM_SKIP_IF_EMPTY_LOCATION> { emptyLocationSetting = t.kind; }
+   | t = <MM_PROCESS_IF_EMPTY_LOCATION> { emptyLocationSetting = t.kind; }
+  )
+
+  {
+    jjtThis.emptyLocationSetting = emptyLocationSetting;
+    return emptyLocationSetting;
+  }
+}
+
+
+int empty_literal_directive() #EmptyLiteralSetting :
+{
+  Token t;
+  int emptyLiteralSetting;
+}
+{
+  (
+     t = <MM_ERROR_IF_EMPTY_LITERAL> { emptyLiteralSetting = t.kind; }
+   | t = <MM_WARNING_IF_EMPTY_LITERAL> { emptyLiteralSetting = t.kind; }
+   | t = <MM_SKIP_IF_EMPTY_LITERAL> { emptyLiteralSetting = t.kind; }
+   | t = <MM_PROCESS_IF_EMPTY_LITERAL> { emptyLiteralSetting = t.kind; }
+  )
+
+  {
+    jjtThis.emptyLiteralSetting = emptyLiteralSetting;
+    return emptyLiteralSetting;
+  }
+}
+
+int shift_directive() #ShiftSetting :
+{
+  Token t;
+  int shiftSetting;
+}
+{
+  (
+     t = <MM_SHIFT_UP> { shiftSetting = t.kind; }
+   | t = <MM_SHIFT_DOWN> { shiftSetting = t.kind; }
+   | t = <MM_SHIFT_LEFT> { shiftSetting = t.kind; }
+   | t = <MM_SHIFT_RIGHT> { shiftSetting = t.kind; }
+   | t = <MM_NO_SHIFT> { shiftSetting = t.kind; }
+  )
+
+  {
+    jjtThis.shiftSetting = shiftSetting;
+    return shiftSetting;
+  }
+}
+
+void default_literal_directive() #DefaultLiteral :
+{
+  String defaultLiteral;
+}
+{
+  <MM_DEFAULT_LITERAL> "=" defaultLiteral = string()
+
+  {
+    jjtThis.defaultLiteral = defaultLiteral;
+  }
+}
+
+void default_location_value_directive() #DefaultLocationValue :
+{
+  String defaultLocationValue;
+}
+{
+  <MM_DEFAULT_LOCATION_VALUE> "=" defaultLocationValue = string()
+
+  {
+    jjtThis.defaultLocationValue = defaultLocationValue;
+  }
+}
+
+void value_extraction_function() #ValueExtractionFunction:
+{
+  Token t;
+  int functionID;
+}
+{
+  ((
+    ( 
+       t = <MM_TO_UPPER_CASE> { functionID = t.kind; }
+     | t = <MM_TO_LOWER_CASE> { functionID = t.kind; }
+     | t = <MM_TRIM> { functionID = t.kind; }
+     | t = <MM_REVERSE> { functionID = t.kind; }
+     | t = <MM_CAPTURING> { functionID = t.kind; }
+     | t = <MM_REPLACE> { functionID = t.kind; }
+     | t = <MM_REPLACE_ALL> { functionID = t.kind; }
+     | t = <MM_REPLACE_FIRST> { functionID = t.kind; }
+     | t = <MM_APPEND> { functionID = t.kind; }
+     | t = <MM_PREPEND> { functionID = t.kind; }
+    ) ( LOOKAHEAD(2) "(" value_extraction_function_argument() ( "," value_extraction_function_argument() )* ")" )?
+   )
+   |
+   ( "[" ( LOOKAHEAD(2) value_extraction_function_argument() ( "," value_extraction_function_argument() )* )? "]" )  { functionID = MM_CAPTURING; } 
+  )
+  {
+    jjtThis.functionID = functionID;
+  }
+}
+
+void value_extraction_function_argument() #ValueExtractionFunctionArgument : {}
+{
+  reference(JSON_STRING) | literal()
+}
+
+
+List<String> strings() :
+{
+  List<String> strings = new ArrayList<String>();
+  String s;
+}
+{
+  s = string() { strings.add(s); } ( "," s = string() { strings.add(s); } )*
+
+  { return strings; }
+} 
+
+String quoted_name() : 
+{
+  Token t;
+}
+{
+  t = <QUOTED_NAME_LITERAL> 
+
+  {
+    String s = t.image;
+    return s.substring(1, s.length() - 1);
+  }
+}
