@@ -34,14 +34,13 @@ public class IntegrationTestBase
 	protected static final String DEFAULT_SHEET = SHEET1;
 	protected static final Set<Label> EMPTY_CELL_SET = Collections.emptySet();
 	protected static final SpreadsheetLocation DEFAULT_CURRENT_LOCATION = new SpreadsheetLocation(SHEET1, 1, 1);
-	protected static final String DEFAULT_PREFIX = ":";
 
 	protected Workbook createWorkbook(String sheetName, Set<Label> cells) throws IOException
 	{
 		Workbook workbook = new XSSFWorkbook();
 		Sheet sheet = workbook.createSheet(sheetName);
 		
-		Map<Integer, Row> buffer = new HashMap<Integer, Row>();
+		Map<Integer, Row> buffer = new HashMap<>();
 		for (Label cell : cells) {
 			int rownum = cell.getRowIndex();
 			Row row = buffer.get(rownum);
@@ -70,11 +69,6 @@ public class IntegrationTestBase
 		return expressionNode.getMMExpressionNode();
 	}
 
-	protected Optional<? extends TextRendering> createTextRendering(String expression, ReferenceSettings settings)
-			throws JSONSSException, IOException, ParseException
-	{
-		return createTextRendering(DEFAULT_SHEET, EMPTY_CELL_SET, expression, settings);
-	}
 
 	protected Optional<? extends TextRendering> createTextRendering(String sheetName, Set<Label> cells,
 			SpreadsheetLocation currentLocation, String expression, ReferenceSettings settings)
