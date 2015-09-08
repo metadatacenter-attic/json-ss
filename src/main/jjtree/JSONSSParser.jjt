@@ -14,9 +14,9 @@ options {
 
 PARSER_BEGIN(JSONSSParser)
 
-package org.mm.parser;
+package org.metadatacenter.jsonss.parser;
 
-import org.mm.core.settings.ReferenceSettings;
+import org.metadatacenter.jsonss.core.settings.ReferenceSettings;
 
 import java.util.*;
 
