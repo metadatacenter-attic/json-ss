@@ -22,22 +22,20 @@ import java.util.*;
 
 public class JSONSSParser 
 {
+  private int defaultReferenceType;
   private String defaultLocationValue;
   private String defaultLiteralValue;
-  private int defaultReferenceType;
-  private int defaultShiftSetting;
   private int defaultEmptyLocationSetting;
   private int defaultEmptyLiteralSetting;
-  
-  private ReferenceSettings referenceSettings;
+  private int defaultShiftSetting;
   
   public JSONSSParser(java.io.InputStream stream, ReferenceSettings referenceSettings, int unused)
   {
     this(stream);
-    changeGlobalReferenceSettings(referenceSettings);
+    updateDefaultReferenceSettings(referenceSettings);
   }
 
-  public void changeGlobalReferenceSettings(ReferenceSettings referenceSettings)
+  public void updateDefaultReferenceSettings(ReferenceSettings referenceSettings)
   {
     defaultLocationValue = referenceSettings.getDefaultLocationValue();
     defaultLiteralValue = referenceSettings.getDefaultLiteralValue();
@@ -94,21 +92,20 @@ MORE :
   < ~[] >
 }
 
+TOKEN: { <JSON_BOOLEAN: "boolean" > }
+TOKEN: { <JSON_STRING: "string" > }
+TOKEN: { <JSON_INTEGER: "integer" > }
+TOKEN: { <JSON_NUMERIC: "numeric" > }
+
+// JSON-SS Token
+
 TOKEN: { <CELL_WILDCARD: "*"> }
 
 TOKEN: { <LOCATION: "Location"> }
 
 TOKEN: {<TRUE: "true" | "TRUE">}
 TOKEN: {<FALSE: "false" | "FALSE">}
-
 TOKEN: { <NULL: "null" > }
-TOKEN: { <LITERAL: "Literal"> }
-TOKEN: { <UNTYPED: "Untyped"> }
-
-TOKEN: { <JSON_BOOLEAN: "boolean" > }
-TOKEN: { <JSON_STRING: "string" > }
-TOKEN: { <JSON_INTEGER: "integer" > }
-TOKEN: { <JSON_NUMERIC: "numeric" > }
 
 TOKEN: { <TO_UPPER_CASE: "toUpperCase"> }
 TOKEN: { <TO_LOWER_CASE: "toLowerCase"> }
@@ -140,11 +137,22 @@ TOKEN: { <SKIP_IF_EMPTY_LITERAL: "SkipIfEmptyLiteral"> }
 TOKEN: { <DEFAULT_LOCATION_VALUE: "DefaultLocationValue"> }
 TOKEN: { <DEFAULT_LITERAL_VALUE: "DefaultLiteralValue"> }
 
+TOKEN: {
+        <STRING: "\"" ( <ALLOWABLE_CHARACTERS> )* "\"" >
+    |   <ALLOWABLE_CHARACTERS:(   
+	        (~["\"", "\\", "\u0000"-"\u001f"])
+	           | ("\\"
+	            ( ["u"] ["0"-"9","a"-"f", "A"-"F"] ["0"-"9","a"-"f", "A"-"F"] ["0"-"9","a"-"f", "A"-"F"] ["0"-"9","a"-"f", "A"-"F"]
+	                | ["\"", "\\", "b", "f", "n", "r", "t"]
+	                )
+	            )
+	        )
+	    >
+}
+
 TOKEN:
 {
-  <STRING_LITERAL: "\"" (~["\""])* ("\"\"" (~["\""])*)* ("\\\"")* "\"" >
-| <QUOTED_NAME_LITERAL: "'" (~["'"])* ("''" (~["'"])*)* "'" >
-| <IDENTIFIER: <LETTER> (<LETTER> | <DIGIT> | "_" | "-" | "#" | "." | ":" | "/" )* | "'" (~["'"])* "'"> 
+  <QUOTED_NAME_LITERAL: "'" (~["'"])* ("''" (~["'"])*)* "'" >
 | <INTEGER_LITERAL: (["-"])? (<DIGIT>)+ > 
 | <NUMERIC_LITERAL:   (["-"])? (<DIGIT>)+ "." (<DIGIT>)+ (<EXPONENT>)?
                   | (["-"])? "." (<DIGIT>)+ (<EXPONENT>)?
@@ -162,34 +170,92 @@ TOKEN:
 
 SimpleNode expression() #Expression : {}
 {
-  <EOF>
+  json_object() | json_array()
   {
      return jjtThis;
   }
 }
 
-void literal() #Literal : {}
+void json_object() #JSONObject : {}
 {
-  (  integer_literal() 
-   | numeric_literal() 
-   | boolean_literal() 
-   | string_literal() 
-  )
-} 
+   "{" json_key_value() ( ", " json_key_value() )* "}"
+}
 
-void integer_literal() #IntegerLiteral :
+void json_key_value() #JSONKeyValue: {}
+{
+  json_string() ":" json_value()
+}
+
+void json_value() #JSONValue: {}
+{
+    (   json_object()
+    |   json_array() 
+    |   json_string()
+    |   t=<NUMBER>
+        {
+            try {
+              o = Integer.valueOf(t.image);
+
+            }
+            catch (NumberFormatException nfe1) {
+                try {
+                    o = Long.valueOf(t.image);
+                }
+                catch (NumberFormatException nfe2) {
+                    try {
+                        o = Float.valueOf(t.image);
+                    }
+                    catch (NumberFormatException nfe3) {
+                        try {
+                            o = Double.valueOf(t.image);
+                        }
+                        catch  (NumberFormatException nfe4) {
+                            o = Double.NaN;
+                        }
+                    }
+                }
+
+            }
+        }
+    |   <K_TRUE> {o = Boolean.TRUE;}
+    |   <K_FALSE> {o = Boolean.TRUE;}
+    |   <K_NULL> )
+    {
+    }
+}
+
+boolean json_boolean() #JSONBoolean: 
+{
+   boolean b;
+}
+{
+  (   <TRUE> {b = Boolean.TRUE;}
+    | <FALSE> {b = Boolean.FALSE;}
+  )
+  {
+    jjtThis.value = b;
+  }
+}
+
+void json_string() #JSONString: 
 {
   Token t;
 }
 {
-  t = <INTEGER_LITERAL>
+  t = <STRING> 
 
   {
-    jjtThis.value = Integer.valueOf(token.image);
+    String s = t.image;
+    jjtThis.value = s.substring(1, s.length() - 1);
   }
 }
 
-void numeric_literal() #NumericLiteral :
+void json_null() #JSONNull : {}
+{
+  <NULL>
+}
+
+void numeric_literal() #JSONNumber :
 {
   Token t;
 }
@@ -202,18 +268,6 @@ void numeric_literal() #NumericLiteral :
 }
 
 
-String string() : 
-{
-  Token t;
-}
-{
-  t = <STRING_LITERAL> 
-
-  {
-    String s = t.image;
-    return s.substring(1, s.length() - 1);
-  }
-}
 
 void string_literal() #StringLiteral :
 {
@@ -440,7 +494,6 @@ void value_extraction_function_argument() #ValueExtractionFunctionArgument : {}
 {
   reference(JSON_STRING) | literal()
 }
-
 
 List<String> strings() :
 {

@@ -16,11 +16,6 @@ public class ReferenceType implements JSONSSParserConstants
     return tokenImage[this.type].substring(1, tokenImage[this.type].length() - 1);
   }
 
-  public boolean isUntyped()
-  {
-    return this.type == UNTYPED;
-  }
-
   public boolean isLiteral()
   {
     return isString() || isInteger() || isNumeric() || isBoolean();

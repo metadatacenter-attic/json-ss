@@ -53,7 +53,6 @@ public class TextRenderer extends ReferenceRendererConfiguration
     throw new InternalRendererException("not implemented " + expressionNode.getNodeName());
   }
 
-  // TODO Refactor - too long
   @Override public Optional<TextReferenceRendering> renderReference(ReferenceNode referenceNode)
     throws RendererException
   {
@@ -67,9 +66,6 @@ public class TextRenderer extends ReferenceRendererConfiguration
       SpreadsheetLocation location = ReferenceUtil.resolveLocation(dataSource, referenceNode);
       String resolvedReferenceValue = ReferenceUtil.resolveReferenceValue(dataSource, referenceNode);
 
-      if (referenceType.isUntyped())
-        throw new RendererException("untyped reference " + referenceNode);
-
       if (resolvedReferenceValue.isEmpty() && referenceNode.getActualEmptyLocationDirective() == SKIP_IF_EMPTY_LOCATION)
         return Optional.empty();
 
@@ -79,7 +75,7 @@ public class TextRenderer extends ReferenceRendererConfiguration
         return Optional.empty();
       }
 
-      if (referenceType.isLiteral()) { // Reference is an OWL literal
+      if (referenceType.isLiteral()) {
         String literalReferenceValue = processOWLLiteralReferenceValue(location, resolvedReferenceValue, referenceNode);
 
         if (literalReferenceValue.isEmpty() && referenceNode.getActualEmptyLiteralDirective() == SKIP_IF_EMPTY_LITERAL)

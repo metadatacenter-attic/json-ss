@@ -9,14 +9,6 @@ public class ReferenceSettings
   private EmptyLiteralSetting emptyLiteralSetting = EmptyLiteralSetting.PROCESS_IF_EMPTY_LITERAL;
   private ShiftSetting shiftSetting = ShiftSetting.NO_SHIFT;
 
-  public String getDefaultLocationValue() { return this.defaultLocationValue; }
-
-  public void setDefaultLocationValue(String defaultLocationValue) { this.defaultLocationValue = defaultLocationValue; }
-
-  public String getDefaultLiteralValue() { return this.defaultLiteralValue; }
-
-  public void setDefaultLiteralValue(String defaultLiteralValue) { this.defaultLiteralValue = defaultLiteralValue; }
-
   public ReferenceTypeSetting getReferenceTypeSetting()
   {
     return referenceTypeSetting;
@@ -26,6 +18,14 @@ public class ReferenceSettings
   {
     referenceTypeSetting = value;
   }
+
+  public String getDefaultLocationValue() { return this.defaultLocationValue; }
+
+  public void setDefaultLocationValue(String defaultLocationValue) { this.defaultLocationValue = defaultLocationValue; }
+
+  public String getDefaultLiteralValue() { return this.defaultLiteralValue; }
+
+  public void setDefaultLiteralValue(String defaultLiteralValue) { this.defaultLiteralValue = defaultLiteralValue; }
 
   public EmptyLocationSetting getEmptyLocationSetting()
   {
