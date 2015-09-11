@@ -1,26 +1,26 @@
 
 package org.metadatacenter.jsonss.parser.node;
 
-import org.metadatacenter.jsonss.parser.ASTFloatLiteral;
+import org.metadatacenter.jsonss.parser.ASTNumericLiteral;
 import org.metadatacenter.jsonss.parser.ParseException;
 
-public class FloatLiteralNode implements JSONSSNode
+public class NumericLiteralNode implements JSONSSNode
 {
-	private final float value;
+	private final double value;
 
-	public FloatLiteralNode(ASTFloatLiteral node) throws ParseException
+	public NumericLiteralNode(ASTNumericLiteral node) throws ParseException
 	{
 		this.value = node.value;
 	}
 
-	public float getValue()
+	public double getValue()
 	{
 		return this.value;
 	}
 
 	public String getNodeName()
 	{
-		return "FloatLiteral";
+		return "NumericLiteral";
 	}
 
 	public String toString()

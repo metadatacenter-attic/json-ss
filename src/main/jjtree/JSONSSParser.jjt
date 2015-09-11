@@ -107,12 +107,8 @@ TOKEN: { <UNTYPED: "Untyped"> }
 
 TOKEN: { <JSON_BOOLEAN: "boolean" > }
 TOKEN: { <JSON_STRING: "string" > }
-TOKEN: { <JSON_BYTE: "byte" > }
-TOKEN: { <JSON_SHORT: "short" > }
 TOKEN: { <JSON_INTEGER: "integer" > }
-TOKEN: { <JSON_LONG: "long" > }
-TOKEN: { <JSON_FLOAT: "float" > }
-TOKEN: { <JSON_DOUBLE: "double" > }
+TOKEN: { <JSON_NUMERIC: "numeric" > }
 
 TOKEN: { <TO_UPPER_CASE: "toUpperCase"> }
 TOKEN: { <TO_LOWER_CASE: "toLowerCase"> }
@@ -150,8 +146,7 @@ TOKEN:
 | <QUOTED_NAME_LITERAL: "'" (~["'"])* ("''" (~["'"])*)* "'" >
 | <IDENTIFIER: <LETTER> (<LETTER> | <DIGIT> | "_" | "-" | "#" | "." | ":" | "/" )* | "'" (~["'"])* "'"> 
 | <INTEGER_LITERAL: (["-"])? (<DIGIT>)+ > 
-| <LONG_LITERAL: (["-"])? (<DIGIT>)+> 
-| <FLOAT_LITERAL:   (["-"])? (<DIGIT>)+ "." (<DIGIT>)+ (<EXPONENT>)?
+| <NUMERIC_LITERAL:   (["-"])? (<DIGIT>)+ "." (<DIGIT>)+ (<EXPONENT>)?
                   | (["-"])? "." (<DIGIT>)+ (<EXPONENT>)?
                   | (["-"])? (<DIGIT>)+ <EXPONENT>
                   | (["-"])? (<DIGIT>)+ (<EXPONENT>)? > 
@@ -176,7 +171,7 @@ SimpleNode expression() #Expression : {}
 void literal() #Literal : {}
 {
   (  integer_literal() 
-   | float_literal() 
+   | numeric_literal() 
    | boolean_literal() 
    | string_literal() 
   )
@@ -194,15 +189,15 @@ void integer_literal() #IntegerLiteral :
   }
 }
 
-void float_literal() #FloatLiteral :
+void numeric_literal() #NumericLiteral :
 {
   Token t;
 }
 {
-  t = <FLOAT_LITERAL>
+  t = <NUMERIC_LITERAL>
 
   {
-    jjtThis.value = Float.valueOf(token.image);
+    jjtThis.value = Double.valueOf(token.image);
   }
 }
 

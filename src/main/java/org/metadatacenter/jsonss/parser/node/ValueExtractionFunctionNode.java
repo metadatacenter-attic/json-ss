@@ -1,20 +1,20 @@
 package org.metadatacenter.jsonss.parser.node;
 
-import org.metadatacenter.jsonss.parser.ParseException;
-import org.metadatacenter.jsonss.parser.ParserUtil;
 import org.metadatacenter.jsonss.parser.ASTValueExtractionFunction;
 import org.metadatacenter.jsonss.parser.ASTValueExtractionFunctionArgument;
 import org.metadatacenter.jsonss.parser.InternalParseException;
 import org.metadatacenter.jsonss.parser.JSONSSParserConstants;
 import org.metadatacenter.jsonss.parser.Node;
+import org.metadatacenter.jsonss.parser.ParseException;
+import org.metadatacenter.jsonss.parser.ParserUtil;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class ValueExtractionFunctionNode implements JSONSSNode, JSONSSParserConstants
 {
-  private final int functionID;
   private final List<ValueExtractionFunctionArgumentNode> argumentNodes;
+  private final int functionID;
 
   public ValueExtractionFunctionNode(ASTValueExtractionFunction node) throws ParseException
   {
@@ -31,13 +31,16 @@ public class ValueExtractionFunctionNode implements JSONSSNode, JSONSSParserCons
         this.argumentNodes.add(valueExtractionFunctionArgument);
       } else
         throw new InternalParseException(
-          "ValueExtractionFunction node expecting ValueExtractionFunctionArgument child, got " + child);
+          getNodeName() + " node expecting ValueExtractionFunctionArgument child, got " + child);
     }
   }
 
   public int getFunctionID() { return this.functionID; }
 
-  public String getFunctionName() { return tokenImage[this.functionID].substring(1, tokenImage[this.functionID].length() - 1); }
+  public String getFunctionName()
+  {
+    return tokenImage[this.functionID].substring(1, tokenImage[this.functionID].length() - 1);
+  }
 
   public boolean hasArguments() { return !this.argumentNodes.isEmpty(); }
 

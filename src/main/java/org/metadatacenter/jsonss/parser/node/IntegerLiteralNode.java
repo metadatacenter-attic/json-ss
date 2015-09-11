@@ -7,7 +7,7 @@ public class IntegerLiteralNode implements JSONSSNode
 {
   private final int value;
 
-  IntegerLiteralNode(ASTIntegerLiteral node) throws ParseException
+  public IntegerLiteralNode(ASTIntegerLiteral node) throws ParseException
   {
     this.value = node.value;
   }

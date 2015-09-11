@@ -23,8 +23,7 @@ public class ReferenceType implements JSONSSParserConstants
 
   public boolean isLiteral()
   {
-    return isString() || isByte() || isShort() || isFloat() || isInt() || isLong() || isFloat()
-      || isDouble() || isBoolean();
+    return isString() || isInteger() || isNumeric() || isBoolean();
   }
 
   public boolean isString()
@@ -32,34 +31,14 @@ public class ReferenceType implements JSONSSParserConstants
     return this.type == JSON_STRING;
   }
 
-  public boolean isByte()
-  {
-    return this.type == JSON_BYTE;
-  }
-
-  public boolean isShort()
-  {
-    return this.type == JSON_SHORT;
-  }
-
-  public boolean isInt()
+  public boolean isInteger()
   {
     return this.type == JSON_INTEGER;
   }
 
-  public boolean isLong()
+  public boolean isNumeric()
   {
-    return this.type == JSON_LONG;
-  }
-
-  public boolean isFloat()
-  {
-    return this.type == JSON_FLOAT;
-  }
-
-  public boolean isDouble()
-  {
-    return this.type == JSON_DOUBLE;
+    return this.type == JSON_NUMERIC;
   }
 
   public boolean isBoolean()
