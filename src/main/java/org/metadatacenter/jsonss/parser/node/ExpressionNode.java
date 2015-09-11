@@ -1,50 +1,36 @@
 package org.metadatacenter.jsonss.parser.node;
 
 import org.metadatacenter.jsonss.parser.ASTExpression;
-import org.metadatacenter.jsonss.parser.ASTMMDirective;
-import org.metadatacenter.jsonss.parser.ASTMMExpression;
+import org.metadatacenter.jsonss.parser.ASTReferenceDirective;
 import org.metadatacenter.jsonss.parser.InternalParseException;
 import org.metadatacenter.jsonss.parser.Node;
 import org.metadatacenter.jsonss.parser.ParseException;
 import org.metadatacenter.jsonss.parser.ParserUtil;
 
-public class ExpressionNode implements MMNode
+public class ExpressionNode implements JSONSSNode
 {
-  private MMDirectiveNode mmDirectiveNode;
-  private MMExpressionNode mmExpressionNode;
+  private ReferenceDirectiveNode referenceDirectiveNode;
 
   public ExpressionNode(ASTExpression node) throws ParseException
   {
     for (int i = 0; i < node.jjtGetNumChildren(); i++) {
       Node child = node.jjtGetChild(i);
 
-      if (ParserUtil.hasName(child, "MMDirective")) {
-        this.mmDirectiveNode = new MMDirectiveNode((ASTMMDirective)child);
-      } else if (ParserUtil.hasName(child, "MMExpression")) {
-        this.mmExpressionNode = new MMExpressionNode((ASTMMExpression)child);
+      if (ParserUtil.hasName(child, "ReferenceDirective")) {
+        this.referenceDirectiveNode = new ReferenceDirectiveNode((ASTReferenceDirective)child);
       } else
-        throw new InternalParseException("invalid child node " + child + " to Expression");
+        throw new InternalParseException("invalid child node " + child + " to " + getNodeName());
     }
   }
 
-  public MMDirectiveNode getMMDirectiveNode()
+  public ReferenceDirectiveNode getReferenceDirectiveNode()
   {
-    return this.mmDirectiveNode;
+    return this.referenceDirectiveNode;
   }
 
-  public MMExpressionNode getMMExpressionNode()
+  public boolean hasReferenceDirective()
   {
-    return this.mmExpressionNode;
-  }
-
-  public boolean hasMMDirective()
-  {
-    return this.mmDirectiveNode != null;
-  }
-
-  public boolean hasMMExpression()
-  {
-    return this.mmExpressionNode != null;
+    return this.referenceDirectiveNode != null;
   }
 
   @Override public String getNodeName()
@@ -54,10 +40,8 @@ public class ExpressionNode implements MMNode
 
   public String toString()
   {
-    if (hasMMDirective())
-      return this.mmDirectiveNode.toString();
-    else if (hasMMExpression())
-      return this.mmExpressionNode.toString();
+    if (hasReferenceDirective())
+      return this.referenceDirectiveNode.toString();
     else
       return "";
   }

@@ -22,29 +22,29 @@ import java.util.*;
 
 public class JSONSSParser 
 {
-  private String defaultLocationValue = "";
-  private String defaultLiteral = "";
-
-  private int defaultReferenceType = -1;
-
-  private int defaultShiftSetting = -1;
-  private int defaultEmptyLocationSetting = -1;
-  private int defaultEmptyLiteralSetting = -1;
+  private String defaultLocationValue;
+  private String defaultLiteralValue;
+  private int defaultReferenceType;
+  private int defaultShiftSetting;
+  private int defaultEmptyLocationSetting;
+  private int defaultEmptyLiteralSetting;
   
-  private ReferenceSettings settings;
+  private ReferenceSettings referenceSettings;
   
-  public JSONSSParser(java.io.InputStream stream, ReferenceSettings settings, int unused)
+  public JSONSSParser(java.io.InputStream stream, ReferenceSettings referenceSettings, int unused)
   {
     this(stream);
-    changeGlobalReferenceSettings(settings);
+    changeGlobalReferenceSettings(referenceSettings);
   }
 
-  public void changeGlobalReferenceSettings(ReferenceSettings settings)
+  public void changeGlobalReferenceSettings(ReferenceSettings referenceSettings)
   {
-    defaultReferenceType = settings.getReferenceTypeSetting().getConstant();
-    defaultShiftSetting = settings.getShiftSetting().getConstant();
-    defaultEmptyLocationSetting = settings.getEmptyLocationSetting().getConstant();
-    defaultEmptyLiteralSetting = settings.getEmptyLiteralSetting().getConstant();
+    defaultLocationValue = referenceSettings.getDefaultLocationValue();
+    defaultLiteralValue = referenceSettings.getDefaultLiteralValue();
+    defaultReferenceType = referenceSettings.getReferenceTypeSetting().getConstant();
+    defaultShiftSetting = referenceSettings.getShiftSetting().getConstant();
+    defaultEmptyLocationSetting = referenceSettings.getEmptyLocationSetting().getConstant();
+    defaultEmptyLiteralSetting = referenceSettings.getEmptyLiteralSetting().getConstant();
   }
 }
 
@@ -94,64 +94,55 @@ MORE :
   < ~[] >
 }
 
+TOKEN: { <CELL_WILDCARD: "*"> }
+
+TOKEN: { <LOCATION: "Location"> }
+
 TOKEN: {<TRUE: "true" | "TRUE">}
 TOKEN: {<FALSE: "false" | "FALSE">}
 
+TOKEN: { <NULL: "null" > }
+TOKEN: { <LITERAL: "Literal"> }
+TOKEN: { <UNTYPED: "Untyped"> }
+
+TOKEN: { <JSON_BOOLEAN: "boolean" > }
 TOKEN: { <JSON_STRING: "string" > }
 TOKEN: { <JSON_BYTE: "byte" > }
 TOKEN: { <JSON_SHORT: "short" > }
-TOKEN: { <JSON_INT: "int" > }
+TOKEN: { <JSON_INTEGER: "integer" > }
 TOKEN: { <JSON_LONG: "long" > }
 TOKEN: { <JSON_FLOAT: "float" > }
 TOKEN: { <JSON_DOUBLE: "double" > }
-TOKEN: { <JSON_BOOLEAN: "boolean" > }
 
-/* JSON-SS tokens */
+TOKEN: { <TO_UPPER_CASE: "toUpperCase"> }
+TOKEN: { <TO_LOWER_CASE: "toLowerCase"> }
+TOKEN: { <TRIM: "trim"> }
+TOKEN: { <CAPTURING: "capturing"> }
+TOKEN: { <REVERSE: "reverse"> }
+TOKEN: { <REPLACE: "replace"> }
+TOKEN: { <REPLACE_ALL: "replaceAll"> }
+TOKEN: { <REPLACE_FIRST: "replaceFirst"> }
+TOKEN: { <APPEND: "append"> }
+TOKEN: { <PREPEND: "prepend"> }
 
-TOKEN: { <MM_LOCATION: "mm:Location"> }
+TOKEN: { <NO_SHIFT: "NoShift"> }
+TOKEN: { <SHIFT_UP: "ShiftUp"> }
+TOKEN: { <SHIFT_DOWN: "ShiftDown"> }
+TOKEN: { <SHIFT_LEFT: "ShiftLeft"> }
+TOKEN: { <SHIFT_RIGHT: "ShiftRight"> }
 
-TOKEN: { <MM_NULL: "mm:null" > }
+TOKEN: { <ERROR_IF_EMPTY_LOCATION: "ErrorIfEmptyLocation"> }
+TOKEN: { <WARNING_IF_EMPTY_LOCATION: "WarningIfEmptyLocation"> }
+TOKEN: { <SKIP_IF_EMPTY_LOCATION: "SkipIfEmptyLocation"> }
+TOKEN: { <PROCESS_IF_EMPTY_LOCATION: "ProcessIfEmptyLocation"> }
 
-TOKEN: { <MM_LITERAL: "mm:Literal"> }
+TOKEN: { <PROCESS_IF_EMPTY_LITERAL: "ProcessIfEmptyLiteral"> }
+TOKEN: { <ERROR_IF_EMPTY_LITERAL: "ErrorIfEmptyLiteral"> }
+TOKEN: { <WARNING_IF_EMPTY_LITERAL: "WarningIfEmptyLiteral"> }
+TOKEN: { <SKIP_IF_EMPTY_LITERAL: "SkipIfEmptyLiteral"> }
 
-TOKEN: { <MM_DEFAULT_REFERENCE_TYPE: "mm:DefaultReferenceType"> }
-TOKEN: { <MM_DEFAULT_SHIFT: "mm:DefaultShift"> }
-
-TOKEN: { <MM_DEFAULT_EMPTY_LITERAL: "mm:DefaultEmptyLiteral"> }
-TOKEN: { <MM_DEFAULT_EMPTY_LOCATION: "mm:DefaultEmptyLocation"> }
-
-TOKEN: { <MM_UNTYPED: "mm:Untyped"> }
-TOKEN: { <CELL_WILDCARD: "*"> }
-
-TOKEN: { <MM_TO_UPPER_CASE: "mm:toUpperCase"> }
-TOKEN: { <MM_TO_LOWER_CASE: "mm:toLowerCase"> }
-TOKEN: { <MM_TRIM: "mm:trim"> }
-TOKEN: { <MM_CAPTURING: "mm:capturing"> }
-TOKEN: { <MM_REVERSE: "mm:reverse"> }
-TOKEN: { <MM_REPLACE: "mm:replace"> }
-TOKEN: { <MM_REPLACE_ALL: "mm:replaceAll"> }
-TOKEN: { <MM_REPLACE_FIRST: "mm:replaceFirst"> }
-TOKEN: { <MM_APPEND: "mm:append"> }
-TOKEN: { <MM_PREPEND: "mm:prepend"> }
-
-TOKEN: { <MM_DEFAULT_LOCATION_VALUE: "mm:DefaultLocationValue"> }
-TOKEN: { <MM_DEFAULT_LITERAL: "mm:DefaultLiteral"> }
-
-TOKEN: { <MM_NO_SHIFT: "mm:NoShift"> }
-TOKEN: { <MM_SHIFT_UP: "mm:ShiftUp"> }
-TOKEN: { <MM_SHIFT_DOWN: "mm:ShiftDown"> }
-TOKEN: { <MM_SHIFT_LEFT: "mm:ShiftLeft"> }
-TOKEN: { <MM_SHIFT_RIGHT: "mm:ShiftRight"> }
-
-TOKEN: { <MM_ERROR_IF_EMPTY_LOCATION: "mm:ErrorIfEmptyLocation"> }
-TOKEN: { <MM_WARNING_IF_EMPTY_LOCATION: "mm:WarningIfEmptyLocation"> }
-TOKEN: { <MM_SKIP_IF_EMPTY_LOCATION: "mm:SkipIfEmptyLocation"> }
-TOKEN: { <MM_PROCESS_IF_EMPTY_LOCATION: "mm:ProcessIfEmptyLocation"> }
-
-TOKEN: { <MM_PROCESS_IF_EMPTY_LITERAL: "mm:ProcessIfEmptyLiteral"> }
-TOKEN: { <MM_ERROR_IF_EMPTY_LITERAL: "mm:ErrorIfEmptyLiteral"> }
-TOKEN: { <MM_WARNING_IF_EMPTY_LITERAL: "mm:WarningIfEmptyLiteral"> }
-TOKEN: { <MM_SKIP_IF_EMPTY_LITERAL: "mm:SkipIfEmptyLiteral"> }
+TOKEN: { <DEFAULT_LOCATION_VALUE: "DefaultLocationValue"> }
+TOKEN: { <DEFAULT_LITERAL_VALUE: "DefaultLiteralValue"> }
 
 TOKEN:
 {
@@ -176,70 +167,11 @@ TOKEN:
 
 SimpleNode expression() #Expression : {}
 {
-  (  mm_expression()
-  ) <EOF>
+  <EOF>
   {
      return jjtThis;
   }
 }
-
-void mm_expression() #MMExpression : {}
-{
-  <EOF>
-}
-
-void mm_default_shift_directive() #MMDefaultShiftSetting: 
-{
-  int shiftSetting;
-}
-{
-  <MM_DEFAULT_SHIFT> shiftSetting = shift_directive()
-
-  {
-    jjtThis.shiftSetting = shiftSetting;
-    defaultShiftSetting = shiftSetting;
-  }
-}
-
-void mm_default_empty_location_directive() #MMDefaultEmptyLocationSetting: 
-{
-  int emptyLocationSetting;
-}
-{
-  <MM_DEFAULT_EMPTY_LOCATION> emptyLocationSetting = empty_location_directive()
-
-  {
-    jjtThis.emptyLocationSetting = emptyLocationSetting;
-    defaultEmptyLocationSetting = emptyLocationSetting;
-  }
-}
-
-void mm_default_empty_literal_directive() #MMDefaultEmptyLiteralSetting: 
-{
-  int emptyLiteralSetting;
-}
-{
-  <MM_DEFAULT_EMPTY_LITERAL> emptyLiteralSetting = empty_literal_directive()
-
-  {
-    jjtThis.emptyLiteralSetting = emptyLiteralSetting;
-    defaultEmptyLiteralSetting = emptyLiteralSetting;
-  }
-}
-
-void mm_default_reference_type_directive() #MMDefaultReferenceType: 
-{
-  int referenceType;
-}
-{
-  <MM_DEFAULT_REFERENCE_TYPE> referenceType = reference_type()
-
-  {
-    defaultReferenceType = referenceType;
-  }
-}
-
-
 
 void literal() #Literal : {}
 {
@@ -357,35 +289,35 @@ void reference(int defaultReferenceType) #Reference : {}
 {
    "@" source_specification()
        ( LOOKAHEAD(2) 
-         "(" ( reference_type() )?
-             ( reference_directive() )*
+         "(" 
+            reference_directive() ( reference_directive() ) *
          ")"
        )?
   {
     jjtThis.defaultReferenceDirectives = new DefaultReferenceDirectives(
-                        defaultReferenceType, defaultLocationValue,
-                        defaultLiteral,
+                        defaultReferenceType,
+                        defaultLocationValue, defaultLiteralValue,
                         defaultShiftSetting, defaultEmptyLocationSetting,
                         defaultEmptyLiteralSetting);
-
   }
 }
 
-void reference_directive() : {}
+void reference_directive() #ReferenceDirective : {}
 {
-  ( value_extraction_function() 
+  (  reference_type_directive()
    | default_location_value_directive() 
-   | default_literal_directive() 
+   | default_literal_value_directive() 
    | empty_literal_directive()
    | empty_location_directive()
-   | shift_directive() 
+   | shift_directive()
+   | value_extraction_function()
   ) 
 }
 
-int reference_type() #ReferenceType : 
+int reference_type_directive() #ReferenceTypeDirective : 
 {
   Token t;
-  int referenceType = defaultReferenceType;
+  int referenceType;
 }
 {
   (
@@ -398,17 +330,17 @@ int reference_type() #ReferenceType :
   }
 }
 
-int empty_location_directive() #EmptyLocationSetting :
+int empty_location_directive() #EmptyLocationDirective :
 {
   Token t;
   int emptyLocationSetting;
 }
 {
   (
-     t = <MM_ERROR_IF_EMPTY_LOCATION> { emptyLocationSetting = t.kind; }
-   | t = <MM_WARNING_IF_EMPTY_LOCATION> { emptyLocationSetting = t.kind; }
-   | t = <MM_SKIP_IF_EMPTY_LOCATION> { emptyLocationSetting = t.kind; }
-   | t = <MM_PROCESS_IF_EMPTY_LOCATION> { emptyLocationSetting = t.kind; }
+     t = <ERROR_IF_EMPTY_LOCATION> { emptyLocationSetting = t.kind; }
+   | t = <WARNING_IF_EMPTY_LOCATION> { emptyLocationSetting = t.kind; }
+   | t = <SKIP_IF_EMPTY_LOCATION> { emptyLocationSetting = t.kind; }
+   | t = <PROCESS_IF_EMPTY_LOCATION> { emptyLocationSetting = t.kind; }
   )
 
   {
@@ -417,38 +349,38 @@ int empty_location_directive() #EmptyLocationSetting :
   }
 }
 
-
-int empty_literal_directive() #EmptyLiteralSetting :
+int empty_literal_directive() #EmptyLiteralDirective :
 {
   Token t;
   int emptyLiteralSetting;
 }
 {
   (
-     t = <MM_ERROR_IF_EMPTY_LITERAL> { emptyLiteralSetting = t.kind; }
-   | t = <MM_WARNING_IF_EMPTY_LITERAL> { emptyLiteralSetting = t.kind; }
-   | t = <MM_SKIP_IF_EMPTY_LITERAL> { emptyLiteralSetting = t.kind; }
-   | t = <MM_PROCESS_IF_EMPTY_LITERAL> { emptyLiteralSetting = t.kind; }
+     t = <ERROR_IF_EMPTY_LITERAL> { emptyLiteralSetting = t.kind; }
+   | t = <WARNING_IF_EMPTY_LITERAL> { emptyLiteralSetting = t.kind; }
+   | t = <SKIP_IF_EMPTY_LITERAL> { emptyLiteralSetting = t.kind; }
+   | t = <PROCESS_IF_EMPTY_LITERAL> { emptyLiteralSetting = t.kind; }
   )
 
   {
     jjtThis.emptyLiteralSetting = emptyLiteralSetting;
+    emptyLiteralSetting = emptyLiteralSetting;
     return emptyLiteralSetting;
   }
 }
 
-int shift_directive() #ShiftSetting :
+int shift_directive() #ShiftDirective :
 {
   Token t;
   int shiftSetting;
 }
 {
   (
-     t = <MM_SHIFT_UP> { shiftSetting = t.kind; }
-   | t = <MM_SHIFT_DOWN> { shiftSetting = t.kind; }
-   | t = <MM_SHIFT_LEFT> { shiftSetting = t.kind; }
-   | t = <MM_SHIFT_RIGHT> { shiftSetting = t.kind; }
-   | t = <MM_NO_SHIFT> { shiftSetting = t.kind; }
+     t = <SHIFT_UP> { shiftSetting = t.kind; }
+   | t = <SHIFT_DOWN> { shiftSetting = t.kind; }
+   | t = <SHIFT_LEFT> { shiftSetting = t.kind; }
+   | t = <SHIFT_RIGHT> { shiftSetting = t.kind; }
+   | t = <NO_SHIFT> { shiftSetting = t.kind; }
   )
 
   {
@@ -457,27 +389,27 @@ int shift_directive() #ShiftSetting :
   }
 }
 
-void default_literal_directive() #DefaultLiteral :
+void default_literal_value_directive() #DefaultLiteralValueDirective :
 {
-  String defaultLiteral;
+  String literalValue;
 }
 {
-  <MM_DEFAULT_LITERAL> "=" defaultLiteral = string()
+  <DEFAULT_LITERAL_VALUE> "=" literalValue = string()
 
   {
-    jjtThis.defaultLiteral = defaultLiteral;
+    jjtThis.defaultLiteralValue = literalValue;
   }
 }
 
-void default_location_value_directive() #DefaultLocationValue :
+void default_location_value_directive() #DefaultLocationValueDirective :
 {
-  String defaultLocationValue;
+  String locationValue;
 }
 {
-  <MM_DEFAULT_LOCATION_VALUE> "=" defaultLocationValue = string()
+  <DEFAULT_LOCATION_VALUE> "=" locationValue = string()
 
   {
-    jjtThis.defaultLocationValue = defaultLocationValue;
+    jjtThis.defaultLocationValue = locationValue;
   }
 }
 
@@ -489,20 +421,20 @@ void value_extraction_function() #ValueExtractionFunction:
 {
   ((
     ( 
-       t = <MM_TO_UPPER_CASE> { functionID = t.kind; }
-     | t = <MM_TO_LOWER_CASE> { functionID = t.kind; }
-     | t = <MM_TRIM> { functionID = t.kind; }
-     | t = <MM_REVERSE> { functionID = t.kind; }
-     | t = <MM_CAPTURING> { functionID = t.kind; }
-     | t = <MM_REPLACE> { functionID = t.kind; }
-     | t = <MM_REPLACE_ALL> { functionID = t.kind; }
-     | t = <MM_REPLACE_FIRST> { functionID = t.kind; }
-     | t = <MM_APPEND> { functionID = t.kind; }
-     | t = <MM_PREPEND> { functionID = t.kind; }
+       t = <TO_UPPER_CASE> { functionID = t.kind; }
+     | t = <TO_LOWER_CASE> { functionID = t.kind; }
+     | t = <TRIM> { functionID = t.kind; }
+     | t = <REVERSE> { functionID = t.kind; }
+     | t = <CAPTURING> { functionID = t.kind; }
+     | t = <REPLACE> { functionID = t.kind; }
+     | t = <REPLACE_ALL> { functionID = t.kind; }
+     | t = <REPLACE_FIRST> { functionID = t.kind; }
+     | t = <APPEND> { functionID = t.kind; }
+     | t = <PREPEND> { functionID = t.kind; }
     ) ( LOOKAHEAD(2) "(" value_extraction_function_argument() ( "," value_extraction_function_argument() )* ")" )?
    )
    |
-   ( "[" ( LOOKAHEAD(2) value_extraction_function_argument() ( "," value_extraction_function_argument() )* )? "]" )  { functionID = MM_CAPTURING; } 
+   ( "[" ( LOOKAHEAD(2) value_extraction_function_argument() ( "," value_extraction_function_argument() )* )? "]" )  { functionID = CAPTURING; } 
   )
   {
     jjtThis.functionID = functionID;

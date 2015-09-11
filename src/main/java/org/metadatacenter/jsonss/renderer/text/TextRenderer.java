@@ -2,7 +2,7 @@ package org.metadatacenter.jsonss.renderer.text;
 
 import org.metadatacenter.jsonss.core.ReferenceType;
 import org.metadatacenter.jsonss.parser.JSONSSParserConstants;
-import org.metadatacenter.jsonss.parser.node.MMExpressionNode;
+import org.metadatacenter.jsonss.parser.node.ExpressionNode;
 import org.metadatacenter.jsonss.parser.node.ReferenceNode;
 import org.metadatacenter.jsonss.parser.node.SourceSpecificationNode;
 import org.metadatacenter.jsonss.parser.node.StringLiteralNode;
@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.Optional;
 
 public class TextRenderer extends ReferenceRendererConfiguration
-    implements Renderer, ReferenceRenderer, JSONSSParserConstants
+  implements Renderer, ReferenceRenderer, JSONSSParserConstants
 {
   private SpreadSheetDataSource dataSource;
 
@@ -47,18 +47,18 @@ public class TextRenderer extends ReferenceRendererConfiguration
     return this;
   }
 
-  @Override public Optional<? extends TextRendering> renderExpression(MMExpressionNode expressionNode)
-      throws RendererException
+  @Override public Optional<? extends TextRendering> renderExpression(ExpressionNode expressionNode)
+    throws RendererException
   {
     throw new InternalRendererException("not implemented " + expressionNode.getNodeName());
   }
 
   // TODO Refactor - too long
   @Override public Optional<TextReferenceRendering> renderReference(ReferenceNode referenceNode)
-      throws RendererException
+    throws RendererException
   {
     SourceSpecificationNode sourceSpecificationNode = referenceNode.getSourceSpecificationNode();
-    ReferenceType referenceType = referenceNode.getReferenceTypeNode().getReferenceType();
+    ReferenceType referenceType = referenceNode.getReferenceTypeDirectiveNode().getReferenceType();
 
     if (sourceSpecificationNode.hasLiteral()) {
       String literalValue = sourceSpecificationNode.getLiteral();
@@ -70,12 +70,11 @@ public class TextRenderer extends ReferenceRendererConfiguration
       if (referenceType.isUntyped())
         throw new RendererException("untyped reference " + referenceNode);
 
-      if (resolvedReferenceValue.isEmpty()
-          && referenceNode.getActualEmptyLocationDirective() == MM_SKIP_IF_EMPTY_LOCATION)
+      if (resolvedReferenceValue.isEmpty() && referenceNode.getActualEmptyLocationDirective() == SKIP_IF_EMPTY_LOCATION)
         return Optional.empty();
 
       if (resolvedReferenceValue.isEmpty()
-          && referenceNode.getActualEmptyLocationDirective() == MM_WARNING_IF_EMPTY_LOCATION) {
+        && referenceNode.getActualEmptyLocationDirective() == WARNING_IF_EMPTY_LOCATION) {
         // TODO Warn in log files
         return Optional.empty();
       }
@@ -83,12 +82,11 @@ public class TextRenderer extends ReferenceRendererConfiguration
       if (referenceType.isLiteral()) { // Reference is an OWL literal
         String literalReferenceValue = processOWLLiteralReferenceValue(location, resolvedReferenceValue, referenceNode);
 
-        if (literalReferenceValue.isEmpty()
-            && referenceNode.getActualEmptyLiteralDirective() == MM_SKIP_IF_EMPTY_LITERAL)
+        if (literalReferenceValue.isEmpty() && referenceNode.getActualEmptyLiteralDirective() == SKIP_IF_EMPTY_LITERAL)
           return Optional.empty();
 
         if (literalReferenceValue.isEmpty()
-            && referenceNode.getActualEmptyLiteralDirective() == MM_WARNING_IF_EMPTY_LITERAL) {
+          && referenceNode.getActualEmptyLiteralDirective() == WARNING_IF_EMPTY_LITERAL) {
           // TODO Warn in log file
           return Optional.empty();
         }
@@ -96,12 +94,12 @@ public class TextRenderer extends ReferenceRendererConfiguration
         return Optional.of(new TextReferenceRendering(literalReferenceValue, referenceType));
       } else
         throw new InternalRendererException(
-            "unknown reference type " + referenceType + " for reference " + referenceNode);
+          "unknown reference type " + referenceType + " for reference " + referenceNode);
     }
   }
 
   private String processOWLLiteralReferenceValue(SpreadsheetLocation location, String rawLocationValue,
-      ReferenceNode referenceNode) throws RendererException
+    ReferenceNode referenceNode) throws RendererException
   {
     String sourceValue = rawLocationValue.replace("\"", "\\\"");
     String processedReferenceValue = "";
@@ -109,8 +107,7 @@ public class TextRenderer extends ReferenceRendererConfiguration
     if (sourceValue.isEmpty() && !referenceNode.getActualDefaultLiteral().isEmpty())
       processedReferenceValue = referenceNode.getActualDefaultLiteral();
 
-    if (processedReferenceValue.isEmpty()
-        && referenceNode.getActualEmptyLiteralDirective() == MM_ERROR_IF_EMPTY_LITERAL)
+    if (processedReferenceValue.isEmpty() && referenceNode.getActualEmptyLiteralDirective() == ERROR_IF_EMPTY_LITERAL)
       throw new RendererException("empty literal in reference " + referenceNode + " at location " + location);
 
     return processedReferenceValue;
@@ -119,7 +116,7 @@ public class TextRenderer extends ReferenceRendererConfiguration
   // Tentative. Need a more principled way of finding and invoking functions. What about calls to Excel?
 
   private String generateReferenceValue(String sourceValue, ValueExtractionFunctionNode valueExtractionFunctionNode)
-      throws RendererException
+    throws RendererException
   {
     List<String> arguments = new ArrayList<>();
     if (valueExtractionFunctionNode.hasArguments()) {
@@ -129,8 +126,7 @@ public class TextRenderer extends ReferenceRendererConfiguration
       }
     }
     return ReferenceUtil.evaluateReferenceValue(valueExtractionFunctionNode.getFunctionName(),
-        valueExtractionFunctionNode.getFunctionID(), arguments, sourceValue,
-        valueExtractionFunctionNode.hasArguments());
+      valueExtractionFunctionNode.getFunctionID(), arguments, sourceValue, valueExtractionFunctionNode.hasArguments());
   }
 
   private Optional<? extends StringLiteralRendering> renderStringLiteral(StringLiteralNode stringLiteralNode)
@@ -142,11 +138,11 @@ public class TextRenderer extends ReferenceRendererConfiguration
    * Arguments to value extraction functions cannot be dropped if the reference resolves to nothing.
    */
   private String generateValueExtractionFunctionArgument(
-      ValueExtractionFunctionArgumentNode valueExtractionFunctionArgumentNode) throws RendererException
+    ValueExtractionFunctionArgumentNode valueExtractionFunctionArgumentNode) throws RendererException
   {
     if (valueExtractionFunctionArgumentNode.isStringLiteralNode()) {
       Optional<? extends StringLiteralRendering> literalRendering = renderStringLiteral(
-          valueExtractionFunctionArgumentNode.getStringLiteralNode());
+        valueExtractionFunctionArgumentNode.getStringLiteralNode());
       if (literalRendering.isPresent()) {
         return literalRendering.get().getRawValue();
       } else
@@ -159,11 +155,11 @@ public class TextRenderer extends ReferenceRendererConfiguration
           return referenceRendering.get().getRawValue();
         } else
           throw new RendererException("expecting literal reference for value extraction function argument, got "
-              + valueExtractionFunctionArgumentNode);
+            + valueExtractionFunctionArgumentNode);
       } else
         throw new RendererException("empty reference " + referenceNode + " for value extraction function argument");
     } else
       throw new InternalRendererException(
-          "unknown child for node " + valueExtractionFunctionArgumentNode.getNodeName());
+        "unknown child for node " + valueExtractionFunctionArgumentNode.getNodeName());
   }
 }

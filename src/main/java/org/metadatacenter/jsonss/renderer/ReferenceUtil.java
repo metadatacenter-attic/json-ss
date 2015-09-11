@@ -34,8 +34,8 @@ public class ReferenceUtil implements JSONSSParserConstants
 		}
 		if (referenceValue.isEmpty()) {
 			switch(referenceNode.getActualEmptyLocationDirective()) {
-				case MM_ERROR_IF_EMPTY_LOCATION: throw new RendererException("empty location " + location + " in reference " + referenceNode);
-				case MM_WARNING_IF_EMPTY_LOCATION: // NO-OP
+				case ERROR_IF_EMPTY_LOCATION: throw new RendererException("empty location " + location + " in reference " + referenceNode);
+				case WARNING_IF_EMPTY_LOCATION: // NO-OP
 			}
 		}
 		return referenceValue;
@@ -47,7 +47,7 @@ public class ReferenceUtil implements JSONSSParserConstants
 		String processedReferenceValue = "";
 		
 		switch (functionID) {
-		case MM_TO_UPPER_CASE:
+		case TO_UPPER_CASE:
 			if (hasExplicitArguments) {
 				if (arguments.size() != 1)
 					throw new RendererException("function " + functionName + " expecting one argument, got " + arguments.size());
@@ -55,7 +55,7 @@ public class ReferenceUtil implements JSONSSParserConstants
 			} else
 				processedReferenceValue = defaultValue.toUpperCase();
 			break;
-		case MM_TO_LOWER_CASE:
+		case TO_LOWER_CASE:
 			if (hasExplicitArguments) {
 				if (arguments.size() != 1)
 					throw new RendererException(
@@ -64,7 +64,7 @@ public class ReferenceUtil implements JSONSSParserConstants
 			} else
 				processedReferenceValue = defaultValue.toLowerCase();
 			break;
-		case MM_TRIM:
+		case TRIM:
 			if (hasExplicitArguments) {
 				if (arguments.size() != 1)
 					throw new RendererException(
@@ -73,7 +73,7 @@ public class ReferenceUtil implements JSONSSParserConstants
 			} else
 				processedReferenceValue = defaultValue.trim();
 			break;
-		case MM_REVERSE:
+		case REVERSE:
 			if (hasExplicitArguments) {
 				if (arguments.size() != 1)
 					throw new RendererException(
@@ -82,7 +82,7 @@ public class ReferenceUtil implements JSONSSParserConstants
 			} else
 				processedReferenceValue = reverse(defaultValue);
 			break;
-		case MM_CAPTURING:
+		case CAPTURING:
 			if (arguments.size() == 1) {
 				processedReferenceValue = capture(defaultValue, arguments.get(0));
 			} else if (arguments.size() == 2) {
@@ -91,7 +91,7 @@ public class ReferenceUtil implements JSONSSParserConstants
 				throw new RendererException(
 						"function " + functionName + " expecting one or two arguments, got " + arguments.size());
 			break;
-		case MM_PREPEND:
+		case PREPEND:
 			if (arguments.size() == 1) {
 				processedReferenceValue = arguments.get(0) + defaultValue;
 			} else if (arguments.size() == 2) {
@@ -100,7 +100,7 @@ public class ReferenceUtil implements JSONSSParserConstants
 				throw new RendererException(
 						"function " + functionName + " expecting one or two arguments, got " + arguments.size());
 			break;
-		case MM_APPEND:
+		case APPEND:
 			if (arguments.size() == 1) {
 				processedReferenceValue = defaultValue + arguments.get(0);
 			} else if (arguments.size() == 2) {
@@ -109,7 +109,7 @@ public class ReferenceUtil implements JSONSSParserConstants
 				throw new RendererException(
 						"function " + functionName + " expecting one or two arguments, got " + arguments.size());
 			break;
-		case MM_REPLACE:
+		case REPLACE:
 			if (arguments.size() == 2) {
 				processedReferenceValue = defaultValue.replace(arguments.get(0), arguments.get(1));
 			} else if (arguments.size() == 3) {
@@ -118,7 +118,7 @@ public class ReferenceUtil implements JSONSSParserConstants
 				throw new RendererException(
 						"function " + functionName + " expecting two or three arguments, got " + arguments.size());
 			break;
-		case MM_REPLACE_ALL:
+		case REPLACE_ALL:
 			if (arguments.size() == 2) {
 				processedReferenceValue = defaultValue.replaceAll(arguments.get(0), arguments.get(1));
 			} else if (arguments.size() == 3) {
@@ -127,7 +127,7 @@ public class ReferenceUtil implements JSONSSParserConstants
 				throw new RendererException(
 						"function " + functionName + " expecting two or three arguments, got " + arguments.size());
 			break;
-		case MM_REPLACE_FIRST:
+		case REPLACE_FIRST:
 			if (arguments.size() == 2) {
 				processedReferenceValue = defaultValue.replaceFirst(arguments.get(0), arguments.get(1));
 			} else if (arguments.size() == 3) {
@@ -188,7 +188,7 @@ public class ReferenceUtil implements JSONSSParserConstants
 
 	public static String produceIdentifierString()
 	{
-		return "MM_" + System.currentTimeMillis();
+		return "" + System.currentTimeMillis();
 	}
 
 	private static String toCamelCase(final String text)

@@ -18,7 +18,7 @@ public class ReferenceType implements JSONSSParserConstants
 
   public boolean isUntyped()
   {
-    return this.type == MM_UNTYPED;
+    return this.type == UNTYPED;
   }
 
   public boolean isLiteral()
@@ -44,7 +44,7 @@ public class ReferenceType implements JSONSSParserConstants
 
   public boolean isInt()
   {
-    return this.type == JSON_INT;
+    return this.type == JSON_INTEGER;
   }
 
   public boolean isLong()

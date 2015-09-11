@@ -1,15 +1,15 @@
 package org.metadatacenter.jsonss.parser.node;
 
-import org.metadatacenter.jsonss.parser.ASTDefaultLocationValue;
+import org.metadatacenter.jsonss.parser.ASTDefaultLocationValueDirective;
 import org.metadatacenter.jsonss.parser.JSONSSParserConstants;
 import org.metadatacenter.jsonss.parser.ParseException;
 import org.metadatacenter.jsonss.parser.ParserUtil;
 
-public class DefaultLocationValueDirectiveNode implements MMNode, JSONSSParserConstants
+public class DefaultLocationValueDirectiveNode implements JSONSSNode, JSONSSParserConstants
 {
   private final String defaultLocationValue;
 
-  public DefaultLocationValueDirectiveNode(ASTDefaultLocationValue node) throws ParseException
+  public DefaultLocationValueDirectiveNode(ASTDefaultLocationValueDirective node) throws ParseException
   {
     this.defaultLocationValue = node.defaultLocationValue;
   }
@@ -24,7 +24,7 @@ public class DefaultLocationValueDirectiveNode implements MMNode, JSONSSParserCo
   public String toString()
   {
     String representation =
-        ParserUtil.getTokenName(MM_DEFAULT_LOCATION_VALUE) + "=\"" + this.defaultLocationValue + "\"";
+        ParserUtil.getTokenName(DEFAULT_LOCATION_VALUE) + "=\"" + this.defaultLocationValue + "\"";
 
     return representation;
   }

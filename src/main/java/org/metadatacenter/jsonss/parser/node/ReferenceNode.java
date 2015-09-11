@@ -1,12 +1,12 @@
 package org.metadatacenter.jsonss.parser.node;
 
 import org.metadatacenter.jsonss.core.ReferenceDirectives;
-import org.metadatacenter.jsonss.parser.ASTDefaultLiteral;
-import org.metadatacenter.jsonss.parser.ASTDefaultLocationValue;
-import org.metadatacenter.jsonss.parser.ASTEmptyLiteralSetting;
-import org.metadatacenter.jsonss.parser.ASTEmptyLocationSetting;
+import org.metadatacenter.jsonss.parser.ASTDefaultLiteralValueDirective;
+import org.metadatacenter.jsonss.parser.ASTDefaultLocationValueDirective;
+import org.metadatacenter.jsonss.parser.ASTEmptyLiteralDirective;
+import org.metadatacenter.jsonss.parser.ASTEmptyLocationDirective;
 import org.metadatacenter.jsonss.parser.ASTReference;
-import org.metadatacenter.jsonss.parser.ASTShiftSetting;
+import org.metadatacenter.jsonss.parser.ASTShiftDirective;
 import org.metadatacenter.jsonss.parser.ASTSourceSpecification;
 import org.metadatacenter.jsonss.parser.ASTValueExtractionFunction;
 import org.metadatacenter.jsonss.parser.InternalParseException;
@@ -14,16 +14,16 @@ import org.metadatacenter.jsonss.parser.JSONSSParserConstants;
 import org.metadatacenter.jsonss.parser.ParseException;
 import org.metadatacenter.jsonss.parser.ParserUtil;
 import org.metadatacenter.jsonss.renderer.RendererException;
-import org.metadatacenter.jsonss.parser.ASTReferenceType;
+import org.metadatacenter.jsonss.parser.ASTReferenceTypeDirective;
 import org.metadatacenter.jsonss.parser.Node;
 import org.metadatacenter.jsonss.ss.SpreadsheetLocation;
 
-public class ReferenceNode implements MMNode, JSONSSParserConstants
+public class ReferenceNode implements JSONSSNode, JSONSSParserConstants
 {
   private SourceSpecificationNode sourceSpecificationNode;
-  private ReferenceTypeNode referenceTypeNode;
+  private ReferenceTypeDirectiveNode referenceTypeDirectiveNode;
   private DefaultLocationValueDirectiveNode defaultLocationValueDirectiveNode;
-  private DefaultLiteralDirectiveNode defaultLiteralDirectiveNode;
+  private DefaultLiteralValueDirectiveNode defaultLiteralValueDirectiveNode;
   private EmptyLocationDirectiveNode emptyLocationDirectiveNode;
   private EmptyLiteralDirectiveNode emptyLiteralDirectiveNode;
   private ValueExtractionFunctionNode valueExtractionFunctionNode;
@@ -38,33 +38,33 @@ public class ReferenceNode implements MMNode, JSONSSParserConstants
       if (ParserUtil.hasName(child, "SourceSpecification")) {
         this.sourceSpecificationNode = new SourceSpecificationNode((ASTSourceSpecification)child);
       } else if (ParserUtil.hasName(child, "ReferenceType")) {
-        this.referenceTypeNode = new ReferenceTypeNode((ASTReferenceType)child);
+        this.referenceTypeDirectiveNode = new ReferenceTypeDirectiveNode((ASTReferenceTypeDirective)child);
       } else if (ParserUtil.hasName(child, "DefaultLocationValue")) {
         if (this.defaultLocationValueDirectiveNode != null)
           throw new RendererException("only one default location value directive can be specified for a Reference");
-        this.defaultLocationValueDirectiveNode = new DefaultLocationValueDirectiveNode((ASTDefaultLocationValue)child);
-      } else if (ParserUtil.hasName(child, "DefaultLiteral")) {
-        if (this.defaultLiteralDirectiveNode != null)
+        this.defaultLocationValueDirectiveNode = new DefaultLocationValueDirectiveNode((ASTDefaultLocationValueDirective)child);
+      } else if (ParserUtil.hasName(child, "DefaultLiteralValue")) {
+        if (this.defaultLiteralValueDirectiveNode != null)
           throw new RendererException("only one default literal directive can be specified for a Reference");
-        this.defaultLiteralDirectiveNode = new DefaultLiteralDirectiveNode((ASTDefaultLiteral)child);
-      } else if (ParserUtil.hasName(child, "EmptyLocationSetting")) {
+        this.defaultLiteralValueDirectiveNode = new DefaultLiteralValueDirectiveNode((ASTDefaultLiteralValueDirective)child);
+      } else if (ParserUtil.hasName(child, "EmptyLocationDirective")) {
         if (this.emptyLocationDirectiveNode != null)
           throw new RendererException("only one empty location directive can be specified for a Reference");
-        this.emptyLocationDirectiveNode = new EmptyLocationDirectiveNode((ASTEmptyLocationSetting)child);
-      } else if (ParserUtil.hasName(child, "EmptyLiteralSetting")) {
+        this.emptyLocationDirectiveNode = new EmptyLocationDirectiveNode((ASTEmptyLocationDirective)child);
+      } else if (ParserUtil.hasName(child, "EmptyLiteralDirective")) {
         if (this.emptyLiteralDirectiveNode != null)
           throw new RendererException("only one empty literal directive can be specified for a Reference");
-        this.emptyLiteralDirectiveNode = new EmptyLiteralDirectiveNode((ASTEmptyLiteralSetting)child);
-      } else if (ParserUtil.hasName(child, "ShiftSetting")) {
+        this.emptyLiteralDirectiveNode = new EmptyLiteralDirectiveNode((ASTEmptyLiteralDirective)child);
+      } else if (ParserUtil.hasName(child, "ShiftDirective")) {
         if (this.shiftDirectiveNode != null)
-          throw new RendererException("only one shift setting directive can be specified for a Reference");
-        this.shiftDirectiveNode = new ShiftDirectiveNode((ASTShiftSetting)child);
+          throw new RendererException("only one shift directive can be specified for a Reference");
+        this.shiftDirectiveNode = new ShiftDirectiveNode((ASTShiftDirective)child);
       } else if (ParserUtil.hasName(child, "ValueExtractionFunction")) {
         if (this.valueExtractionFunctionNode != null)
-          throw new RendererException("only one value extraction directive can be specified for a Reference");
+          throw new RendererException("only one value extraction function can be specified for a Reference");
         this.valueExtractionFunctionNode = new ValueExtractionFunctionNode((ASTValueExtractionFunction)child);
       } else
-        throw new InternalParseException("invalid child node " + child + " for ReferenceNode");
+        throw new InternalParseException("invalid child node " + child + " for " + getNodeName());
     }
 
     this.referenceDirectives = new ReferenceDirectives(node.defaultReferenceDirectives);
@@ -72,17 +72,18 @@ public class ReferenceNode implements MMNode, JSONSSParserConstants
     if (this.sourceSpecificationNode == null)
       throw new RendererException("missing source specification in reference " + toString());
 
-    if (this.referenceTypeNode == null) { // No entity type specified by the user - use default type
-      this.referenceTypeNode = new ReferenceTypeNode(node.defaultReferenceDirectives.getDefaultReferenceType());
+    if (this.referenceTypeDirectiveNode == null) { // No entity type specified by the user - use default type
+      this.referenceTypeDirectiveNode = new ReferenceTypeDirectiveNode(node.defaultReferenceDirectives.getDefaultReferenceType());
     } else
-      this.referenceDirectives.setExplicitlySpecifiedReferenceType(this.referenceTypeNode.getReferenceType());
+      this.referenceDirectives.setExplicitlySpecifiedReferenceType(this.referenceTypeDirectiveNode.getReferenceType());
 
     if (this.defaultLocationValueDirectiveNode != null)
       this.referenceDirectives
         .setExplicitlySpecifiedDefaultLocationValue(this.defaultLocationValueDirectiveNode.getDefaultLocationValue());
 
-    if (this.defaultLiteralDirectiveNode != null)
-      this.referenceDirectives.setExplicitlySpecifiedDefaultLiteral(this.defaultLiteralDirectiveNode.getDefaultLiteral());
+    if (this.defaultLiteralValueDirectiveNode != null)
+      this.referenceDirectives.setExplicitlySpecifiedDefaultLiteral(
+        this.defaultLiteralValueDirectiveNode.getDefaultLiteralValue());
 
     if (this.emptyLocationDirectiveNode != null)
       this.referenceDirectives
@@ -115,17 +116,17 @@ public class ReferenceNode implements MMNode, JSONSSParserConstants
 
   public void updateReferenceType(int type)
   {
-    this.referenceTypeNode = new ReferenceTypeNode(type);
+    this.referenceTypeDirectiveNode = new ReferenceTypeDirectiveNode(type);
   }
 
-  public ReferenceTypeNode getReferenceTypeNode()
+  public ReferenceTypeDirectiveNode getReferenceTypeDirectiveNode()
   {
-    return this.referenceTypeNode;
+    return this.referenceTypeDirectiveNode;
   }
 
-  public DefaultLiteralDirectiveNode getDefaultLiteralDirectiveNode()
+  public DefaultLiteralValueDirectiveNode getDefaultLiteralValueDirectiveNode()
   {
-    return this.defaultLiteralDirectiveNode;
+    return this.defaultLiteralValueDirectiveNode;
   }
 
 
@@ -229,11 +230,6 @@ public class ReferenceNode implements MMNode, JSONSSParserConstants
     return this.referenceDirectives.getShiftedLocation();
   }
 
-  public void setDefaultShiftSetting(int defaultShiftSetting)
-  {
-    this.referenceDirectives.setDefaultShiftDirective(defaultShiftSetting);
-  }
-
   public boolean hasExplicitOptions()
   {
     return this.referenceDirectives.hasExplicitlySpecifiedOptions();
@@ -250,7 +246,7 @@ public class ReferenceNode implements MMNode, JSONSSParserConstants
       representation += "(";
 
     if (hasExplicitlySpecifiedReferenceType()) {
-      representation += this.referenceTypeNode;
+      representation += this.referenceTypeDirectiveNode;
       atLeastOneOptionProcessed = true;
     }
 
@@ -272,7 +268,7 @@ public class ReferenceNode implements MMNode, JSONSSParserConstants
     if (hasExplicitlySpecifiedDefaultLiteral()) {
       if (atLeastOneOptionProcessed)
         representation += " ";
-      representation += this.defaultLiteralDirectiveNode;
+      representation += this.defaultLiteralValueDirectiveNode;
       atLeastOneOptionProcessed = true;
     }
 
@@ -305,15 +301,15 @@ public class ReferenceNode implements MMNode, JSONSSParserConstants
 
   private void checkInvalidExplicitDirectives() throws ParseException
   {
-    if (this.referenceDirectives.hasExplicitlySpecifiedEmptyLiteralDirective() && !this.referenceTypeNode
+    if (this.referenceDirectives.hasExplicitlySpecifiedEmptyLiteralDirective() && !this.referenceTypeDirectiveNode
       .getReferenceType()
       .isLiteral())
       throw new ParseException(
         "use of empty literal setting in reference " + toString() + " invalid because it is not an OWL literal");
 
-    if (this.referenceDirectives.hasExplicitlySpecifiedReferenceType() && this.referenceTypeNode.getReferenceType().isLiteral())
+    if (this.referenceDirectives.hasExplicitlySpecifiedReferenceType() && this.referenceTypeDirectiveNode.getReferenceType().isLiteral())
       throw new ParseException(
-        "entity type " + this.referenceTypeNode.getReferenceType().getTypeName() + " in reference " + toString()
+        "entity type " + this.referenceTypeDirectiveNode.getReferenceType().getTypeName() + " in reference " + toString()
           + " should not have defining types because it is an OWL literal");
   }
 }

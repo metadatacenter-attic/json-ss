@@ -11,7 +11,7 @@ import org.metadatacenter.jsonss.parser.Node;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ValueExtractionFunctionNode implements MMNode, JSONSSParserConstants
+public class ValueExtractionFunctionNode implements JSONSSNode, JSONSSParserConstants
 {
   private final int functionID;
   private final List<ValueExtractionFunctionArgumentNode> argumentNodes;

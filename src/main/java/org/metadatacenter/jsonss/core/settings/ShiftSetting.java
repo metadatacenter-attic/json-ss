@@ -4,11 +4,11 @@ import org.metadatacenter.jsonss.parser.JSONSSParserConstants;
 
 public enum ShiftSetting
 {
-  NO_SHIFT(JSONSSParserConstants.MM_NO_SHIFT),
-  SHIFT_UP(JSONSSParserConstants.MM_SHIFT_UP),
-  SHIFT_DOWN(JSONSSParserConstants.MM_SHIFT_DOWN),
-  SHIFT_LEFT(JSONSSParserConstants.MM_SHIFT_LEFT),
-  SHIFT_RIGHT(JSONSSParserConstants.MM_SHIFT_RIGHT);
+  NO_SHIFT(JSONSSParserConstants.NO_SHIFT),
+  SHIFT_UP(JSONSSParserConstants.SHIFT_UP),
+  SHIFT_DOWN(JSONSSParserConstants.SHIFT_DOWN),
+  SHIFT_LEFT(JSONSSParserConstants.SHIFT_LEFT),
+  SHIFT_RIGHT(JSONSSParserConstants.SHIFT_RIGHT);
 
   private int value;
 

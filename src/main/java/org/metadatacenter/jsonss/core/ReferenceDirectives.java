@@ -61,11 +61,6 @@ public class ReferenceDirectives implements JSONSSParserConstants
     return this.defaultReferenceDirectives.getDefaultShiftDirective();
   }
 
-  public void setDefaultShiftDirective(int shiftDirective)
-  {
-    this.defaultReferenceDirectives.setDefaultShiftDirective(shiftDirective);
-  }
-
   public String getDefaultLocationValue()
   {
     return this.defaultReferenceDirectives.getDefaultLocationValue();
@@ -125,7 +120,7 @@ public class ReferenceDirectives implements JSONSSParserConstants
   {
     return hasExplicitlySpecifiedDefaultLiteral() ?
       this.explicitlySpecifiedDefaultLiteral :
-      this.defaultReferenceDirectives.getDefaultLiteral();
+      this.defaultReferenceDirectives.getDefaultLiteralValue();
   }
 
   public boolean hasExplicitlySpecifiedShiftDirective()

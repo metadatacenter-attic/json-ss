@@ -4,7 +4,7 @@ package org.metadatacenter.jsonss.parser.node;
 import org.metadatacenter.jsonss.parser.ASTBooleanLiteral;
 import org.metadatacenter.jsonss.parser.ParseException;
 
-public class BooleanLiteralNode implements MMNode
+public class BooleanLiteralNode implements JSONSSNode
 {
 	private final boolean value;
 

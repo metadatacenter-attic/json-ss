@@ -84,7 +84,7 @@ public class SpreadSheetDataSource implements DataSource, JSONSSParserConstants
 	public String getLocationValue(SpreadsheetLocation location, ReferenceNode referenceNode) throws RendererException
 	{
 		String locationValue = getLocationValue(location);
-		if (referenceNode.getActualShiftDirective() != MM_NO_SHIFT) {
+		if (referenceNode.getActualShiftDirective() != NO_SHIFT) {
 			locationValue = getLocationValueWithShifting(location, referenceNode);
 		}
 		return locationValue;
@@ -137,7 +137,7 @@ public class SpreadSheetDataSource implements DataSource, JSONSSParserConstants
 		String shiftedLocationValue = getLocationValue(location);
 		if (shiftedLocationValue == null || shiftedLocationValue.isEmpty()) {
 			switch (referenceNode.getActualShiftDirective()) {
-				case MM_SHIFT_LEFT:
+				case SHIFT_LEFT:
 					int firstColumnNumber = 1;
 					for (int currentColumn = location.getPhysicalColumnNumber(); currentColumn >= firstColumnNumber; currentColumn--) {
 						shiftedLocationValue = getLocationValue(new SpreadsheetLocation(sheetName, currentColumn, location.getPhysicalRowNumber()));
@@ -146,7 +146,7 @@ public class SpreadSheetDataSource implements DataSource, JSONSSParserConstants
 						}
 					}
 					return shiftedLocationValue;
-				case MM_SHIFT_RIGHT:
+				case SHIFT_RIGHT:
 					int lastColumnNumber = sheet.getRow(location.getRowNumber()).getLastCellNum();
 					for (int currentColumn = location.getPhysicalColumnNumber(); currentColumn <= lastColumnNumber; currentColumn++) {
 						shiftedLocationValue = getLocationValue(new SpreadsheetLocation(sheetName, currentColumn, location.getPhysicalRowNumber()));
@@ -155,7 +155,7 @@ public class SpreadSheetDataSource implements DataSource, JSONSSParserConstants
 						}
 					}
 					return shiftedLocationValue;
-				case MM_SHIFT_DOWN:
+				case SHIFT_DOWN:
 					int lastRowNumber = sheet.getLastRowNum() + 1;
 					for (int currentRow = location.getPhysicalRowNumber(); currentRow <= lastRowNumber; currentRow++) {
 						shiftedLocationValue = getLocationValue(new SpreadsheetLocation(sheetName, location.getPhysicalColumnNumber(), currentRow));
@@ -164,7 +164,7 @@ public class SpreadSheetDataSource implements DataSource, JSONSSParserConstants
 						}
 					}
 					return shiftedLocationValue;
-				case MM_SHIFT_UP:
+				case SHIFT_UP:
 					int firstRowNumber = 1;
 					for (int currentRow = location.getPhysicalRowNumber(); currentRow >= firstRowNumber; currentRow--) {
 						shiftedLocationValue = getLocationValue(new SpreadsheetLocation(sheetName, location.getPhysicalColumnNumber(), currentRow));

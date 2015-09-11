@@ -8,7 +8,7 @@ import org.metadatacenter.jsonss.parser.ASTStringLiteral;
 import org.metadatacenter.jsonss.parser.ASTValueExtractionFunctionArgument;
 import org.metadatacenter.jsonss.parser.Node;
 
-public class ValueExtractionFunctionArgumentNode implements MMNode
+public class ValueExtractionFunctionArgumentNode implements JSONSSNode
 {
   private ReferenceNode referenceNode;
   private StringLiteralNode stringLiteralNode;

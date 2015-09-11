@@ -8,7 +8,7 @@ import org.metadatacenter.jsonss.parser.ParseException;
 import org.metadatacenter.jsonss.parser.ParserUtil;
 import org.metadatacenter.jsonss.parser.ASTValueSpecificationItem;
 
-public class ValueSpecificationItemNode implements MMNode
+public class ValueSpecificationItemNode implements JSONSSNode
 {
   private final String stringLiteral;
   private final String capturingExpression;

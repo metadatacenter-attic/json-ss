@@ -4,7 +4,7 @@ package org.metadatacenter.jsonss.parser.node;
 import org.metadatacenter.jsonss.parser.ASTFloatLiteral;
 import org.metadatacenter.jsonss.parser.ParseException;
 
-public class FloatLiteralNode implements MMNode
+public class FloatLiteralNode implements JSONSSNode
 {
 	private final float value;
 

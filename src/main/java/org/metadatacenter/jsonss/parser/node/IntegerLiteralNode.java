@@ -3,7 +3,7 @@ package org.metadatacenter.jsonss.parser.node;
 import org.metadatacenter.jsonss.parser.ASTIntegerLiteral;
 import org.metadatacenter.jsonss.parser.ParseException;
 
-public class IntegerLiteralNode implements MMNode
+public class IntegerLiteralNode implements JSONSSNode
 {
   private final int value;
 

@@ -3,7 +3,7 @@ package org.metadatacenter.jsonss.parser.node;
 import org.metadatacenter.jsonss.parser.ASTSourceSpecification;
 import org.metadatacenter.jsonss.parser.ParseException;
 
-public class SourceSpecificationNode implements MMNode
+public class SourceSpecificationNode implements JSONSSNode
 {
   private final String source, location;
   private final String literal;

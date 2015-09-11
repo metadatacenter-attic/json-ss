@@ -5,29 +5,21 @@ import org.metadatacenter.jsonss.core.ReferenceType;
 public class DefaultReferenceDirectives
 {
   private final ReferenceType defaultReferenceType;
-
   private final String defaultLocationValue;
-  private final String defaultLiteral;
-
+  private final String defaultLiteralValue;
   private final int defaultEmptyLocationDirective;
   private final int defaultEmptyLiteralDirective;
+  private final int defaultShiftDirective;
 
-  private int defaultShiftDirective;
-
-  public DefaultReferenceDirectives(int defaultReferenceType, String defaultLocationValue, String defaultLiteral,
-      int defaultShiftDirective, int defaultEmptyLocationDirective, int defaultEmptyLiteralDirective)
+  public DefaultReferenceDirectives(int defaultReferenceType, String defaultLocationValue, String defaultLiteralValue,
+    int defaultShiftDirective, int defaultEmptyLocationDirective, int defaultEmptyLiteralDirective)
   {
     this.defaultReferenceType = new ReferenceType(defaultReferenceType);
     this.defaultLocationValue = defaultLocationValue;
-    this.defaultLiteral = defaultLiteral;
-    this.defaultShiftDirective = defaultShiftDirective;
+    this.defaultLiteralValue = defaultLiteralValue;
     this.defaultEmptyLocationDirective = defaultEmptyLocationDirective;
     this.defaultEmptyLiteralDirective = defaultEmptyLiteralDirective;
-  }
-
-  public void setDefaultShiftDirective(int shiftDirective)
-  {
-    this.defaultShiftDirective = shiftDirective;
+    this.defaultShiftDirective = defaultShiftDirective;
   }
 
   public ReferenceType getDefaultReferenceType()
@@ -40,9 +32,9 @@ public class DefaultReferenceDirectives
     return this.defaultLocationValue;
   }
 
-  public String getDefaultLiteral()
+  public String getDefaultLiteralValue()
   {
-    return this.defaultLiteral;
+    return this.defaultLiteralValue;
   }
 
   public int getDefaultShiftDirective()

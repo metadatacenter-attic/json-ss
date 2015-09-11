@@ -10,7 +10,7 @@ public abstract class ReferenceRendererConfiguration implements JSONSSParserCons
 {
   // Configuration options
   public int defaultReferenceType = JSON_STRING;
-  public int defaultEmptyLocation = MM_PROCESS_IF_EMPTY_LOCATION;
+  public int defaultEmptyLocation = PROCESS_IF_EMPTY_LOCATION;
 
   public int getDefaultReferenceType()
   {

@@ -3,7 +3,7 @@ package org.metadatacenter.jsonss.parser.node;
 import org.metadatacenter.jsonss.parser.ParseException;
 import org.metadatacenter.jsonss.parser.ASTName;
 
-public class NameNode implements MMNode
+public class NameNode implements JSONSSNode
 {
   private final String name;
   private final boolean isQuotedName;
