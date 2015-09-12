@@ -92,10 +92,10 @@ MORE :
   < ~[] >
 }
 
-TOKEN: { <JSON_BOOLEAN: "boolean" > }
-TOKEN: { <JSON_STRING: "string" > }
-TOKEN: { <JSON_INTEGER: "integer" > }
-TOKEN: { <JSON_NUMERIC: "numeric" > }
+TOKEN: { <JSONSS_BOOLEAN: "boolean" > }
+TOKEN: { <JSONSS_STRING: "string" > }
+TOKEN: { <JSONSS_INTEGER: "integer" > }
+TOKEN: { <JSONSS_NUMERIC: "numeric" > }
 
 // JSON-SS Token
 
@@ -178,50 +178,23 @@ SimpleNode expression() #Expression : {}
 
 void json_object() #JSONObject : {}
 {
-   "{" json_key_value() ( ", " json_key_value() )* "}"
+   "{" json_key_value_pair() ( ", " json_key_value_pair() )* "}"
 }
 
-void json_key_value() #JSONKeyValue: {}
+void json_key_value_pair() #JSONKeyValuePair: {}
 {
   json_string() ":" json_value()
 }
 
 void json_value() #JSONValue: {}
 {
-    (   json_object()
-    |   json_array() 
-    |   json_string()
-    |   t=<NUMBER>
-        {
-            try {
-              o = Integer.valueOf(t.image);
-
-            }
-            catch (NumberFormatException nfe1) {
-                try {
-                    o = Long.valueOf(t.image);
-                }
-                catch (NumberFormatException nfe2) {
-                    try {
-                        o = Float.valueOf(t.image);
-                    }
-                    catch (NumberFormatException nfe3) {
-                        try {
-                            o = Double.valueOf(t.image);
-                        }
-                        catch  (NumberFormatException nfe4) {
-                            o = Double.NaN;
-                        }
-                    }
-                }
-
-            }
-        }
-    |   <K_TRUE> {o = Boolean.TRUE;}
-    |   <K_FALSE> {o = Boolean.TRUE;}
-    |   <K_NULL> )
-    {
-    }
+    (  json_object()
+     | json_array()
+     | json_boolean()
+     | json_string()
+     | json_number()
+     | json_null()
+     )
 }
 
 boolean json_boolean() #JSONBoolean: 
@@ -250,50 +223,49 @@ void json_string() #JSONString:
   }
 }
 
+void json_number() #JSONNumber:
+{
+  Token t;
+  Number n;
+}
+{
+  t=<NUMBER>
+        {
+            try {
+              n = Integer.valueOf(t.image);
+
+            }
+            catch (NumberFormatException nfe1) {
+                try {
+                    n = Long.valueOf(t.image);
+                }
+                catch (NumberFormatException nfe2) {
+                    try {
+                        n = Float.valueOf(t.image);
+                    }
+                    catch (NumberFormatException nfe3) {
+                        try {
+                            n = Double.valueOf(t.image);
+                        }
+                        catch  (NumberFormatException nfe4) {
+                            n = Double.NaN;
+                        }
+                    }
+                }
+
+            }
+        }
+    {
+      jjtThis.value = n;
+    }
+}
+
 void json_null() #JSONNull : {}
 {
   <NULL>
 }
 
-void numeric_literal() #JSONNumber :
-{
-  Token t;
-}
-{
-  t = <NUMERIC_LITERAL>
-
-  {
-    jjtThis.value = Double.valueOf(token.image);
-  }
-}
-
-
-
-void string_literal() #StringLiteral :
-{
-  String value;
-}
-{
-  value = string()
-
-  {
-    jjtThis.value = value;
-  }
-}
-
-void boolean_literal() #BooleanLiteral :
-{
-  boolean value;
-}
-{
-  ( <TRUE> { value = true; } | <FALSE> { value = false; } )
-
-  {
-    jjtThis.value = value;
-  }
-}
-
-String location_specification() :
+String jsonss_location_specification() :
 {
   Token t;
 }
@@ -303,19 +275,19 @@ String location_specification() :
   { return t.image; }
 }
 
-void source_specification() #SourceSpecification : 
+void jsonss_source_specification() #SourceSpecification : 
 {
-  String source = null;
-  String location = null;
-  String literal = null;
+  String source;
+  String location;
+  String literal;
   Token t;
 }
 { 
   (
-     ( ( source = quoted_name() "!" )? ( location = location_specification()  ) )
+     ( ( source = jsonss_source_name() "!" )? ( location = jsonss_location_specification()  ) )
    | literal = string()
   )
-
+  
   { 
      jjtThis.source = source;
      jjtThis.location = location;
@@ -323,18 +295,7 @@ void source_specification() #SourceSpecification :
   }
 }
 
-int integer_value() :
-{
-  Token t;
-}
-{
-  t=<INTEGER_LITERAL>
-  {
-    return Integer.parseInt(t.image);
-  }
-}
-
-void reference(int defaultReferenceType) #Reference : {}
+void jsonss_reference(int defaultReferenceType) #Reference : {}
 {
    "@" source_specification()
        ( LOOKAHEAD(2) 
@@ -351,19 +312,19 @@ void reference(int defaultReferenceType) #Reference : {}
   }
 }
 
-void reference_directive() #ReferenceDirective : {}
+void jsonss_reference_directive() #ReferenceDirective : {}
 {
-  (  reference_type_directive()
-   | default_location_value_directive() 
-   | default_literal_value_directive() 
-   | empty_literal_directive()
-   | empty_location_directive()
-   | shift_directive()
-   | value_extraction_function()
+  (  jsonss_reference_type_directive()
+   | jsonss_default_location_value_directive() 
+   | jsonss_default_literal_value_directive() 
+   | jsonss_empty_literal_directive()
+   | jsonss_empty_location_directive()
+   | jsonss_shift_directive()
+   | jsonss_value_extraction_function()
   ) 
 }
 
-int reference_type_directive() #ReferenceTypeDirective : 
+int jsonss_reference_type_directive() #ReferenceTypeDirective : 
 {
   Token t;
   int referenceType;
@@ -379,7 +340,7 @@ int reference_type_directive() #ReferenceTypeDirective :
   }
 }
 
-int empty_location_directive() #EmptyLocationDirective :
+int jsonss_empty_location_directive() #EmptyLocationDirective :
 {
   Token t;
   int emptyLocationSetting;
@@ -398,7 +359,7 @@ int empty_location_directive() #EmptyLocationDirective :
   }
 }
 
-int empty_literal_directive() #EmptyLiteralDirective :
+int jsonss_empty_literal_directive() #EmptyLiteralDirective :
 {
   Token t;
   int emptyLiteralSetting;
@@ -418,7 +379,7 @@ int empty_literal_directive() #EmptyLiteralDirective :
   }
 }
 
-int shift_directive() #ShiftDirective :
+int jsonss_shift_directive() #ShiftDirective :
 {
   Token t;
   int shiftSetting;
@@ -438,7 +399,7 @@ int shift_directive() #ShiftDirective :
   }
 }
 
-void default_literal_value_directive() #DefaultLiteralValueDirective :
+void jsonss_default_literal_value_directive() #DefaultLiteralValueDirective :
 {
   String literalValue;
 }
@@ -450,7 +411,7 @@ void default_literal_value_directive() #DefaultLiteralValueDirective :
   }
 }
 
-void default_location_value_directive() #DefaultLocationValueDirective :
+void jsonss_default_location_value_directive() #DefaultLocationValueDirective :
 {
   String locationValue;
 }
@@ -462,7 +423,7 @@ void default_location_value_directive() #DefaultLocationValueDirective :
   }
 }
 
-void value_extraction_function() #ValueExtractionFunction:
+void jsonss_value_extraction_function() #ValueExtractionFunction:
 {
   Token t;
   int functionID;
@@ -480,33 +441,22 @@ void value_extraction_function() #ValueExtractionFunction:
      | t = <REPLACE_FIRST> { functionID = t.kind; }
      | t = <APPEND> { functionID = t.kind; }
      | t = <PREPEND> { functionID = t.kind; }
-    ) ( LOOKAHEAD(2) "(" value_extraction_function_argument() ( "," value_extraction_function_argument() )* ")" )?
+    ) ( LOOKAHEAD(2) "(" jsonss_value_extraction_function_argument() ( "," jsonss_value_extraction_function_argument() )* ")" )?
    )
    |
-   ( "[" ( LOOKAHEAD(2) value_extraction_function_argument() ( "," value_extraction_function_argument() )* )? "]" )  { functionID = CAPTURING; } 
+   ( "[" ( LOOKAHEAD(2) jsonss_value_extraction_function_argument() ( "," jsonss_value_extraction_function_argument() )* )? "]" )  { functionID = CAPTURING; } 
   )
   {
     jjtThis.functionID = functionID;
   }
 }
 
-void value_extraction_function_argument() #ValueExtractionFunctionArgument : {}
+void jsonss_value_extraction_function_argument() #ValueExtractionFunctionArgument : {}
 {
   reference(JSON_STRING) | literal()
 }
 
-List<String> strings() :
-{
-  List<String> strings = new ArrayList<String>();
-  String s;
-}
-{
-  s = string() { strings.add(s); } ( "," s = string() { strings.add(s); } )*
-
-  { return strings; }
-} 
-
-String quoted_name() : 
+String jsonss_source_name() : 
 {
   Token t;
 }
@@ -516,5 +466,18 @@ String quoted_name() :
   {
     String s = t.image;
     return s.substring(1, s.length() - 1);
+  }
+}
+
+void string(): 
+{
+  Token t;
+}
+{
+  t = <STRING> 
+
+  {
+    String s = t.image;
+    return s;
   }
 }
