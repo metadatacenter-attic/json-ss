@@ -8,12 +8,12 @@ import org.metadatacenter.jsonss.parser.ParseException;
 import org.metadatacenter.jsonss.parser.ParserUtil;
 
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class JSONObjectNode implements JSONSSNode
 {
-  private final Map<String, JSONValueNode> keyValuePairs = new HashMap<>();
+  private final Map<String, JSONValueNode> keyValuePairs = new LinkedHashMap<>();
 
   public JSONObjectNode(ASTJSONObject node) throws ParseException
   {

@@ -188,7 +188,7 @@ TOKEN:
 
 SimpleNode json_expression() #JSONExpression : {}
 {
-  json_object() | json_array()
+  ( json_object() | json_array() )
   {
      return jjtThis;
   }

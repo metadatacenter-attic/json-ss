@@ -102,6 +102,7 @@ public class TextRenderer extends ReferenceRendererConfiguration
         if (!isFirst)
           sb.append(", ");
         sb.append(jsonValueRendering.get().getRendering());
+        isFirst = false;
       }
     }
     sb.append("]");
