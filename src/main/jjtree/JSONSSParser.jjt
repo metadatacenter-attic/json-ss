@@ -219,7 +219,7 @@ void json_key_value_pair() #JSONKeyValuePair: {}
   json_string() <COLON> json_value()
 }
 
-boolean json_boolean() #JSONBoolean: 
+void json_boolean() #JSONBoolean: 
 {
    boolean b;
 }
@@ -228,7 +228,7 @@ boolean json_boolean() #JSONBoolean:
     | <FALSE> { b = Boolean.FALSE;}
   )
   {
-    jjtThis.value = b;
+    jjtThis.b = b;
   }
 }
 
@@ -241,14 +241,14 @@ void json_string() #JSONString:
 
   {
     String s = t.image;
-    jjtThis.value = s.substring(1, s.length() - 1);
+    jjtThis.s = s.substring(1, s.length() - 1);
   }
 }
 
 void json_number() #JSONNumber:
 {
   Token t;
-  Numeric n;
+  Number n;
 }
 {
   t=<NUMBER>
@@ -278,7 +278,7 @@ void json_number() #JSONNumber:
             }
         }
     {
-      jjtThis.value = n;
+      jjtThis.n = n;
     }
 }
 
@@ -299,9 +299,9 @@ String jsonss_location_specification() :
 
 void jsonss_source_specification() #SourceSpecification : 
 {
-  String source;
-  String location;
-  String literal;
+  String source = "";
+  String location = "";
+  String literal = "";
   Token t;
 }
 { 
@@ -476,7 +476,7 @@ void jsonss_value_extraction_function() #ValueExtractionFunction:
 
 void jsonss_value_extraction_function_argument() #ValueExtractionFunctionArgument : {}
 {
-  jsonss_reference(JSON_STRING) | string()
+  jsonss_reference(JSONSS_STRING) | string()
 }
 
 String jsonss_source_name() : 
@@ -492,7 +492,7 @@ String jsonss_source_name() :
   }
 }
 
-void string(): 
+String string(): 
 {
   Token t;
 }

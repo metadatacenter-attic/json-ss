@@ -23,22 +23,22 @@ public class ReferenceType implements JSONSSParserConstants
 
   public boolean isString()
   {
-    return this.type == JSON_STRING;
+    return this.type == JSONSS_STRING;
   }
 
   public boolean isInteger()
   {
-    return this.type == JSON_INTEGER;
+    return this.type == JSONSS_INTEGER;
   }
 
   public boolean isNumeric()
   {
-    return this.type == JSON_NUMERIC;
+    return this.type == JSONSS_NUMERIC;
   }
 
   public boolean isBoolean()
   {
-    return this.type == JSON_BOOLEAN;
+    return this.type == JSONSS_BOOLEAN;
   }
 
   public String toString()

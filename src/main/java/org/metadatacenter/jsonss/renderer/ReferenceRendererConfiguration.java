@@ -9,7 +9,7 @@ import org.metadatacenter.jsonss.parser.JSONSSParserConstants;
 public abstract class ReferenceRendererConfiguration implements JSONSSParserConstants
 {
   // Configuration options
-  public int defaultReferenceType = JSON_STRING;
+  public int defaultReferenceType = JSONSS_STRING;
   public int defaultEmptyLocation = PROCESS_IF_EMPTY_LOCATION;
 
   public int getDefaultReferenceType()
