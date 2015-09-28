@@ -186,7 +186,7 @@ TOKEN:
   <LOCATION_SPECIFICATION: (<LETTER> | <DIGIT> | "_" | "-" | "#" | "." | ":" | "/" | "*" )+ | "'" (~["'"])* "'"> 
 }
 
-SimpleNode expression() #Expression : {}
+SimpleNode json_expression() #JSONExpression : {}
 {
   json_object() | json_array()
   {
@@ -224,8 +224,8 @@ void json_boolean() #JSONBoolean:
    boolean b;
 }
 {
-  (   <TRUE> { b = Boolean.TRUE;}
-    | <FALSE> { b = Boolean.FALSE;}
+  (   <TRUE> { b = Boolean.TRUE; }
+    | <FALSE> { b = Boolean.FALSE; }
   )
   {
     jjtThis.b = b;

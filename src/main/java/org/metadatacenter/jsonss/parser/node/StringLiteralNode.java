@@ -5,13 +5,13 @@ import org.metadatacenter.jsonss.parser.ASTStringLiteral;
 import org.metadatacenter.jsonss.parser.JSONSSParserConstants;
 import org.metadatacenter.jsonss.parser.ParseException;
 
-public class StringLiteralNode implements StringNode, JSONSSParserConstants
+public class StringLiteralNode implements JSONSSParserConstants, JSONSSNode
 {
-	private final String value;
+	private final String s;
 
 	public StringLiteralNode(ASTStringLiteral node) throws ParseException
 	{
-		this.value = node.value;
+		this.s = node.s;
 	}
 
 	public String getNodeName()
@@ -21,11 +21,11 @@ public class StringLiteralNode implements StringNode, JSONSSParserConstants
 
 	public String getValue()
 	{
-		return this.value;
+		return this.s;
 	}
 
 	public String toString()
 	{
-		return "\"" + this.value + "\"";
+		return "\"" + this.s + "\"";
 	}
 }

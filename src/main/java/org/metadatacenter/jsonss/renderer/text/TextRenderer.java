@@ -2,7 +2,7 @@ package org.metadatacenter.jsonss.renderer.text;
 
 import org.metadatacenter.jsonss.core.ReferenceType;
 import org.metadatacenter.jsonss.parser.JSONSSParserConstants;
-import org.metadatacenter.jsonss.parser.node.ExpressionNode;
+import org.metadatacenter.jsonss.parser.node.JSONExpressionNode;
 import org.metadatacenter.jsonss.parser.node.ReferenceNode;
 import org.metadatacenter.jsonss.parser.node.SourceSpecificationNode;
 import org.metadatacenter.jsonss.parser.node.StringLiteralNode;
@@ -12,7 +12,7 @@ import org.metadatacenter.jsonss.renderer.InternalRendererException;
 import org.metadatacenter.jsonss.renderer.ReferenceRenderer;
 import org.metadatacenter.jsonss.renderer.ReferenceRendererConfiguration;
 import org.metadatacenter.jsonss.renderer.ReferenceUtil;
-import org.metadatacenter.jsonss.renderer.Renderer;
+import org.metadatacenter.jsonss.renderer.JSONSSRenderer;
 import org.metadatacenter.jsonss.renderer.RendererException;
 import org.metadatacenter.jsonss.rendering.ReferenceRendering;
 import org.metadatacenter.jsonss.rendering.StringLiteralRendering;
@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.Optional;
 
 public class TextRenderer extends ReferenceRendererConfiguration
-  implements Renderer, ReferenceRenderer, JSONSSParserConstants
+  implements JSONSSRenderer, ReferenceRenderer, JSONSSParserConstants
 {
   private SpreadSheetDataSource dataSource;
 
@@ -47,10 +47,10 @@ public class TextRenderer extends ReferenceRendererConfiguration
     return this;
   }
 
-  @Override public Optional<? extends TextRendering> renderExpression(ExpressionNode expressionNode)
+  @Override public Optional<? extends TextRendering> renderJSONExpression(JSONExpressionNode jsonExpressionNode)
     throws RendererException
   {
-    throw new InternalRendererException("not implemented " + expressionNode.getNodeName());
+    throw new InternalRendererException("not implemented " + jsonExpressionNode.getNodeName());
   }
 
   @Override public Optional<TextReferenceRendering> renderReference(ReferenceNode referenceNode)

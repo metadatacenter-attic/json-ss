@@ -6,11 +6,11 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.metadatacenter.jsonss.core.settings.ReferenceSettings;
 import org.metadatacenter.jsonss.exceptions.JSONSSException;
-import org.metadatacenter.jsonss.parser.ASTExpression;
+import org.metadatacenter.jsonss.parser.ASTJSONExpression;
 import org.metadatacenter.jsonss.parser.JSONSSParser;
 import org.metadatacenter.jsonss.parser.ParseException;
 import org.metadatacenter.jsonss.parser.SimpleNode;
-import org.metadatacenter.jsonss.parser.node.ExpressionNode;
+import org.metadatacenter.jsonss.parser.node.JSONExpressionNode;
 import org.metadatacenter.jsonss.renderer.text.TextRenderer;
 import org.metadatacenter.jsonss.rendering.text.TextRendering;
 import org.metadatacenter.jsonss.ss.SpreadSheetDataSource;
@@ -59,13 +59,13 @@ public class IntegrationTestBase
     return new SpreadSheetDataSource(workbook);
   }
 
-  protected ExpressionNode parseExpression(String expression, ReferenceSettings settings) throws ParseException
+  protected JSONExpressionNode parseJSONExpression(String expression, ReferenceSettings settings) throws ParseException
   {
     JSONSSParser parser = new JSONSSParser(new ByteArrayInputStream(expression.getBytes()), settings, -1);
-    SimpleNode simpleNode = parser.expression();
-    ExpressionNode expressionNode = new ExpressionNode((ASTExpression)simpleNode);
+    SimpleNode simpleNode = parser.json_expression();
+    JSONExpressionNode jsonExpressionNode = new JSONExpressionNode((ASTJSONExpression)simpleNode);
 
-    return expressionNode;
+    return jsonExpressionNode;
   }
 
   protected Optional<? extends TextRendering> createTextRendering(String sheetName, Set<Label> cells,
@@ -77,9 +77,9 @@ public class IntegrationTestBase
     dataSource.setCurrentLocation(currentLocation);
 
     TextRenderer renderer = new TextRenderer(dataSource);
-    ExpressionNode expressionNode = parseExpression(expression, settings);
+    JSONExpressionNode jsonExpressionNode = parseJSONExpression(expression, settings);
 
-    return renderer.renderExpression(expressionNode);
+    return renderer.renderJSONExpression(jsonExpressionNode);
   }
 
   protected Optional<? extends TextRendering> createTextRendering(String sheetName, String expression,

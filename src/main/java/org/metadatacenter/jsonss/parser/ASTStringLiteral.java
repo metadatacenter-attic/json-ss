@@ -5,7 +5,7 @@ package org.metadatacenter.jsonss.parser;
 public
 class ASTStringLiteral extends SimpleNode {
 
-  public String value; /* Manually added */
+  public String s; /* Manually added */
 
   public ASTStringLiteral(int id) {
     super(id);
