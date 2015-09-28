@@ -97,26 +97,26 @@ TOKEN: { <JSONSS_STRING: "string" > }
 TOKEN: { <JSONSS_INTEGER: "integer" > }
 TOKEN: { <JSONSS_NUMERIC: "numeric" > }
 
-// JSON-SS Token
+// JSON-SS Tokens
 
 TOKEN: { <CELL_WILDCARD: "*"> }
+TOKEN: { <EXCLAMATION_POINT: "!"> }
+TOKEN: { <COMMA: ","> }
+TOKEN: { <COLON: ":"> }
+TOKEN: { <EQUAL: "="> }
+TOKEN: { <AT: "@"> }
+TOKEN: { <OPEN_PAREN: "("> }
+TOKEN: { <CLOSE_PAREN: ")"> }
+TOKEN: { <OPEN_BRACE: "{"> }
+TOKEN: { <CLOSE_BRACE: "}"> }
+TOKEN: { <OPEN_BRACKET: "["> }
+TOKEN: { <CLOSE_BRACKET: "]"> }
 
 TOKEN: { <LOCATION: "Location"> }
 
-TOKEN: {<TRUE: "true" | "TRUE">}
-TOKEN: {<FALSE: "false" | "FALSE">}
+TOKEN: { <TRUE: "true" | "TRUE">}
+TOKEN: { <FALSE: "false" | "FALSE">}
 TOKEN: { <NULL: "null" > }
-
-TOKEN: { <TO_UPPER_CASE: "toUpperCase"> }
-TOKEN: { <TO_LOWER_CASE: "toLowerCase"> }
-TOKEN: { <TRIM: "trim"> }
-TOKEN: { <CAPTURING: "capturing"> }
-TOKEN: { <REVERSE: "reverse"> }
-TOKEN: { <REPLACE: "replace"> }
-TOKEN: { <REPLACE_ALL: "replaceAll"> }
-TOKEN: { <REPLACE_FIRST: "replaceFirst"> }
-TOKEN: { <APPEND: "append"> }
-TOKEN: { <PREPEND: "prepend"> }
 
 TOKEN: { <NO_SHIFT: "NoShift"> }
 TOKEN: { <SHIFT_UP: "ShiftUp"> }
@@ -137,6 +137,17 @@ TOKEN: { <SKIP_IF_EMPTY_LITERAL: "SkipIfEmptyLiteral"> }
 TOKEN: { <DEFAULT_LOCATION_VALUE: "DefaultLocationValue"> }
 TOKEN: { <DEFAULT_LITERAL_VALUE: "DefaultLiteralValue"> }
 
+TOKEN: { <TO_UPPER_CASE: "toUpperCase"> }
+TOKEN: { <TO_LOWER_CASE: "toLowerCase"> }
+TOKEN: { <TRIM: "trim"> }
+TOKEN: { <CAPTURING: "capturing"> }
+TOKEN: { <REVERSE: "reverse"> }
+TOKEN: { <REPLACE: "replace"> }
+TOKEN: { <REPLACE_ALL: "replaceAll"> }
+TOKEN: { <REPLACE_FIRST: "replaceFirst"> }
+TOKEN: { <APPEND: "append"> }
+TOKEN: { <PREPEND: "prepend"> }
+
 TOKEN: {
         <STRING: "\"" ( <ALLOWABLE_CHARACTERS> )* "\"" >
     |   <ALLOWABLE_CHARACTERS:(   
@@ -153,17 +164,24 @@ TOKEN: {
 TOKEN:
 {
   <QUOTED_NAME_LITERAL: "'" (~["'"])* ("''" (~["'"])*)* "'" >
-| <INTEGER_LITERAL: (["-"])? (<DIGIT>)+ > 
-| <NUMERIC_LITERAL:   (["-"])? (<DIGIT>)+ "." (<DIGIT>)+ (<EXPONENT>)?
-                  | (["-"])? "." (<DIGIT>)+ (<EXPONENT>)?
-                  | (["-"])? (<DIGIT>)+ <EXPONENT>
-                  | (["-"])? (<DIGIT>)+ (<EXPONENT>)? > 
+|
+  <NUMBER:  <INTEGER> | <INTEGER> <FRACTIONAL_DIGITS> | <INTEGER> <EXPONENT> | <INTEGER> <FRACTIONAL_DIGITS> <EXPONENT> >
+|
+  <INTEGER: ("-") ? ( <DIGIT> | <NONZERO_DIGIT> <DIGITS>) >
+|
+  <FRACTIONAL_DIGITS: "." <DIGITS > >
+|
+  <#EXP: ["e", "E"] ( "+" | "-" )? >
+|
+  <EXPONENT: <EXP> <DIGITS> >
+|
+  <DIGITS: ( <DIGIT> )+ >
 |
   <#LETTER: [ "a"-"z", "A"-"Z" ]>
 |
   <#DIGIT: ["0"-"9"] >
 | 
-  <#EXPONENT: ["e", "E"] (["+", "-"])? (<DIGIT>)+ >
+  <#NONZERO_DIGIT: ["1"-"9"] >
 | 
   <LOCATION_SPECIFICATION: (<LETTER> | <DIGIT> | "_" | "-" | "#" | "." | ":" | "/" | "*" )+ | "'" (~["'"])* "'"> 
 }
@@ -175,17 +193,6 @@ SimpleNode expression() #Expression : {}
      return jjtThis;
   }
 }
-
-void json_object() #JSONObject : {}
-{
-   "{" json_key_value_pair() ( ", " json_key_value_pair() )* "}"
-}
-
-void json_key_value_pair() #JSONKeyValuePair: {}
-{
-  json_string() ":" json_value()
-}
-
 void json_value() #JSONValue: {}
 {
     (  json_object()
@@ -194,7 +201,22 @@ void json_value() #JSONValue: {}
      | json_string()
      | json_number()
      | json_null()
-     )
+    )
+}
+
+void json_array() #JSONArray : {}
+{
+  <OPEN_BRACKET> json_value() ( <COMMA> json_value() )* <CLOSE_BRACKET>
+}
+
+void json_object() #JSONObject : {}
+{
+   <OPEN_BRACE> json_key_value_pair() ( <COMMA> json_key_value_pair() )* <CLOSE_BRACE>
+}
+
+void json_key_value_pair() #JSONKeyValuePair: {}
+{
+  json_string() <COLON> json_value()
 }
 
 boolean json_boolean() #JSONBoolean: 
@@ -202,8 +224,8 @@ boolean json_boolean() #JSONBoolean:
    boolean b;
 }
 {
-  (   <TRUE> {b = Boolean.TRUE;}
-    | <FALSE> {b = Boolean.FALSE;}
+  (   <TRUE> { b = Boolean.TRUE;}
+    | <FALSE> { b = Boolean.FALSE;}
   )
   {
     jjtThis.value = b;
@@ -226,7 +248,7 @@ void json_string() #JSONString:
 void json_number() #JSONNumber:
 {
   Token t;
-  Number n;
+  Numeric n;
 }
 {
   t=<NUMBER>
@@ -284,7 +306,7 @@ void jsonss_source_specification() #SourceSpecification :
 }
 { 
   (
-     ( ( source = jsonss_source_name() "!" )? ( location = jsonss_location_specification()  ) )
+     ( ( source = jsonss_source_name() <EXCLAMATION_POINT> )? ( location = jsonss_location_specification()  ) )
    | literal = string()
   )
   
@@ -297,11 +319,11 @@ void jsonss_source_specification() #SourceSpecification :
 
 void jsonss_reference(int defaultReferenceType) #Reference : {}
 {
-   "@" source_specification()
+   <AT> jsonss_source_specification()
        ( LOOKAHEAD(2) 
-         "(" 
-            reference_directive() ( reference_directive() ) *
-         ")"
+         <OPEN_PAREN>
+            jsonss_reference_directive() ( jsonss_reference_directive() ) *
+         <CLOSE_PAREN>
        )?
   {
     jjtThis.defaultReferenceDirectives = new DefaultReferenceDirectives(
@@ -404,7 +426,7 @@ void jsonss_default_literal_value_directive() #DefaultLiteralValueDirective :
   String literalValue;
 }
 {
-  <DEFAULT_LITERAL_VALUE> "=" literalValue = string()
+  <DEFAULT_LITERAL_VALUE> <EQUAL> literalValue = string()
 
   {
     jjtThis.defaultLiteralValue = literalValue;
@@ -416,7 +438,7 @@ void jsonss_default_location_value_directive() #DefaultLocationValueDirective :
   String locationValue;
 }
 {
-  <DEFAULT_LOCATION_VALUE> "=" locationValue = string()
+  <DEFAULT_LOCATION_VALUE> <EQUAL> locationValue = string()
 
   {
     jjtThis.defaultLocationValue = locationValue;
@@ -441,10 +463,11 @@ void jsonss_value_extraction_function() #ValueExtractionFunction:
      | t = <REPLACE_FIRST> { functionID = t.kind; }
      | t = <APPEND> { functionID = t.kind; }
      | t = <PREPEND> { functionID = t.kind; }
-    ) ( LOOKAHEAD(2) "(" jsonss_value_extraction_function_argument() ( "," jsonss_value_extraction_function_argument() )* ")" )?
+    ) ( LOOKAHEAD(2) <OPEN_PAREN> jsonss_value_extraction_function_argument() ( <COMMA> jsonss_value_extraction_function_argument() )* <CLOSE_PAREN> )?
    )
    |
-   ( "[" ( LOOKAHEAD(2) jsonss_value_extraction_function_argument() ( "," jsonss_value_extraction_function_argument() )* )? "]" )  { functionID = CAPTURING; } 
+   ( <OPEN_BRACKET> ( LOOKAHEAD(2) jsonss_value_extraction_function_argument() ( <COMMA> jsonss_value_extraction_function_argument() )* )? <CLOSE_BRACKET> )
+     { functionID = CAPTURING; } 
   )
   {
     jjtThis.functionID = functionID;
@@ -453,7 +476,7 @@ void jsonss_value_extraction_function() #ValueExtractionFunction:
 
 void jsonss_value_extraction_function_argument() #ValueExtractionFunctionArgument : {}
 {
-  reference(JSON_STRING) | literal()
+  jsonss_reference(JSON_STRING) | string()
 }
 
 String jsonss_source_name() : 
