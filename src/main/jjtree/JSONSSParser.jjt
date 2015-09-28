@@ -92,10 +92,9 @@ MORE :
   < ~[] >
 }
 
-TOKEN: { <JSONSS_BOOLEAN: "boolean" > }
-TOKEN: { <JSONSS_STRING: "string" > }
-TOKEN: { <JSONSS_INTEGER: "integer" > }
-TOKEN: { <JSONSS_NUMERIC: "numeric" > }
+TOKEN: { <JSON_BOOLEAN: "boolean" > }
+TOKEN: { <JSON_STRING: "string" > }
+TOKEN: { <JSON_NUMBER: "number" > }
 
 // JSON-SS Tokens
 
@@ -201,6 +200,7 @@ void json_value() #JSONValue: {}
      | json_string()
      | json_number()
      | json_null()
+     | jsonss_reference(defaultReferenceType)
     )
 }
 
@@ -299,9 +299,9 @@ String jsonss_location_specification() :
 
 void jsonss_source_specification() #SourceSpecification : 
 {
-  String source = "";
-  String location = "";
-  String literal = "";
+  String source = null;
+  String location = null;
+  String literal = null;
   Token t;
 }
 { 
@@ -476,7 +476,7 @@ void jsonss_value_extraction_function() #ValueExtractionFunction:
 
 void jsonss_value_extraction_function_argument() #ValueExtractionFunctionArgument : {}
 {
-  jsonss_reference(JSONSS_STRING) | string()
+  jsonss_reference(JSON_STRING) | string()
 }
 
 String jsonss_source_name() : 

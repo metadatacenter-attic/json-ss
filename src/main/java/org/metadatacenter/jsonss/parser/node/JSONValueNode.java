@@ -7,6 +7,7 @@ import org.metadatacenter.jsonss.parser.ASTJSONNumber;
 import org.metadatacenter.jsonss.parser.ASTJSONObject;
 import org.metadatacenter.jsonss.parser.ASTJSONString;
 import org.metadatacenter.jsonss.parser.ASTJSONValue;
+import org.metadatacenter.jsonss.parser.ASTReference;
 import org.metadatacenter.jsonss.parser.InternalParseException;
 import org.metadatacenter.jsonss.parser.Node;
 import org.metadatacenter.jsonss.parser.ParseException;
@@ -20,6 +21,7 @@ public class JSONValueNode implements JSONSSNode
   private JSONNumberNode jsonNumberNode;
   private JSONBooleanNode jsonBooleanNode;
   private JSONNullNode jsonNullNode;
+  private ReferenceNode referenceNode;
 
   public JSONValueNode(ASTJSONValue node) throws ParseException
   {
@@ -39,6 +41,8 @@ public class JSONValueNode implements JSONSSNode
         this.jsonBooleanNode = new JSONBooleanNode((ASTJSONBoolean)child);
       else if (ParserUtil.hasName(child, "JSONNull"))
         this.jsonNullNode = new JSONNullNode((ASTJSONNull)child);
+      else if (ParserUtil.hasName(child, "Reference"))
+        this.referenceNode = new ReferenceNode((ASTReference)child);
       else
         throw new InternalParseException("unexpected child node " + child + " for node " + getNodeName());
     }
@@ -74,6 +78,11 @@ public class JSONValueNode implements JSONSSNode
     return this.jsonNullNode != null;
   }
 
+  public boolean isReference()
+  {
+    return this.referenceNode != null;
+  }
+
   public JSONObjectNode getJSONObjectNode()
   {
     return this.jsonObjectNode;
@@ -104,15 +113,32 @@ public class JSONValueNode implements JSONSSNode
     return this.jsonNullNode;
   }
 
+  public ReferenceNode getReferenceNode()
+  {
+    return this.referenceNode;
+  }
+
   @Override public String getNodeName()
   {
-    return "OWLLiteral";
+    return "JSONValue";
   }
 
   public String toString()
   {
     if (isJSONObject())
       return this.jsonObjectNode.toString();
+    else if (isJSONArray())
+      return this.jsonArrayNode.toString();
+    else if (isJSONString())
+      return this.jsonStringNode.toString();
+    else if (isJSONNumber())
+      return this.jsonNumberNode.toString();
+    else if (isJSONBoolean())
+      return this.jsonBooleanNode.toString();
+    else if (isJSONNull())
+      return this.jsonNullNode.toString();
+    else if (isReference())
+      return this.referenceNode.toString();
     else
       return "INCONSISTENT CHILD NODE";
   }

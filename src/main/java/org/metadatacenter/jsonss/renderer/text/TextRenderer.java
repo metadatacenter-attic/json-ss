@@ -125,6 +125,8 @@ public class TextRenderer extends ReferenceRendererConfiguration
       return renderJSONBoolean(jsonValueNode.getJSONBooleanNode());
     else if (jsonValueNode.isJSONNull())
       return renderJSONNull(jsonValueNode.getJSONNullNode());
+    else if (jsonValueNode.isReference())
+      return renderReference(jsonValueNode.getReferenceNode());
     else
       throw new InternalRendererException("unknown " + jsonValueNode.getNodeName() + " node type");
   }
@@ -170,12 +172,12 @@ public class TextRenderer extends ReferenceRendererConfiguration
 
       if (resolvedReferenceValue.isEmpty()
           && referenceNode.getActualEmptyLocationDirective() == WARNING_IF_EMPTY_LOCATION) {
-        // TODO Warn in log files
+        // TODO Warn in log file
         return Optional.empty();
       }
 
       if (referenceType.isLiteral()) {
-        String literalReferenceValue = processOWLLiteralReferenceValue(location, resolvedReferenceValue, referenceNode);
+        String literalReferenceValue = processLiteralReferenceValue(location, resolvedReferenceValue, referenceNode);
 
         if (literalReferenceValue.isEmpty() && referenceNode.getActualEmptyLiteralDirective() == SKIP_IF_EMPTY_LITERAL)
           return Optional.empty();
@@ -186,6 +188,9 @@ public class TextRenderer extends ReferenceRendererConfiguration
           return Optional.empty();
         }
 
+        if (referenceType.isString())
+          literalReferenceValue = "\"" + literalReferenceValue + "\"";
+
         return Optional.of(new TextReferenceRendering(literalReferenceValue, referenceType));
       } else
         throw new InternalRendererException(
@@ -193,7 +198,7 @@ public class TextRenderer extends ReferenceRendererConfiguration
     }
   }
 
-  private String processOWLLiteralReferenceValue(SpreadsheetLocation location, String rawLocationValue,
+  private String processLiteralReferenceValue(SpreadsheetLocation location, String rawLocationValue,
       ReferenceNode referenceNode) throws RendererException
   {
     String sourceValue = rawLocationValue.replace("\"", "\\\"");
@@ -201,6 +206,8 @@ public class TextRenderer extends ReferenceRendererConfiguration
 
     if (sourceValue.isEmpty() && !referenceNode.getActualDefaultLiteral().isEmpty())
       processedReferenceValue = referenceNode.getActualDefaultLiteral();
+    else
+      processedReferenceValue = sourceValue;
 
     if (processedReferenceValue.isEmpty() && referenceNode.getActualEmptyLiteralDirective() == ERROR_IF_EMPTY_LITERAL)
       throw new RendererException("empty literal in reference " + referenceNode + " at location " + location);
@@ -208,7 +215,7 @@ public class TextRenderer extends ReferenceRendererConfiguration
     return processedReferenceValue;
   }
 
-  // Tentative. Need a more principled way of finding and invoking functions. What about calls to Excel?
+  // Tentative. Need a more principled way of finding and invoking functions.
 
   private String generateReferenceValue(String sourceValue, ValueExtractionFunctionNode valueExtractionFunctionNode)
       throws RendererException

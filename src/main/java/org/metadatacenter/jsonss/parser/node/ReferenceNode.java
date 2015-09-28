@@ -37,13 +37,13 @@ public class ReferenceNode implements JSONSSNode, JSONSSParserConstants
 
       if (ParserUtil.hasName(child, "SourceSpecification")) {
         this.sourceSpecificationNode = new SourceSpecificationNode((ASTSourceSpecification)child);
-      } else if (ParserUtil.hasName(child, "ReferenceType")) {
+      } else if (ParserUtil.hasName(child, "ReferenceTypeDirective")) {
         this.referenceTypeDirectiveNode = new ReferenceTypeDirectiveNode((ASTReferenceTypeDirective)child);
-      } else if (ParserUtil.hasName(child, "DefaultLocationValue")) {
+      } else if (ParserUtil.hasName(child, "DefaultLocationValueDirective")) {
         if (this.defaultLocationValueDirectiveNode != null)
           throw new RendererException("only one default location value directive can be specified for a Reference");
         this.defaultLocationValueDirectiveNode = new DefaultLocationValueDirectiveNode((ASTDefaultLocationValueDirective)child);
-      } else if (ParserUtil.hasName(child, "DefaultLiteralValue")) {
+      } else if (ParserUtil.hasName(child, "DefaultLiteralValueDirective")) {
         if (this.defaultLiteralValueDirectiveNode != null)
           throw new RendererException("only one default literal directive can be specified for a Reference");
         this.defaultLiteralValueDirectiveNode = new DefaultLiteralValueDirectiveNode((ASTDefaultLiteralValueDirective)child);

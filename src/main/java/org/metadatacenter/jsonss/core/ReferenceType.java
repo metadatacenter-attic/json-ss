@@ -1,5 +1,6 @@
 package org.metadatacenter.jsonss.core;
 
+import org.metadatacenter.jsonss.core.settings.ReferenceTypeSetting;
 import org.metadatacenter.jsonss.parser.JSONSSParserConstants;
 
 public class ReferenceType implements JSONSSParserConstants
@@ -18,27 +19,22 @@ public class ReferenceType implements JSONSSParserConstants
 
   public boolean isLiteral()
   {
-    return isString() || isInteger() || isNumeric() || isBoolean();
+    return isString() || isNumber() || isBoolean();
   }
 
   public boolean isString()
   {
-    return this.type == JSONSS_STRING;
+    return this.type == ReferenceTypeSetting.JSON_STRING.getConstant();
   }
 
-  public boolean isInteger()
+  public boolean isNumber()
   {
-    return this.type == JSONSS_INTEGER;
-  }
-
-  public boolean isNumeric()
-  {
-    return this.type == JSONSS_NUMERIC;
+    return this.type == ReferenceTypeSetting.JSON_NUMBER.getConstant();
   }
 
   public boolean isBoolean()
   {
-    return this.type == JSONSS_BOOLEAN;
+    return this.type == ReferenceTypeSetting.JSON_BOOLEAN.getConstant();
   }
 
   public String toString()
