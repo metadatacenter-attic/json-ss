@@ -7,6 +7,7 @@ import org.metadatacenter.jsonss.parser.Node;
 import org.metadatacenter.jsonss.parser.ParseException;
 import org.metadatacenter.jsonss.parser.ParserUtil;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -32,6 +33,8 @@ public class JSONObjectNode implements JSONSSNode
   {
     return "JSONObject";
   }
+
+  public Map<String, JSONValueNode> getKeyValuePairs() { return Collections.unmodifiableMap(this.keyValuePairs); }
 
   @Override public String toString()
   {

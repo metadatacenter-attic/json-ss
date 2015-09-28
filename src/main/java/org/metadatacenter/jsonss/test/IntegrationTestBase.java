@@ -82,10 +82,10 @@ public class IntegrationTestBase
     return renderer.renderJSONExpression(jsonExpressionNode);
   }
 
-  protected Optional<? extends TextRendering> createTextRendering(String sheetName, String expression,
+  protected Optional<? extends TextRendering> createTextRendering(String expression,
     ReferenceSettings settings) throws JSONSSException, IOException, ParseException
   {
-    return createTextRendering(sheetName, EMPTY_CELL_SET, expression, settings);
+    return createTextRendering(DEFAULT_SHEET, EMPTY_CELL_SET, expression, settings);
   }
 
   protected Optional<? extends TextRendering> createTextRendering(String sheetName, Set<Label> cells, String expression,

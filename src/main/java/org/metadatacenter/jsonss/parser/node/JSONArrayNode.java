@@ -8,6 +8,7 @@ import org.metadatacenter.jsonss.parser.ParseException;
 import org.metadatacenter.jsonss.parser.ParserUtil;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class JSONArrayNode implements JSONSSNode
@@ -30,6 +31,8 @@ public class JSONArrayNode implements JSONSSNode
   {
     return "JSONArray";
   }
+
+  public List<JSONValueNode> getElements() { return Collections.unmodifiableList(this.elements); }
 
   @Override public String toString()
   {

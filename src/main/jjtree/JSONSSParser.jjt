@@ -206,12 +206,12 @@ void json_value() #JSONValue: {}
 
 void json_array() #JSONArray : {}
 {
-  <OPEN_BRACKET> json_value() ( <COMMA> json_value() )* <CLOSE_BRACKET>
+  <OPEN_BRACKET> ( json_value() ( <COMMA> json_value() )* )? <CLOSE_BRACKET>
 }
 
 void json_object() #JSONObject : {}
 {
-   <OPEN_BRACE> json_key_value_pair() ( <COMMA> json_key_value_pair() )* <CLOSE_BRACE>
+   <OPEN_BRACE> ( json_key_value_pair() ( <COMMA> json_key_value_pair() )* )? <CLOSE_BRACE>
 }
 
 void json_key_value_pair() #JSONKeyValuePair: {}
