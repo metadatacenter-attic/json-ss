@@ -1,7 +1,7 @@
 package org.metadatacenter.jsonss.core;
 
 import org.metadatacenter.jsonss.parser.node.ReferenceNode;
-import org.metadatacenter.jsonss.parser.node.SourceSpecificationNode;
+import org.metadatacenter.jsonss.parser.node.ReferenceSourceSpecificationNode;
 import org.metadatacenter.jsonss.renderer.RendererException;
 import org.metadatacenter.jsonss.ss.SpreadsheetLocation;
 
@@ -26,7 +26,7 @@ public interface DataSource
 
 	boolean hasCurrentLocation();
 
-	SpreadsheetLocation resolveLocation(SourceSpecificationNode sourceSpecification) throws RendererException;
+	SpreadsheetLocation resolveLocation(ReferenceSourceSpecificationNode sourceSpecification) throws RendererException;
 
 	List<String> getSheetNames();
 }

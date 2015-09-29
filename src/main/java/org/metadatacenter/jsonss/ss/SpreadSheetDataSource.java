@@ -10,7 +10,7 @@ import org.metadatacenter.jsonss.renderer.InternalRendererException;
 import org.metadatacenter.jsonss.renderer.RendererException;
 import org.metadatacenter.jsonss.core.DataSource;
 import org.metadatacenter.jsonss.parser.node.ReferenceNode;
-import org.metadatacenter.jsonss.parser.node.SourceSpecificationNode;
+import org.metadatacenter.jsonss.parser.node.ReferenceSourceSpecificationNode;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -181,7 +181,7 @@ public class SpreadSheetDataSource implements DataSource, JSONSSParserConstants
 		}
 	}
 
-	public SpreadsheetLocation resolveLocation(SourceSpecificationNode sourceSpecification) throws RendererException
+	public SpreadsheetLocation resolveLocation(ReferenceSourceSpecificationNode sourceSpecification) throws RendererException
 	{
 		Pattern p = Pattern.compile("(\\*|[a-zA-Z]+)(\\*|[0-9]+)"); // ( \* | [a-zA-z]+ ) ( \* | [0-9]+ )
 		Matcher m = p.matcher(sourceSpecification.getLocation());

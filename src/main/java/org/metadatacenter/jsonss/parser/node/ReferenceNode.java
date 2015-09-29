@@ -6,8 +6,8 @@ import org.metadatacenter.jsonss.parser.ASTDefaultLocationValueDirective;
 import org.metadatacenter.jsonss.parser.ASTEmptyLiteralDirective;
 import org.metadatacenter.jsonss.parser.ASTEmptyLocationDirective;
 import org.metadatacenter.jsonss.parser.ASTReference;
+import org.metadatacenter.jsonss.parser.ASTReferenceSourceSpecification;
 import org.metadatacenter.jsonss.parser.ASTShiftDirective;
-import org.metadatacenter.jsonss.parser.ASTSourceSpecification;
 import org.metadatacenter.jsonss.parser.ASTValueExtractionFunction;
 import org.metadatacenter.jsonss.parser.InternalParseException;
 import org.metadatacenter.jsonss.parser.JSONSSParserConstants;
@@ -20,7 +20,7 @@ import org.metadatacenter.jsonss.ss.SpreadsheetLocation;
 
 public class ReferenceNode implements JSONSSNode, JSONSSParserConstants
 {
-  private SourceSpecificationNode sourceSpecificationNode;
+  private ReferenceSourceSpecificationNode referenceSourceSpecificationNode;
   private ReferenceTypeDirectiveNode referenceTypeDirectiveNode;
   private DefaultLocationValueDirectiveNode defaultLocationValueDirectiveNode;
   private DefaultLiteralValueDirectiveNode defaultLiteralValueDirectiveNode;
@@ -35,8 +35,8 @@ public class ReferenceNode implements JSONSSNode, JSONSSParserConstants
     for (int i = 0; i < node.jjtGetNumChildren(); i++) {
       Node child = node.jjtGetChild(i);
 
-      if (ParserUtil.hasName(child, "SourceSpecification")) {
-        this.sourceSpecificationNode = new SourceSpecificationNode((ASTSourceSpecification)child);
+      if (ParserUtil.hasName(child, "ReferenceSourceSpecification")) {
+        this.referenceSourceSpecificationNode = new ReferenceSourceSpecificationNode((ASTReferenceSourceSpecification)child);
       } else if (ParserUtil.hasName(child, "ReferenceTypeDirective")) {
         this.referenceTypeDirectiveNode = new ReferenceTypeDirectiveNode((ASTReferenceTypeDirective)child);
       } else if (ParserUtil.hasName(child, "DefaultLocationValueDirective")) {
@@ -69,7 +69,7 @@ public class ReferenceNode implements JSONSSNode, JSONSSParserConstants
 
     this.referenceDirectives = new ReferenceDirectives(node.defaultReferenceDirectives);
 
-    if (this.sourceSpecificationNode == null)
+    if (this.referenceSourceSpecificationNode == null)
       throw new RendererException("missing source specification in reference " + toString());
 
     if (this.referenceTypeDirectiveNode == null) { // No entity type specified by the user - use default type
@@ -107,9 +107,9 @@ public class ReferenceNode implements JSONSSNode, JSONSSParserConstants
     return this.referenceDirectives;
   }
 
-  public SourceSpecificationNode getSourceSpecificationNode()
+  public ReferenceSourceSpecificationNode getReferenceSourceSpecificationNode()
   {
-    return this.sourceSpecificationNode;
+    return this.referenceSourceSpecificationNode;
   }
 
   public void updateReferenceType(int type)
@@ -238,7 +238,7 @@ public class ReferenceNode implements JSONSSNode, JSONSSParserConstants
     String representation = "";
     boolean atLeastOneOptionProcessed = false;
 
-    representation += getSourceSpecificationNode();
+    representation += getReferenceSourceSpecificationNode();
 
     if (hasExplicitOptions())
       representation += "(";

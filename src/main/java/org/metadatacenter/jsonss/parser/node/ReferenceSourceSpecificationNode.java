@@ -1,14 +1,14 @@
 package org.metadatacenter.jsonss.parser.node;
 
-import org.metadatacenter.jsonss.parser.ASTSourceSpecification;
+import org.metadatacenter.jsonss.parser.ASTReferenceSourceSpecification;
 import org.metadatacenter.jsonss.parser.ParseException;
 
-public class SourceSpecificationNode implements JSONSSNode
+public class ReferenceSourceSpecificationNode implements JSONSSNode
 {
   private final String source, location;
   private final String literal;
 
-  public SourceSpecificationNode(ASTSourceSpecification node) throws ParseException
+  public ReferenceSourceSpecificationNode(ASTReferenceSourceSpecification node) throws ParseException
   {
     this.source = node.source;
     this.location = node.location;
@@ -29,7 +29,7 @@ public class SourceSpecificationNode implements JSONSSNode
 
   @Override public String getNodeName()
   {
-    return "SourceSpecification";
+    return "ReferenceSourceSpecification";
   }
 
   public String toString()

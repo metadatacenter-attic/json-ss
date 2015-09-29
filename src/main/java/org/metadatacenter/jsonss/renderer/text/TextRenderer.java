@@ -11,7 +11,7 @@ import org.metadatacenter.jsonss.parser.node.JSONObjectNode;
 import org.metadatacenter.jsonss.parser.node.JSONStringNode;
 import org.metadatacenter.jsonss.parser.node.JSONValueNode;
 import org.metadatacenter.jsonss.parser.node.ReferenceNode;
-import org.metadatacenter.jsonss.parser.node.SourceSpecificationNode;
+import org.metadatacenter.jsonss.parser.node.ReferenceSourceSpecificationNode;
 import org.metadatacenter.jsonss.parser.node.StringLiteralNode;
 import org.metadatacenter.jsonss.parser.node.ValueExtractionFunctionArgumentNode;
 import org.metadatacenter.jsonss.parser.node.ValueExtractionFunctionNode;
@@ -157,17 +157,17 @@ public class TextRenderer extends ReferenceRendererConfiguration
   @Override public Optional<TextReferenceRendering> renderReference(ReferenceNode referenceNode)
     throws RendererException
   {
-    SourceSpecificationNode sourceSpecificationNode = referenceNode.getSourceSpecificationNode();
+    ReferenceSourceSpecificationNode referenceSourceSpecificationNode = referenceNode.getReferenceSourceSpecificationNode();
     ReferenceType referenceType = referenceNode.getReferenceTypeDirectiveNode().getReferenceType();
 
-    if (sourceSpecificationNode.hasLiteral()) {
-      String literalReferenceValue = sourceSpecificationNode.getLiteral();
+    if (referenceSourceSpecificationNode.hasLiteral()) {
+      String literalReferenceValue = referenceSourceSpecificationNode.getLiteral();
       if (referenceType.isString())
         literalReferenceValue = "\"" + literalReferenceValue + "\"";
 
       return Optional.of(new TextReferenceRendering(literalReferenceValue, referenceType));
     } else {
-      SpreadsheetLocation location = dataSource.resolveLocation(referenceNode.getSourceSpecificationNode());
+      SpreadsheetLocation location = dataSource.resolveLocation(referenceNode.getReferenceSourceSpecificationNode());
       String resolvedReferenceValue = ReferenceUtil.resolveReferenceValue(dataSource, referenceNode);
 
       resolvedReferenceValue = resolvedReferenceValue.replace("\"", "\\\"");

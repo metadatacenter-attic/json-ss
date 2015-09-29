@@ -15,7 +15,7 @@ public class ReferenceUtil implements JSONSSParserConstants
   public static String resolveReferenceValue(SpreadSheetDataSource dataSource, ReferenceNode referenceNode)
     throws RendererException
   {
-    SpreadsheetLocation location = dataSource.resolveLocation(referenceNode.getSourceSpecificationNode());
+    SpreadsheetLocation location = dataSource.resolveLocation(referenceNode.getReferenceSourceSpecificationNode());
     String rawLocationValue = dataSource.getLocationValue(location, referenceNode); // Deals with shifting
     String referenceValue;
 

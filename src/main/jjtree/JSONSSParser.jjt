@@ -170,7 +170,7 @@ TOKEN:
 |
   <INTEGER: ("-") ? ( <DIGIT> | <NONZERO_DIGIT> <DIGITS>) >
 |
-  <FRACTIONAL_DIGITS: "." <DIGITS > >
+  <FRACTIONAL_DIGITS: "." <DIGITS> >
 |
   <#EXP: ["e", "E"] ( "+" | "-" )? >
 |
@@ -289,39 +289,9 @@ void json_null() #JSONNull : {}
   <NULL>
 }
 
-String jsonss_location_specification() :
-{
-  Token t;
-}
-{
-  t = <LOCATION_SPECIFICATION>
-
-  { return t.image; }
-}
-
-void jsonss_source_specification() #SourceSpecification : 
-{
-  String source = null;
-  String location = null;
-  String literal = null;
-  Token t;
-}
-{ 
-  (
-     ( ( source = jsonss_source_name() <EXCLAMATION_POINT> )? ( location = jsonss_location_specification()  ) )
-   | literal = string_literal()
-  )
-  
-  { 
-     jjtThis.source = source;
-     jjtThis.location = location;
-     jjtThis.literal = literal;
-  }
-}
-
 void jsonss_reference(int defaultReferenceType) #Reference : {}
 {
-   <AT> jsonss_source_specification()
+   <AT> jsonss_reference_source_specification()
        (
          <OPEN_PAREN>
             jsonss_reference_directive() ( jsonss_reference_directive() ) *
@@ -335,6 +305,50 @@ void jsonss_reference(int defaultReferenceType) #Reference : {}
                         defaultEmptyLiteralSetting);
   }
 }
+
+void jsonss_reference_source_specification() #ReferenceSourceSpecification : 
+{
+  String source = null;
+  String location = null;
+  String literal = null;
+  Token t;
+}
+{ 
+  (
+     ( ( source = jsonss_reference_source_name() <EXCLAMATION_POINT> )? ( location = jsonss_reference_location_specification()  ) )
+   | literal = string_literal()
+  )
+  
+  { 
+     jjtThis.source = source;
+     jjtThis.location = location;
+     jjtThis.literal = literal;
+  }
+}
+
+String jsonss_reference_source_name() : 
+{
+  Token t;
+}
+{
+  t = <QUOTED_NAME_LITERAL> 
+
+  {
+    String s = t.image;
+    return s.substring(1, s.length() - 1);
+  }
+}
+
+String jsonss_reference_location_specification() :
+{
+  Token t;
+}
+{
+  t = <LOCATION_SPECIFICATION>
+
+  { return t.image; }
+}
+
 
 void jsonss_reference_directive(): {}
 {
@@ -480,19 +494,6 @@ void jsonss_value_extraction_function() #ValueExtractionFunction:
 void jsonss_value_extraction_function_argument() #ValueExtractionFunctionArgument : {}
 {
   jsonss_reference(JSON_STRING) | string_literal()
-}
-
-String jsonss_source_name() : 
-{
-  Token t;
-}
-{
-  t = <QUOTED_NAME_LITERAL> 
-
-  {
-    String s = t.image;
-    return s.substring(1, s.length() - 1);
-  }
 }
 
 String string_literal() #StringLiteral: 
