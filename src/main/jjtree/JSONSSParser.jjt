@@ -502,6 +502,6 @@ String string():
 
   {
     String s = t.image;
-    return s;
+    return s.substring(1, s.length() - 1);
   }
 }
