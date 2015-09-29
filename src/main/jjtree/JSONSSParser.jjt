@@ -7,7 +7,6 @@ options {
   USER_CHAR_STREAM=false;
 
   // JJTree options
-
   MULTI=true;
   NODE_DEFAULT_VOID = true;
 }
@@ -96,20 +95,23 @@ TOKEN: { <JSON_STRING: "string" > }
 TOKEN: { <JSON_NUMBER: "number" > }
 TOKEN: { <JSON_BOOLEAN: "boolean" > }
 
-// JSON-SS Tokens
+// JSON Tokens
 
-TOKEN: { <CELL_WILDCARD: "*"> }
-TOKEN: { <EXCLAMATION_POINT: "!"> }
-TOKEN: { <COMMA: ","> }
-TOKEN: { <COLON: ":"> }
-TOKEN: { <EQUAL: "="> }
-TOKEN: { <AT: "@"> }
 TOKEN: { <OPEN_PAREN: "("> }
 TOKEN: { <CLOSE_PAREN: ")"> }
 TOKEN: { <OPEN_BRACE: "{"> }
 TOKEN: { <CLOSE_BRACE: "}"> }
 TOKEN: { <OPEN_BRACKET: "["> }
 TOKEN: { <CLOSE_BRACKET: "]"> }
+TOKEN: { <COMMA: ","> }
+TOKEN: { <COLON: ":"> }
+
+// JSON-SS Tokens
+
+TOKEN: { <CELL_WILDCARD: "*"> }
+TOKEN: { <EXCLAMATION_POINT: "!"> }
+TOKEN: { <EQUAL: "="> }
+TOKEN: { <AT: "@"> }
 
 TOKEN: { <LOCATION: "Location"> }
 
@@ -502,7 +504,7 @@ String string_literal() #StringLiteral:
 
   {
     String s = t.image;
-    jjtThis.s = s.substring(1, s.length() - 1);
+    jjtThis. s = s.substring(1, s.length() - 1);
     return s.substring(1, s.length() - 1);
   }
 }
