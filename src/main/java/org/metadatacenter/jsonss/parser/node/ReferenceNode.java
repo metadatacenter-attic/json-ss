@@ -95,8 +95,6 @@ public class ReferenceNode implements JSONSSNode, JSONSSParserConstants
 
     if (this.shiftDirectiveNode != null)
       this.referenceDirectives.setHasExplicitlySpecifiedShiftDirective(this.shiftDirectiveNode.getShiftSetting());
-
-    checkInvalidExplicitDirectives();
   }
 
   @Override public String getNodeName()
@@ -297,19 +295,5 @@ public class ReferenceNode implements JSONSSNode, JSONSSParserConstants
       representation += ")";
 
     return representation;
-  }
-
-  private void checkInvalidExplicitDirectives() throws ParseException
-  {
-    if (this.referenceDirectives.hasExplicitlySpecifiedEmptyLiteralDirective() && !this.referenceTypeDirectiveNode
-      .getReferenceType()
-      .isLiteral())
-      throw new ParseException(
-        "use of empty literal setting in reference " + toString() + " invalid because it is not an OWL literal");
-
-    if (this.referenceDirectives.hasExplicitlySpecifiedReferenceType() && this.referenceTypeDirectiveNode.getReferenceType().isLiteral())
-      throw new ParseException(
-        "entity type " + this.referenceTypeDirectiveNode.getReferenceType().getTypeName() + " in reference " + toString()
-          + " should not have defining types because it is an OWL literal");
   }
 }

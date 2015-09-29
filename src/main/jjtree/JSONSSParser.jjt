@@ -92,9 +92,9 @@ MORE :
   < ~[] >
 }
 
-TOKEN: { <JSON_BOOLEAN: "boolean" > }
 TOKEN: { <JSON_STRING: "string" > }
 TOKEN: { <JSON_NUMBER: "number" > }
+TOKEN: { <JSON_BOOLEAN: "boolean" > }
 
 // JSON-SS Tokens
 
@@ -320,7 +320,7 @@ void jsonss_source_specification() #SourceSpecification :
 void jsonss_reference(int defaultReferenceType) #Reference : {}
 {
    <AT> jsonss_source_specification()
-       ( LOOKAHEAD(2) 
+       (
          <OPEN_PAREN>
             jsonss_reference_directive() ( jsonss_reference_directive() ) *
          <CLOSE_PAREN>
@@ -334,7 +334,7 @@ void jsonss_reference(int defaultReferenceType) #Reference : {}
   }
 }
 
-void jsonss_reference_directive() #ReferenceDirective : {}
+void jsonss_reference_directive(): {}
 {
   (  jsonss_reference_type_directive()
    | jsonss_default_location_value_directive() 
@@ -346,19 +346,20 @@ void jsonss_reference_directive() #ReferenceDirective : {}
   ) 
 }
 
-int jsonss_reference_type_directive() #ReferenceTypeDirective : 
+void jsonss_reference_type_directive() #ReferenceTypeDirective : 
 {
   Token t;
   int referenceType;
 }
 {
   (
-     t = <EOF> { referenceType = t.kind; }
+       t = <JSON_STRING> { referenceType = t.kind; }
+     | t = <JSON_NUMBER> { referenceType = t.kind; }
+     | t = <JSON_BOOLEAN> { referenceType = t.kind; }
   ) 
 
   {
     jjtThis.referenceType = referenceType;
-    return referenceType;
   }
 }
 
