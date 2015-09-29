@@ -307,7 +307,7 @@ void jsonss_source_specification() #SourceSpecification :
 { 
   (
      ( ( source = jsonss_source_name() <EXCLAMATION_POINT> )? ( location = jsonss_location_specification()  ) )
-   | literal = string()
+   | literal = string_literal()
   )
   
   { 
@@ -427,7 +427,7 @@ void jsonss_default_literal_value_directive() #DefaultLiteralValueDirective :
   String literalValue;
 }
 {
-  <DEFAULT_LITERAL_VALUE> <EQUAL> literalValue = string()
+  <DEFAULT_LITERAL_VALUE> <EQUAL> literalValue = string_literal()
 
   {
     jjtThis.defaultLiteralValue = literalValue;
@@ -439,7 +439,7 @@ void jsonss_default_location_value_directive() #DefaultLocationValueDirective :
   String locationValue;
 }
 {
-  <DEFAULT_LOCATION_VALUE> <EQUAL> locationValue = string()
+  <DEFAULT_LOCATION_VALUE> <EQUAL> locationValue = string_literal()
 
   {
     jjtThis.defaultLocationValue = locationValue;
@@ -477,7 +477,7 @@ void jsonss_value_extraction_function() #ValueExtractionFunction:
 
 void jsonss_value_extraction_function_argument() #ValueExtractionFunctionArgument : {}
 {
-  jsonss_reference(JSON_STRING) | string()
+  jsonss_reference(JSON_STRING) | string_literal()
 }
 
 String jsonss_source_name() : 
@@ -493,7 +493,7 @@ String jsonss_source_name() :
   }
 }
 
-String string(): 
+String string_literal() #StringLiteral: 
 {
   Token t;
 }
@@ -502,6 +502,7 @@ String string():
 
   {
     String s = t.image;
+    jjtThis.s = s.substring(1, s.length() - 1);
     return s.substring(1, s.length() - 1);
   }
 }
