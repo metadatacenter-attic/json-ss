@@ -8,7 +8,7 @@ import org.metadatacenter.jsonss.parser.node.JSONNumberNode;
 import org.metadatacenter.jsonss.parser.node.JSONObjectNode;
 import org.metadatacenter.jsonss.parser.node.JSONStringNode;
 import org.metadatacenter.jsonss.parser.node.JSONValueNode;
-import org.metadatacenter.jsonss.renderer.DefaultReferenceRenderer;
+import org.metadatacenter.jsonss.renderer.TextReferenceRenderer;
 import org.metadatacenter.jsonss.renderer.InternalRendererException;
 import org.metadatacenter.jsonss.renderer.JSONSSRenderer;
 import org.metadatacenter.jsonss.renderer.ReferenceRendererConfiguration;
@@ -22,11 +22,11 @@ import java.util.Optional;
 
 public class TextRenderer implements JSONSSRenderer
 {
-  private final DefaultReferenceRenderer referenceRenderer;
+  private final TextReferenceRenderer referenceRenderer;
 
   public TextRenderer(SpreadSheetDataSource dataSource)
   {
-    this.referenceRenderer = new DefaultReferenceRenderer(dataSource);
+    this.referenceRenderer = new TextReferenceRenderer(dataSource);
   }
 
   @Override public Optional<? extends TextRendering> renderJSONExpression(JSONExpressionNode jsonExpressionNode)
@@ -51,6 +51,7 @@ public class TextRenderer implements JSONSSRenderer
     for (String key : keyValuePairs.keySet()) {
       JSONValueNode jsonValueNode = keyValuePairs.get(key);
       Optional<? extends TextRendering> jsonValueRendering = renderJSONValue(jsonValueNode);
+
       if (jsonValueRendering.isPresent()) {
         if (!isFirst)
           sb.append(", ");
@@ -73,6 +74,7 @@ public class TextRenderer implements JSONSSRenderer
 
     for (JSONValueNode jsonValueNode : jsonValues) {
       Optional<? extends TextRendering> jsonValueRendering = renderJSONValue(jsonValueNode);
+
       if (jsonValueRendering.isPresent()) {
         if (!isFirst)
           sb.append(", ");

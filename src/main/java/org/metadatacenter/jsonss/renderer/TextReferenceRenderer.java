@@ -18,12 +18,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public class DefaultReferenceRenderer extends ReferenceRendererConfiguration
+public class TextReferenceRenderer extends ReferenceRendererConfiguration
   implements ReferenceRenderer, JSONSSParserConstants
 {
   private SpreadSheetDataSource dataSource;
 
-  public DefaultReferenceRenderer(SpreadSheetDataSource dataSource)
+  public TextReferenceRenderer(SpreadSheetDataSource dataSource)
   {
     this.dataSource = dataSource;
   }
