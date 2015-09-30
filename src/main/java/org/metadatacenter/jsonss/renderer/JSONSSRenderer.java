@@ -31,7 +31,7 @@ public interface JSONSSRenderer
 
   Optional<? extends Rendering> renderJSONNull(JSONNullNode jsonNullNode) throws RendererException;
 
-  public void changeDataSource(SpreadSheetDataSource source);
+  public void updateDataSource(SpreadSheetDataSource source);
 
 	public ReferenceRendererConfiguration getReferenceRendererConfiguration();
 }
