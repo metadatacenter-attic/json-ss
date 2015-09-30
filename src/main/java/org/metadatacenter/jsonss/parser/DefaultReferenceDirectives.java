@@ -5,19 +5,19 @@ import org.metadatacenter.jsonss.core.ReferenceType;
 public class DefaultReferenceDirectives
 {
   private final ReferenceType defaultReferenceType;
-  private final String defaultLocationValue;
+  private final String defaultCellLocationValue;
   private final String defaultLiteralValue;
-  private final int defaultEmptyLocationDirective;
+  private final int defaultEmptyCellLocationDirective;
   private final int defaultEmptyLiteralDirective;
   private final int defaultShiftDirective;
 
   public DefaultReferenceDirectives(int defaultReferenceType, String defaultLocationValue, String defaultLiteralValue,
-    int defaultShiftDirective, int defaultEmptyLocationDirective, int defaultEmptyLiteralDirective)
+    int defaultShiftDirective, int defaultEmptyCellLocationDirective, int defaultEmptyLiteralDirective)
   {
     this.defaultReferenceType = new ReferenceType(defaultReferenceType);
-    this.defaultLocationValue = defaultLocationValue;
+    this.defaultCellLocationValue = defaultLocationValue;
     this.defaultLiteralValue = defaultLiteralValue;
-    this.defaultEmptyLocationDirective = defaultEmptyLocationDirective;
+    this.defaultEmptyCellLocationDirective = defaultEmptyCellLocationDirective;
     this.defaultEmptyLiteralDirective = defaultEmptyLiteralDirective;
     this.defaultShiftDirective = defaultShiftDirective;
   }
@@ -27,9 +27,9 @@ public class DefaultReferenceDirectives
     return this.defaultReferenceType;
   }
 
-  public String getDefaultLocationValue()
+  public String getDefaultCellLocationValue()
   {
-    return this.defaultLocationValue;
+    return this.defaultCellLocationValue;
   }
 
   public String getDefaultLiteralValue()
@@ -42,9 +42,9 @@ public class DefaultReferenceDirectives
     return this.defaultShiftDirective;
   }
 
-  public int getDefaultEmptyLocationDirective()
+  public int getDefaultEmptyCellLocationDirective()
   {
-    return this.defaultEmptyLocationDirective;
+    return this.defaultEmptyCellLocationDirective;
   }
 
   public int getDefaultEmptyLiteralDirective()

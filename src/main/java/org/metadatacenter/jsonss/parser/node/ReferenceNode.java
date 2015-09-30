@@ -16,7 +16,7 @@ import org.metadatacenter.jsonss.parser.ParserUtil;
 import org.metadatacenter.jsonss.renderer.RendererException;
 import org.metadatacenter.jsonss.parser.ASTReferenceTypeDirective;
 import org.metadatacenter.jsonss.parser.Node;
-import org.metadatacenter.jsonss.ss.SpreadsheetLocation;
+import org.metadatacenter.jsonss.ss.CellLocation;
 
 public class ReferenceNode implements JSONSSNode, JSONSSParserConstants
 {
@@ -213,19 +213,19 @@ public class ReferenceNode implements JSONSSNode, JSONSSParserConstants
     return this.valueExtractionFunctionNode;
   }
 
-  public boolean hasShiftedLocation()
+  public boolean hasShiftedCellLocation()
   {
-    return this.referenceDirectives.getShiftedLocation() != null;
+    return this.referenceDirectives.getShiftedCellLocation() != null;
   }
 
-  public void setShiftedLocation(SpreadsheetLocation location)
+  public void setShiftedCellLocation(CellLocation cellLocation)
   {
-    this.referenceDirectives.setShiftedLocation(location);
+    this.referenceDirectives.setShiftedCellLocation(cellLocation);
   }
 
-  public SpreadsheetLocation getShiftedLocation()
+  public CellLocation getShiftedLocation()
   {
-    return this.referenceDirectives.getShiftedLocation();
+    return this.referenceDirectives.getShiftedCellLocation();
   }
 
   public boolean hasExplicitOptions()

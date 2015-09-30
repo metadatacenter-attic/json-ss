@@ -1,6 +1,6 @@
 package org.metadatacenter.jsonss.ss;
 
-public class SpreadsheetLocation
+public class CellLocation
 {
   // There is an equals() method defined on this class.
   private final String sheetName;
@@ -12,7 +12,7 @@ public class SpreadsheetLocation
    * @param columnNumber The physical column number (start from 1)
    * @param rowNumber The physical row number (start from 1)
    */
-  public SpreadsheetLocation(String sheetName, int columnNumber, int rowNumber)
+  public CellLocation(String sheetName, int columnNumber, int rowNumber)
   {
     this.sheetName = sheetName;
     this.columnNumber = columnNumber;
@@ -86,7 +86,7 @@ public class SpreadsheetLocation
     if (o == null || getClass() != o.getClass())
       return false;
 
-    SpreadsheetLocation that = (SpreadsheetLocation)o;
+    CellLocation that = (CellLocation)o;
 
     if (columnNumber != that.columnNumber)
       return false;

@@ -3,30 +3,30 @@ package org.metadatacenter.jsonss.core;
 import org.metadatacenter.jsonss.parser.node.ReferenceNode;
 import org.metadatacenter.jsonss.parser.node.ReferenceSourceSpecificationNode;
 import org.metadatacenter.jsonss.renderer.RendererException;
-import org.metadatacenter.jsonss.ss.SpreadsheetLocation;
+import org.metadatacenter.jsonss.ss.CellLocation;
 
 import java.util.List;
 import java.util.Optional;
 
 /**
  * Interface describing a data source seen by a JSON-SS renderer.
- * Currently this supports spreadsheets only.
  */
 public interface DataSource
 {
-	String getLocationValue(SpreadsheetLocation location, ReferenceNode referenceNode) throws RendererException;
+  String getCellLocationValue(CellLocation cellLocation, ReferenceNode referenceNode) throws RendererException;
 
-	String getLocationValue(SpreadsheetLocation location) throws RendererException;
+  String getCellLocationValue(CellLocation cellLocation) throws RendererException;
 
-	String getLocationValueWithShifting(SpreadsheetLocation location, ReferenceNode referenceNode) throws RendererException;
+  String getCellLocationValueWithShifting(CellLocation cellLocation, ReferenceNode referenceNode)
+    throws RendererException;
 
-	void setCurrentLocation(SpreadsheetLocation location);
+  void setCurrentCellLocation(CellLocation cellLocation);
 
-	Optional<SpreadsheetLocation> getCurrentLocation();
+  Optional<CellLocation> getCurrentCellLocation();
 
-	boolean hasCurrentLocation();
+  boolean hasCurrentCellLocation();
 
-	SpreadsheetLocation resolveLocation(ReferenceSourceSpecificationNode sourceSpecification) throws RendererException;
+  CellLocation resolveCellLocation(ReferenceSourceSpecificationNode sourceSpecification) throws RendererException;
 
-	List<String> getSheetNames();
+  List<String> getSheetNames();
 }

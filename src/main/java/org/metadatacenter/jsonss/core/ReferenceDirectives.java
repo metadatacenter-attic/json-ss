@@ -2,7 +2,7 @@ package org.metadatacenter.jsonss.core;
 
 import org.metadatacenter.jsonss.parser.DefaultReferenceDirectives;
 import org.metadatacenter.jsonss.parser.JSONSSParserConstants;
-import org.metadatacenter.jsonss.ss.SpreadsheetLocation;
+import org.metadatacenter.jsonss.ss.CellLocation;
 
 public class ReferenceDirectives implements JSONSSParserConstants
 {
@@ -21,8 +21,7 @@ public class ReferenceDirectives implements JSONSSParserConstants
   private int explicitlySpecifiedEmptyLiteralDirective = -1;
 
   private boolean usesLocationEncoding;
-  private boolean usesLocationWithDuplicatesEncoding;
-  private SpreadsheetLocation shiftedLocation;
+  private CellLocation shiftedCellLocation;
 
   private boolean hasExplicitlySpecifiedOptions;
 
@@ -41,19 +40,9 @@ public class ReferenceDirectives implements JSONSSParserConstants
     this.usesLocationEncoding = true;
   }
 
-  public void setUsesLocationWithDuplicatesEncoding()
-  {
-    this.usesLocationWithDuplicatesEncoding = true;
-  }
-
   public boolean usesLocationEncoding()
   {
     return this.usesLocationEncoding;
-  }
-
-  public boolean usesLocationWithDuplicatesEncoding()
-  {
-    return this.usesLocationWithDuplicatesEncoding;
   }
 
   public int getDefaultShiftDirective()
@@ -61,9 +50,9 @@ public class ReferenceDirectives implements JSONSSParserConstants
     return this.defaultReferenceDirectives.getDefaultShiftDirective();
   }
 
-  public String getDefaultLocationValue()
+  public String getDefaultCellLocationValue()
   {
-    return this.defaultReferenceDirectives.getDefaultLocationValue();
+    return this.defaultReferenceDirectives.getDefaultCellLocationValue();
   }
 
   public boolean hasExplicitlySpecifiedReferenceType()
@@ -101,7 +90,7 @@ public class ReferenceDirectives implements JSONSSParserConstants
   {
     return hasExplicitlySpecifiedDefaultLocationValue() ?
       this.explicitlySpecifiedDefaultLocationValue :
-      this.defaultReferenceDirectives.getDefaultLocationValue();
+      this.defaultReferenceDirectives.getDefaultCellLocationValue();
   }
 
   public boolean hasExplicitlySpecifiedDefaultLiteral()
@@ -158,7 +147,7 @@ public class ReferenceDirectives implements JSONSSParserConstants
   {
     return hasExplicitlySpecifiedEmptyLocationDirective() ?
       this.explicitlySpecifiedEmptyLocationDirective :
-      this.defaultReferenceDirectives.getDefaultEmptyLocationDirective();
+      this.defaultReferenceDirectives.getDefaultEmptyCellLocationDirective();
   }
 
   public boolean hasExplicitlySpecifiedEmptyLiteralDirective()
@@ -180,13 +169,13 @@ public class ReferenceDirectives implements JSONSSParserConstants
       this.defaultReferenceDirectives.getDefaultEmptyLiteralDirective();
   }
 
-  public SpreadsheetLocation getShiftedLocation()
+  public CellLocation getShiftedCellLocation()
   {
-    return this.shiftedLocation;
+    return this.shiftedCellLocation;
   }
 
-  public void setShiftedLocation(SpreadsheetLocation shiftedLocation)
+  public void setShiftedCellLocation(CellLocation shiftedCellLocation)
   {
-    this.shiftedLocation = shiftedLocation;
+    this.shiftedCellLocation = shiftedCellLocation;
   }
 }

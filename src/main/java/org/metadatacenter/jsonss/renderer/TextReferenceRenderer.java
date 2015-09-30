@@ -11,8 +11,8 @@ import org.metadatacenter.jsonss.rendering.ReferenceRendering;
 import org.metadatacenter.jsonss.rendering.StringLiteralRendering;
 import org.metadatacenter.jsonss.rendering.text.TextReferenceRendering;
 import org.metadatacenter.jsonss.rendering.text.TextStringLiteralRendering;
+import org.metadatacenter.jsonss.ss.CellLocation;
 import org.metadatacenter.jsonss.ss.SpreadSheetDataSource;
-import org.metadatacenter.jsonss.ss.SpreadsheetLocation;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -52,8 +52,8 @@ public class TextReferenceRenderer extends ReferenceRendererConfiguration
 
       return Optional.of(new TextReferenceRendering(literalReferenceValue, referenceType));
     } else {
-      SpreadsheetLocation location = this.dataSource
-        .resolveLocation(referenceNode.getReferenceSourceSpecificationNode());
+      CellLocation cellLocation = this.dataSource
+        .resolveCellLocation(referenceNode.getReferenceSourceSpecificationNode());
       String resolvedReferenceValue = ReferenceUtil.resolveReferenceValue(dataSource, referenceNode);
 
       resolvedReferenceValue = resolvedReferenceValue.replace("\"", "\\\"");
@@ -68,7 +68,8 @@ public class TextReferenceRenderer extends ReferenceRendererConfiguration
       }
 
       if (referenceType.isLiteral()) {
-        String literalReferenceValue = processLiteralReferenceValue(location, resolvedReferenceValue, referenceNode);
+        String literalReferenceValue = processLiteralReferenceValue(cellLocation, resolvedReferenceValue,
+          referenceNode);
 
         if (literalReferenceValue.isEmpty() && referenceNode.getActualEmptyLiteralDirective() == SKIP_IF_EMPTY_LITERAL)
           return Optional.empty();
@@ -89,7 +90,7 @@ public class TextReferenceRenderer extends ReferenceRendererConfiguration
     }
   }
 
-  private String processLiteralReferenceValue(SpreadsheetLocation location, String rawLocationValue,
+  private String processLiteralReferenceValue(CellLocation cellLocation, String rawLocationValue,
     ReferenceNode referenceNode) throws RendererException
   {
     String sourceValue = rawLocationValue.replace("\"", "\\\"");
@@ -105,7 +106,7 @@ public class TextReferenceRenderer extends ReferenceRendererConfiguration
         referenceNode.getValueExtractionFunctionNode());
 
     if (processedReferenceValue.isEmpty() && referenceNode.getActualEmptyLiteralDirective() == ERROR_IF_EMPTY_LITERAL)
-      throw new RendererException("empty literal in reference " + referenceNode + " at location " + location);
+      throw new RendererException("empty literal in reference " + referenceNode + " at location " + cellLocation);
 
     return processedReferenceValue;
   }

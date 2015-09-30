@@ -13,8 +13,8 @@ import org.metadatacenter.jsonss.parser.SimpleNode;
 import org.metadatacenter.jsonss.parser.node.JSONExpressionNode;
 import org.metadatacenter.jsonss.renderer.text.TextRenderer;
 import org.metadatacenter.jsonss.rendering.text.TextRendering;
+import org.metadatacenter.jsonss.ss.CellLocation;
 import org.metadatacenter.jsonss.ss.SpreadSheetDataSource;
-import org.metadatacenter.jsonss.ss.SpreadsheetLocation;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -28,11 +28,9 @@ import java.util.Set;
 public class IntegrationTestBase
 {
   protected static final String SHEET1 = "Sheet1";
-  protected static final String SHEET2 = "Sheet2";
-  protected static final String SHEET3 = "Sheet3";
   protected static final String DEFAULT_SHEET = SHEET1;
   protected static final Set<Label> EMPTY_CELL_SET = Collections.emptySet();
-  protected static final SpreadsheetLocation DEFAULT_CURRENT_LOCATION = new SpreadsheetLocation(SHEET1, 1, 1);
+  protected static final CellLocation DEFAULT_CURRENT_CELL_LOCATION = new CellLocation(SHEET1, 1, 1);
 
   protected Workbook createWorkbook(String sheetName, Set<Label> cells) throws IOException
   {
@@ -41,11 +39,11 @@ public class IntegrationTestBase
 
     Map<Integer, Row> buffer = new HashMap<>();
     for (Label cell : cells) {
-      int rownum = cell.getRowIndex();
-      Row row = buffer.get(rownum);
+      int rowIndex = cell.getRowIndex();
+      Row row = buffer.get(rowIndex);
       if (row == null) {
-        row = sheet.createRow(rownum);
-        buffer.put(rownum, row);
+        row = sheet.createRow(rowIndex);
+        buffer.put(rowIndex, row);
       }
       row.createCell(cell.columnIndex).setCellValue(cell.getContent());
     }
@@ -69,12 +67,12 @@ public class IntegrationTestBase
   }
 
   protected Optional<? extends TextRendering> createTextRendering(String sheetName, Set<Label> cells,
-    SpreadsheetLocation currentLocation, String expression, ReferenceSettings settings)
+    CellLocation currentCellLocation, String expression, ReferenceSettings settings)
     throws JSONSSException, IOException, ParseException
   {
     SpreadSheetDataSource dataSource = createSpreadsheetDataSource(sheetName, cells);
 
-    dataSource.setCurrentLocation(currentLocation);
+    dataSource.setCurrentCellLocation(currentCellLocation);
 
     TextRenderer renderer = new TextRenderer(dataSource);
     JSONExpressionNode jsonExpressionNode = parseJSONExpression(expression, settings);
@@ -82,8 +80,8 @@ public class IntegrationTestBase
     return renderer.renderJSONExpression(jsonExpressionNode);
   }
 
-  protected Optional<? extends TextRendering> createTextRendering(String expression,
-    ReferenceSettings settings) throws JSONSSException, IOException, ParseException
+  protected Optional<? extends TextRendering> createTextRendering(String expression, ReferenceSettings settings)
+    throws JSONSSException, IOException, ParseException
   {
     return createTextRendering(DEFAULT_SHEET, EMPTY_CELL_SET, expression, settings);
   }
@@ -91,7 +89,7 @@ public class IntegrationTestBase
   protected Optional<? extends TextRendering> createTextRendering(String sheetName, Set<Label> cells, String expression,
     ReferenceSettings settings) throws JSONSSException, IOException, ParseException
   {
-    return createTextRendering(sheetName, cells, DEFAULT_CURRENT_LOCATION, expression, settings);
+    return createTextRendering(sheetName, cells, DEFAULT_CURRENT_CELL_LOCATION, expression, settings);
   }
 
   /**

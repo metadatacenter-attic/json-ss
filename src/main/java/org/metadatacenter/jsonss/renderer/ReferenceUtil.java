@@ -3,7 +3,7 @@ package org.metadatacenter.jsonss.renderer;
 import org.metadatacenter.jsonss.parser.JSONSSParserConstants;
 import org.metadatacenter.jsonss.parser.node.ReferenceNode;
 import org.metadatacenter.jsonss.ss.SpreadSheetDataSource;
-import org.metadatacenter.jsonss.ss.SpreadsheetLocation;
+import org.metadatacenter.jsonss.ss.CellLocation;
 
 import java.util.List;
 import java.util.regex.Matcher;
@@ -15,8 +15,8 @@ public class ReferenceUtil implements JSONSSParserConstants
   public static String resolveReferenceValue(SpreadSheetDataSource dataSource, ReferenceNode referenceNode)
     throws RendererException
   {
-    SpreadsheetLocation location = dataSource.resolveLocation(referenceNode.getReferenceSourceSpecificationNode());
-    String rawLocationValue = dataSource.getLocationValue(location, referenceNode); // Deals with shifting
+    CellLocation cellLocation = dataSource.resolveCellLocation(referenceNode.getReferenceSourceSpecificationNode());
+    String rawLocationValue = dataSource.getCellLocationValue(cellLocation, referenceNode); // Deals with shifting
     String referenceValue;
 
     if (rawLocationValue == null || rawLocationValue.isEmpty()) {
@@ -28,7 +28,7 @@ public class ReferenceUtil implements JSONSSParserConstants
     if (referenceValue.isEmpty()) {
       switch (referenceNode.getActualEmptyLocationDirective()) {
       case ERROR_IF_EMPTY_LOCATION:
-        throw new RendererException("empty location " + location + " in reference " + referenceNode);
+        throw new RendererException("empty location " + cellLocation + " in reference " + referenceNode);
       case WARNING_IF_EMPTY_LOCATION: // NO-OP
       }
     }
