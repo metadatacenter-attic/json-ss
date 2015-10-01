@@ -8,12 +8,14 @@ import org.metadatacenter.jsonss.parser.node.JSONNumberNode;
 import org.metadatacenter.jsonss.parser.node.JSONObjectNode;
 import org.metadatacenter.jsonss.parser.node.JSONStringNode;
 import org.metadatacenter.jsonss.parser.node.JSONValueNode;
-import org.metadatacenter.jsonss.renderer.TextReferenceRenderer;
 import org.metadatacenter.jsonss.renderer.InternalRendererException;
 import org.metadatacenter.jsonss.renderer.JSONSSRenderer;
 import org.metadatacenter.jsonss.renderer.ReferenceRendererConfiguration;
 import org.metadatacenter.jsonss.renderer.RendererException;
+import org.metadatacenter.jsonss.renderer.TextReferenceRenderer;
 import org.metadatacenter.jsonss.rendering.text.TextRendering;
+import org.metadatacenter.jsonss.ss.CellLocation;
+import org.metadatacenter.jsonss.ss.CellRange;
 import org.metadatacenter.jsonss.ss.SpreadSheetDataSource;
 
 import java.util.List;
@@ -23,25 +25,30 @@ import java.util.Optional;
 public class TextRenderer implements JSONSSRenderer
 {
   private final TextReferenceRenderer referenceRenderer;
+  private final CellRange enclosingCellRange;
+  private Optional<CellLocation> currentCellLocation;
 
-  public TextRenderer(SpreadSheetDataSource dataSource)
+  public TextRenderer(SpreadSheetDataSource dataSource, ReferenceRendererConfiguration referenceRendererConfiguration)
   {
-    this.referenceRenderer = new TextReferenceRenderer(dataSource);
+    this.referenceRenderer = new TextReferenceRenderer(dataSource, referenceRendererConfiguration);
+    this.enclosingCellRange = dataSource.getEnclosingCellRange();
+    this.currentCellLocation = Optional.empty();
   }
 
   @Override public Optional<? extends TextRendering> renderJSONExpression(JSONExpressionNode jsonExpressionNode)
     throws RendererException
   {
     if (jsonExpressionNode.isJSONArray())
-      return renderJSONArray(jsonExpressionNode.getJSONArrayNode());
+      return renderJSONArray(jsonExpressionNode.getJSONArrayNode(), this.enclosingCellRange, this.currentCellLocation);
     else if (jsonExpressionNode.isJSONObject())
-      return renderJSONObject(jsonExpressionNode.getJSONObjectNode());
+      return renderJSONObject(jsonExpressionNode.getJSONObjectNode(), this.enclosingCellRange,
+        this.currentCellLocation);
     else
       throw new InternalRendererException("unknown " + jsonExpressionNode.getNodeName() + " node type");
   }
 
-  @Override public Optional<? extends TextRendering> renderJSONObject(JSONObjectNode jsonObjectNode)
-    throws RendererException
+  @Override public Optional<? extends TextRendering> renderJSONObject(JSONObjectNode jsonObjectNode,
+    CellRange enclosingCellRange, Optional<CellLocation> currentCellLocation) throws RendererException
   {
     Map<String, JSONValueNode> keyValuePairs = jsonObjectNode.getKeyValuePairs();
 
@@ -50,7 +57,8 @@ public class TextRenderer implements JSONSSRenderer
 
     for (String key : keyValuePairs.keySet()) {
       JSONValueNode jsonValueNode = keyValuePairs.get(key);
-      Optional<? extends TextRendering> jsonValueRendering = renderJSONValue(jsonValueNode);
+      Optional<? extends TextRendering> jsonValueRendering = renderJSONValue(jsonValueNode, enclosingCellRange,
+        currentCellLocation);
 
       if (jsonValueRendering.isPresent()) {
         if (!isFirst)
@@ -64,8 +72,8 @@ public class TextRenderer implements JSONSSRenderer
     return Optional.of(new TextRendering(sb.toString()));
   }
 
-  @Override public Optional<? extends TextRendering> renderJSONArray(JSONArrayNode jsonArrayNode)
-    throws RendererException
+  @Override public Optional<? extends TextRendering> renderJSONArray(JSONArrayNode jsonArrayNode,
+    CellRange enclosingCellRange, Optional<CellLocation> currentCellLocation) throws RendererException
   {
     List<JSONValueNode> jsonValues = jsonArrayNode.getElements();
 
@@ -73,7 +81,8 @@ public class TextRenderer implements JSONSSRenderer
     boolean isFirst = true;
 
     for (JSONValueNode jsonValueNode : jsonValues) {
-      Optional<? extends TextRendering> jsonValueRendering = renderJSONValue(jsonValueNode);
+      Optional<? extends TextRendering> jsonValueRendering = renderJSONValue(jsonValueNode, enclosingCellRange,
+        currentCellLocation);
 
       if (jsonValueRendering.isPresent()) {
         if (!isFirst)
@@ -87,13 +96,13 @@ public class TextRenderer implements JSONSSRenderer
     return Optional.of(new TextRendering(sb.toString()));
   }
 
-  @Override public Optional<? extends TextRendering> renderJSONValue(JSONValueNode jsonValueNode)
-    throws RendererException
+  @Override public Optional<? extends TextRendering> renderJSONValue(JSONValueNode jsonValueNode,
+    CellRange enclosingCellRange, Optional<CellLocation> currentCellLocation) throws RendererException
   {
     if (jsonValueNode.isJSONArray())
-      return renderJSONArray(jsonValueNode.getJSONArrayNode());
+      return renderJSONArray(jsonValueNode.getJSONArrayNode(), enclosingCellRange, currentCellLocation);
     else if (jsonValueNode.isJSONObject())
-      return renderJSONObject(jsonValueNode.getJSONObjectNode());
+      return renderJSONObject(jsonValueNode.getJSONObjectNode(), enclosingCellRange, currentCellLocation);
     else if (jsonValueNode.isJSONString())
       return renderJSONString(jsonValueNode.getJSONStringNode());
     else if (jsonValueNode.isJSONNumber())
@@ -103,7 +112,8 @@ public class TextRenderer implements JSONSSRenderer
     else if (jsonValueNode.isJSONNull())
       return renderJSONNull(jsonValueNode.getJSONNullNode());
     else if (jsonValueNode.isReference())
-      return referenceRenderer.renderReference(jsonValueNode.getReferenceNode());
+      return referenceRenderer
+        .renderReference(jsonValueNode.getReferenceNode(), enclosingCellRange, currentCellLocation);
     else
       throw new InternalRendererException("unknown " + jsonValueNode.getNodeName() + " node type");
   }
@@ -129,15 +139,5 @@ public class TextRenderer implements JSONSSRenderer
   @Override public Optional<? extends TextRendering> renderJSONNull(JSONNullNode jsonNullNode) throws RendererException
   {
     return Optional.of(new TextRendering("null"));
-  }
-
-  @Override public void updateDataSource(SpreadSheetDataSource dataSource)
-  {
-    this.referenceRenderer.updateDataSource(dataSource);
-  }
-
-  @Override public ReferenceRendererConfiguration getReferenceRendererConfiguration()
-  {
-    return this.referenceRenderer.getReferenceRendererConfiguration();
   }
 }

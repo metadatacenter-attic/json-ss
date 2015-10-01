@@ -4,8 +4,8 @@ import org.metadatacenter.jsonss.parser.node.ReferenceNode;
 import org.metadatacenter.jsonss.parser.node.ReferenceSourceSpecificationNode;
 import org.metadatacenter.jsonss.renderer.RendererException;
 import org.metadatacenter.jsonss.ss.CellLocation;
+import org.metadatacenter.jsonss.ss.CellRange;
 
-import java.util.List;
 import java.util.Optional;
 
 /**
@@ -13,20 +13,10 @@ import java.util.Optional;
  */
 public interface DataSource
 {
+  CellLocation resolveCellLocation(ReferenceSourceSpecificationNode referenceSourceSpecificationNode,
+    Optional<CellLocation> currentCellLocation) throws RendererException;
+
   String getCellLocationValue(CellLocation cellLocation, ReferenceNode referenceNode) throws RendererException;
 
-  String getCellLocationValue(CellLocation cellLocation) throws RendererException;
-
-  String getCellLocationValueWithShifting(CellLocation cellLocation, ReferenceNode referenceNode)
-    throws RendererException;
-
-  void setCurrentCellLocation(CellLocation cellLocation);
-
-  Optional<CellLocation> getCurrentCellLocation();
-
-  boolean hasCurrentCellLocation();
-
-  CellLocation resolveCellLocation(ReferenceSourceSpecificationNode sourceSpecification) throws RendererException;
-
-  List<String> getSheetNames();
+  CellRange getEnclosingCellRange();
 }

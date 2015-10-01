@@ -102,19 +102,9 @@ public class ReferenceNode implements JSONSSNode, JSONSSParserConstants
     return "Reference";
   }
 
-  public ReferenceDirectives getReferenceDirectives()
-  {
-    return this.referenceDirectives;
-  }
-
   public ReferenceSourceSpecificationNode getReferenceSourceSpecificationNode()
   {
     return this.referenceSourceSpecificationNode;
-  }
-
-  public void updateReferenceType(int type)
-  {
-    this.referenceTypeDirectiveNode = new ReferenceTypeDirectiveNode(type);
   }
 
   public ReferenceTypeDirectiveNode getReferenceTypeDirectiveNode()

@@ -11,6 +11,7 @@ import org.metadatacenter.jsonss.parser.JSONSSParser;
 import org.metadatacenter.jsonss.parser.ParseException;
 import org.metadatacenter.jsonss.parser.SimpleNode;
 import org.metadatacenter.jsonss.parser.node.JSONExpressionNode;
+import org.metadatacenter.jsonss.renderer.ReferenceRendererConfiguration;
 import org.metadatacenter.jsonss.renderer.text.TextRenderer;
 import org.metadatacenter.jsonss.rendering.text.TextRendering;
 import org.metadatacenter.jsonss.ss.CellLocation;
@@ -31,6 +32,7 @@ public class IntegrationTestBase
   protected static final String DEFAULT_SHEET = SHEET1;
   protected static final Set<Label> EMPTY_CELL_SET = Collections.emptySet();
   protected static final CellLocation DEFAULT_CURRENT_CELL_LOCATION = new CellLocation(SHEET1, 1, 1);
+  protected static final ReferenceRendererConfiguration referenceRendererConfiguration = new ReferenceRendererConfiguration();
 
   protected Workbook createWorkbook(String sheetName, Set<Label> cells) throws IOException
   {
@@ -72,9 +74,7 @@ public class IntegrationTestBase
   {
     SpreadSheetDataSource dataSource = createSpreadsheetDataSource(sheetName, cells);
 
-    dataSource.setCurrentCellLocation(currentCellLocation);
-
-    TextRenderer renderer = new TextRenderer(dataSource);
+    TextRenderer renderer = new TextRenderer(dataSource, referenceRendererConfiguration);
     JSONExpressionNode jsonExpressionNode = parseJSONExpression(expression, settings);
 
     return renderer.renderJSONExpression(jsonExpressionNode);

@@ -2,20 +2,22 @@ package org.metadatacenter.jsonss.renderer;
 
 import org.metadatacenter.jsonss.parser.JSONSSParserConstants;
 import org.metadatacenter.jsonss.parser.node.ReferenceNode;
-import org.metadatacenter.jsonss.ss.SpreadSheetDataSource;
 import org.metadatacenter.jsonss.ss.CellLocation;
+import org.metadatacenter.jsonss.ss.SpreadSheetDataSource;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
 public class ReferenceUtil implements JSONSSParserConstants
 {
-  public static String resolveReferenceValue(SpreadSheetDataSource dataSource, ReferenceNode referenceNode)
-    throws RendererException
+  public static String resolveReferenceValue(SpreadSheetDataSource dataSource, ReferenceNode referenceNode,
+    Optional<CellLocation> currentCellLocation) throws RendererException
   {
-    CellLocation cellLocation = dataSource.resolveCellLocation(referenceNode.getReferenceSourceSpecificationNode());
+    CellLocation cellLocation = dataSource
+      .resolveCellLocation(referenceNode.getReferenceSourceSpecificationNode(), currentCellLocation);
     String rawLocationValue = dataSource.getCellLocationValue(cellLocation, referenceNode); // Deals with shifting
     String referenceValue;
 

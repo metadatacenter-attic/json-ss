@@ -12,34 +12,27 @@ import org.metadatacenter.jsonss.rendering.StringLiteralRendering;
 import org.metadatacenter.jsonss.rendering.text.TextReferenceRendering;
 import org.metadatacenter.jsonss.rendering.text.TextStringLiteralRendering;
 import org.metadatacenter.jsonss.ss.CellLocation;
+import org.metadatacenter.jsonss.ss.CellRange;
 import org.metadatacenter.jsonss.ss.SpreadSheetDataSource;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public class TextReferenceRenderer extends ReferenceRendererConfiguration
-  implements ReferenceRenderer, JSONSSParserConstants
+public class TextReferenceRenderer implements ReferenceRenderer
 {
-  private SpreadSheetDataSource dataSource;
+  private final ReferenceRendererConfiguration referenceRendererConfiguration;
+  private final SpreadSheetDataSource dataSource;
 
-  public TextReferenceRenderer(SpreadSheetDataSource dataSource)
+  public TextReferenceRenderer(SpreadSheetDataSource dataSource,
+    ReferenceRendererConfiguration referenceRendererConfiguration)
   {
     this.dataSource = dataSource;
+    this.referenceRendererConfiguration = referenceRendererConfiguration;
   }
 
-  @Override public void updateDataSource(SpreadSheetDataSource dataSource)
-  {
-    this.dataSource = dataSource;
-  }
-
-  @Override public ReferenceRendererConfiguration getReferenceRendererConfiguration()
-  {
-    return this;
-  }
-
-  @Override public Optional<TextReferenceRendering> renderReference(ReferenceNode referenceNode)
-    throws RendererException
+  @Override public Optional<TextReferenceRendering> renderReference(ReferenceNode referenceNode,
+    CellRange enclosingCellRange, Optional<CellLocation> currentCellLocation) throws RendererException
   {
     ReferenceSourceSpecificationNode referenceSourceSpecificationNode = referenceNode
       .getReferenceSourceSpecificationNode();
@@ -53,29 +46,32 @@ public class TextReferenceRenderer extends ReferenceRendererConfiguration
       return Optional.of(new TextReferenceRendering(literalReferenceValue, referenceType));
     } else {
       CellLocation cellLocation = this.dataSource
-        .resolveCellLocation(referenceNode.getReferenceSourceSpecificationNode());
-      String resolvedReferenceValue = ReferenceUtil.resolveReferenceValue(dataSource, referenceNode);
+        .resolveCellLocation(referenceNode.getReferenceSourceSpecificationNode(), currentCellLocation);
+      String resolvedReferenceValue = ReferenceUtil
+        .resolveReferenceValue(dataSource, referenceNode, currentCellLocation);
 
       resolvedReferenceValue = resolvedReferenceValue.replace("\"", "\\\"");
 
-      if (resolvedReferenceValue.isEmpty() && referenceNode.getActualEmptyLocationDirective() == SKIP_IF_EMPTY_LOCATION)
+      if (resolvedReferenceValue.isEmpty()
+        && referenceNode.getActualEmptyLocationDirective() == JSONSSParserConstants.SKIP_IF_EMPTY_LOCATION)
         return Optional.empty();
 
       if (resolvedReferenceValue.isEmpty()
-        && referenceNode.getActualEmptyLocationDirective() == WARNING_IF_EMPTY_LOCATION) {
+        && referenceNode.getActualEmptyLocationDirective() == JSONSSParserConstants.WARNING_IF_EMPTY_LOCATION) {
         // TODO Warn in log file
         return Optional.empty();
       }
 
       if (referenceType.isLiteral()) {
-        String literalReferenceValue = processLiteralReferenceValue(cellLocation, resolvedReferenceValue,
-          referenceNode);
+        String literalReferenceValue = processLiteralReferenceValue(cellLocation, resolvedReferenceValue, referenceNode,
+          enclosingCellRange, currentCellLocation);
 
-        if (literalReferenceValue.isEmpty() && referenceNode.getActualEmptyLiteralDirective() == SKIP_IF_EMPTY_LITERAL)
+        if (literalReferenceValue.isEmpty()
+          && referenceNode.getActualEmptyLiteralDirective() == JSONSSParserConstants.SKIP_IF_EMPTY_LITERAL)
           return Optional.empty();
 
         if (literalReferenceValue.isEmpty()
-          && referenceNode.getActualEmptyLiteralDirective() == WARNING_IF_EMPTY_LITERAL) {
+          && referenceNode.getActualEmptyLiteralDirective() == JSONSSParserConstants.WARNING_IF_EMPTY_LITERAL) {
           // TODO Warn in log file
           return Optional.empty();
         }
@@ -90,8 +86,14 @@ public class TextReferenceRenderer extends ReferenceRendererConfiguration
     }
   }
 
+  @Override public ReferenceRendererConfiguration getReferenceRendererConfiguration()
+  {
+    return this.referenceRendererConfiguration;
+  }
+
   private String processLiteralReferenceValue(CellLocation cellLocation, String rawLocationValue,
-    ReferenceNode referenceNode) throws RendererException
+    ReferenceNode referenceNode, CellRange enclosingCellRange, Optional<CellLocation> currentCellLocation)
+    throws RendererException
   {
     String sourceValue = rawLocationValue.replace("\"", "\\\"");
     String processedReferenceValue;
@@ -103,9 +105,10 @@ public class TextReferenceRenderer extends ReferenceRendererConfiguration
 
     if (referenceNode.hasValueExtractionFunctionNode())
       processedReferenceValue = generateReferenceValue(processedReferenceValue,
-        referenceNode.getValueExtractionFunctionNode());
+        referenceNode.getValueExtractionFunctionNode(), enclosingCellRange, currentCellLocation);
 
-    if (processedReferenceValue.isEmpty() && referenceNode.getActualEmptyLiteralDirective() == ERROR_IF_EMPTY_LITERAL)
+    if (processedReferenceValue.isEmpty()
+      && referenceNode.getActualEmptyLiteralDirective() == JSONSSParserConstants.ERROR_IF_EMPTY_LITERAL)
       throw new RendererException("empty literal in reference " + referenceNode + " at location " + cellLocation);
 
     return processedReferenceValue;
@@ -113,14 +116,15 @@ public class TextReferenceRenderer extends ReferenceRendererConfiguration
 
   // Tentative. Need a more principled way of finding and invoking functions.
 
-  private String generateReferenceValue(String sourceValue, ValueExtractionFunctionNode valueExtractionFunctionNode)
-    throws RendererException
+  private String generateReferenceValue(String sourceValue, ValueExtractionFunctionNode valueExtractionFunctionNode,
+    CellRange enclosingCellRange, Optional<CellLocation> currentCellLocation) throws RendererException
   {
     List<String> arguments = new ArrayList<>();
 
     if (valueExtractionFunctionNode.hasArguments()) {
       for (ValueExtractionFunctionArgumentNode argumentNode : valueExtractionFunctionNode.getArgumentNodes()) {
-        String argumentValue = generateValueExtractionFunctionArgument(argumentNode);
+        String argumentValue = generateValueExtractionFunctionArgument(argumentNode, enclosingCellRange,
+          currentCellLocation);
         arguments.add(argumentValue);
       }
     }
@@ -137,7 +141,8 @@ public class TextReferenceRenderer extends ReferenceRendererConfiguration
    * Arguments to value extraction functions cannot be dropped if the reference resolves to nothing.
    */
   private String generateValueExtractionFunctionArgument(
-    ValueExtractionFunctionArgumentNode valueExtractionFunctionArgumentNode) throws RendererException
+    ValueExtractionFunctionArgumentNode valueExtractionFunctionArgumentNode, CellRange enclosingCellRange,
+    Optional<CellLocation> currentCellLocation) throws RendererException
   {
     if (valueExtractionFunctionArgumentNode.isStringLiteralNode()) {
       Optional<? extends StringLiteralRendering> literalRendering = renderStringLiteral(
@@ -149,7 +154,8 @@ public class TextReferenceRenderer extends ReferenceRendererConfiguration
         throw new RendererException("empty literal for value extraction function argument");
     } else if (valueExtractionFunctionArgumentNode.isReferenceNode()) {
       ReferenceNode referenceNode = valueExtractionFunctionArgumentNode.getReferenceNode();
-      Optional<? extends ReferenceRendering> referenceRendering = renderReference(referenceNode);
+      Optional<? extends ReferenceRendering> referenceRendering = renderReference(referenceNode, enclosingCellRange,
+        currentCellLocation);
 
       if (referenceRendering.isPresent()) {
         if (referenceRendering.get().isLiteral()) {

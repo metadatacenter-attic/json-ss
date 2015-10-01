@@ -4,14 +4,12 @@ import org.metadatacenter.jsonss.core.settings.ReferenceTypeSetting;
 import org.metadatacenter.jsonss.parser.JSONSSParserConstants;
 
 /**
- * Contains common functionality for rendering a JSON-SS reference that
- * may be used by renderer implementations.
+ * Contains common functionality for rendering a JSON-SS reference that may be used by renderer implementations.
  */
-public abstract class ReferenceRendererConfiguration implements JSONSSParserConstants
+public class ReferenceRendererConfiguration
 {
-  // Configuration options
   public int defaultReferenceType = ReferenceTypeSetting.JSON_STRING.getConstant();
-  public int defaultEmptyLocation = PROCESS_IF_EMPTY_LOCATION;
+  public int defaultEmptyLocation = JSONSSParserConstants.PROCESS_IF_EMPTY_LOCATION;
 
   public int getDefaultReferenceType()
   {
