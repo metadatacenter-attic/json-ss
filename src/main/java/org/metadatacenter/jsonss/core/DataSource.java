@@ -1,7 +1,7 @@
 package org.metadatacenter.jsonss.core;
 
 import org.metadatacenter.jsonss.parser.node.ReferenceNode;
-import org.metadatacenter.jsonss.parser.node.ReferenceSourceSpecificationNode;
+import org.metadatacenter.jsonss.parser.node.ReferenceCellLocationSpecificationNode;
 import org.metadatacenter.jsonss.renderer.RendererException;
 import org.metadatacenter.jsonss.ss.CellLocation;
 import org.metadatacenter.jsonss.ss.CellRange;
@@ -13,10 +13,10 @@ import java.util.Optional;
  */
 public interface DataSource
 {
-  CellLocation resolveCellLocation(ReferenceSourceSpecificationNode referenceSourceSpecificationNode,
+  CellLocation resolveCellLocation(ReferenceCellLocationSpecificationNode referenceCellLocationSpecificationNode,
     Optional<CellLocation> currentCellLocation) throws RendererException;
 
   String getCellLocationValue(CellLocation cellLocation, ReferenceNode referenceNode) throws RendererException;
 
-  CellRange getEnclosingCellRange();
+  CellRange getDefaultEnclosingCellRange();
 }

@@ -8,7 +8,7 @@ import org.metadatacenter.jsonss.core.DataSource;
 import org.metadatacenter.jsonss.exceptions.JSONSSException;
 import org.metadatacenter.jsonss.parser.JSONSSParserConstants;
 import org.metadatacenter.jsonss.parser.node.ReferenceNode;
-import org.metadatacenter.jsonss.parser.node.ReferenceSourceSpecificationNode;
+import org.metadatacenter.jsonss.parser.node.ReferenceCellLocationSpecificationNode;
 import org.metadatacenter.jsonss.renderer.InternalRendererException;
 import org.metadatacenter.jsonss.renderer.RendererException;
 
@@ -32,19 +32,19 @@ public class SpreadSheetDataSource implements DataSource
       sheetMap.put(workbook.getSheetName(i), workbook.getSheetAt(i));
   }
 
-  @Override public CellLocation resolveCellLocation(ReferenceSourceSpecificationNode referenceSourceSpecificationNode,
+  @Override public CellLocation resolveCellLocation(ReferenceCellLocationSpecificationNode referenceCellLocationSpecificationNode,
     Optional<CellLocation> currentCellLocation) throws RendererException
   {
     Pattern p = Pattern.compile("(\\*|[a-zA-Z]+)(\\*|[0-9]+)"); // ( \* | [a-zA-z]+ ) ( \* | [0-9]+ )
-    Matcher m = p.matcher(referenceSourceSpecificationNode.getLocation());
+    Matcher m = p.matcher(referenceCellLocationSpecificationNode.getLocation());
     CellLocation resolvedCellLocation;
     Sheet sheet;
 
     if (!currentCellLocation.isPresent())
       throw new RendererException("current location not set");
 
-    if (referenceSourceSpecificationNode.hasSource()) {
-      String sheetName = referenceSourceSpecificationNode.getSource();
+    if (referenceCellLocationSpecificationNode.hasSource()) {
+      String sheetName = referenceCellLocationSpecificationNode.getSource();
 
       if (!hasWorkbook()) {
         throw new RendererException("sheet name '" + sheetName + "' specified but there is no active workbook");
@@ -67,10 +67,10 @@ public class SpreadSheetDataSource implements DataSource
       String rowSpecification = m.group(2);
 
       if (columnSpecification == null) {
-        throw new RendererException("missing column specification in location " + referenceSourceSpecificationNode);
+        throw new RendererException("missing column specification in location " + referenceCellLocationSpecificationNode);
       }
       if (rowSpecification == null) {
-        throw new RendererException("missing row specification in location " + referenceSourceSpecificationNode);
+        throw new RendererException("missing row specification in location " + referenceCellLocationSpecificationNode);
       }
       boolean isColumnWildcard = "*".equals(columnSpecification);
       boolean isRowWildcard = "*".equals(rowSpecification);
@@ -89,11 +89,11 @@ public class SpreadSheetDataSource implements DataSource
         }
       } catch (JSONSSException e) {
         throw new RendererException(
-          "invalid source specification " + referenceSourceSpecificationNode + " - " + e.getMessage());
+          "invalid source specification " + referenceCellLocationSpecificationNode + " - " + e.getMessage());
       }
       resolvedCellLocation = new CellLocation(sheet.getSheetName(), columnNumber, rowNumber);
     } else {
-      throw new RendererException("invalid source specification " + referenceSourceSpecificationNode);
+      throw new RendererException("invalid source specification " + referenceCellLocationSpecificationNode);
     }
     return resolvedCellLocation;
   }
@@ -107,7 +107,7 @@ public class SpreadSheetDataSource implements DataSource
       return getCellLocationValue(cellLocation);
   }
 
-  @Override public CellRange getEnclosingCellRange()
+  @Override public CellRange getDefaultEnclosingCellRange()
   {
     return null; // TODO
   }

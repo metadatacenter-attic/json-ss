@@ -31,7 +31,7 @@ public class TextRenderer implements JSONSSRenderer
   public TextRenderer(SpreadSheetDataSource dataSource, ReferenceRendererConfiguration referenceRendererConfiguration)
   {
     this.referenceRenderer = new TextReferenceRenderer(dataSource, referenceRendererConfiguration);
-    this.enclosingCellRange = dataSource.getEnclosingCellRange();
+    this.enclosingCellRange = dataSource.getDefaultEnclosingCellRange();
     this.currentCellLocation = Optional.of(this.enclosingCellRange.getStartRange());
   }
 

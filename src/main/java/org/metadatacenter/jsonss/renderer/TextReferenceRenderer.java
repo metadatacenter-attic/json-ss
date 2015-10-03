@@ -3,7 +3,7 @@ package org.metadatacenter.jsonss.renderer;
 import org.metadatacenter.jsonss.core.ReferenceType;
 import org.metadatacenter.jsonss.parser.JSONSSParserConstants;
 import org.metadatacenter.jsonss.parser.node.ReferenceNode;
-import org.metadatacenter.jsonss.parser.node.ReferenceSourceSpecificationNode;
+import org.metadatacenter.jsonss.parser.node.ReferenceCellLocationSpecificationNode;
 import org.metadatacenter.jsonss.parser.node.StringLiteralNode;
 import org.metadatacenter.jsonss.parser.node.ValueExtractionFunctionArgumentNode;
 import org.metadatacenter.jsonss.parser.node.ValueExtractionFunctionNode;
@@ -34,19 +34,19 @@ public class TextReferenceRenderer implements ReferenceRenderer
   @Override public Optional<TextReferenceRendering> renderReference(ReferenceNode referenceNode,
     CellRange enclosingCellRange, Optional<CellLocation> currentCellLocation) throws RendererException
   {
-    ReferenceSourceSpecificationNode referenceSourceSpecificationNode = referenceNode
-      .getReferenceSourceSpecificationNode();
+    ReferenceCellLocationSpecificationNode referenceCellLocationSpecificationNode = referenceNode
+      .getReferenceCellLocationSpecificationNode();
     ReferenceType referenceType = referenceNode.getReferenceTypeDirectiveNode().getReferenceType();
 
-    if (referenceSourceSpecificationNode.hasLiteral()) {
-      String literalReferenceValue = referenceSourceSpecificationNode.getLiteral();
+    if (referenceCellLocationSpecificationNode.hasLiteral()) {
+      String literalReferenceValue = referenceCellLocationSpecificationNode.getLiteral();
       if (referenceType.isString())
         literalReferenceValue = "\"" + literalReferenceValue + "\"";
 
       return Optional.of(new TextReferenceRendering(literalReferenceValue, referenceType));
     } else {
       CellLocation cellLocation = this.dataSource
-        .resolveCellLocation(referenceNode.getReferenceSourceSpecificationNode(), currentCellLocation);
+        .resolveCellLocation(referenceNode.getReferenceCellLocationSpecificationNode(), currentCellLocation);
       String resolvedReferenceValue = ReferenceUtil
         .resolveReferenceValue(dataSource, referenceNode, currentCellLocation);
 

@@ -6,7 +6,7 @@ import org.metadatacenter.jsonss.parser.ASTDefaultLocationValueDirective;
 import org.metadatacenter.jsonss.parser.ASTEmptyLiteralDirective;
 import org.metadatacenter.jsonss.parser.ASTEmptyLocationDirective;
 import org.metadatacenter.jsonss.parser.ASTReference;
-import org.metadatacenter.jsonss.parser.ASTReferenceSourceSpecification;
+import org.metadatacenter.jsonss.parser.ASTReferenceCellLocationSpecification;
 import org.metadatacenter.jsonss.parser.ASTShiftDirective;
 import org.metadatacenter.jsonss.parser.ASTValueExtractionFunction;
 import org.metadatacenter.jsonss.parser.InternalParseException;
@@ -20,7 +20,7 @@ import org.metadatacenter.jsonss.ss.CellLocation;
 
 public class ReferenceNode implements JSONSSNode, JSONSSParserConstants
 {
-  private ReferenceSourceSpecificationNode referenceSourceSpecificationNode;
+  private ReferenceCellLocationSpecificationNode referenceCellLocationSpecificationNode;
   private ReferenceTypeDirectiveNode referenceTypeDirectiveNode;
   private DefaultLocationValueDirectiveNode defaultLocationValueDirectiveNode;
   private DefaultLiteralValueDirectiveNode defaultLiteralValueDirectiveNode;
@@ -35,8 +35,8 @@ public class ReferenceNode implements JSONSSNode, JSONSSParserConstants
     for (int i = 0; i < node.jjtGetNumChildren(); i++) {
       Node child = node.jjtGetChild(i);
 
-      if (ParserUtil.hasName(child, "ReferenceSourceSpecification")) {
-        this.referenceSourceSpecificationNode = new ReferenceSourceSpecificationNode((ASTReferenceSourceSpecification)child);
+      if (ParserUtil.hasName(child, "ReferenceCellLocationSpecification")) {
+        this.referenceCellLocationSpecificationNode = new ReferenceCellLocationSpecificationNode((ASTReferenceCellLocationSpecification)child);
       } else if (ParserUtil.hasName(child, "ReferenceTypeDirective")) {
         this.referenceTypeDirectiveNode = new ReferenceTypeDirectiveNode((ASTReferenceTypeDirective)child);
       } else if (ParserUtil.hasName(child, "DefaultLocationValueDirective")) {
@@ -69,7 +69,7 @@ public class ReferenceNode implements JSONSSNode, JSONSSParserConstants
 
     this.referenceDirectives = new ReferenceDirectives(node.defaultReferenceDirectives);
 
-    if (this.referenceSourceSpecificationNode == null)
+    if (this.referenceCellLocationSpecificationNode == null)
       throw new RendererException("missing source specification in reference " + toString());
 
     if (this.referenceTypeDirectiveNode == null) { // No entity type specified by the user - use default type
@@ -102,9 +102,9 @@ public class ReferenceNode implements JSONSSNode, JSONSSParserConstants
     return "Reference";
   }
 
-  public ReferenceSourceSpecificationNode getReferenceSourceSpecificationNode()
+  public ReferenceCellLocationSpecificationNode getReferenceCellLocationSpecificationNode()
   {
-    return this.referenceSourceSpecificationNode;
+    return this.referenceCellLocationSpecificationNode;
   }
 
   public ReferenceTypeDirectiveNode getReferenceTypeDirectiveNode()
@@ -228,7 +228,7 @@ public class ReferenceNode implements JSONSSNode, JSONSSParserConstants
     String representation = "";
     boolean atLeastOneOptionProcessed = false;
 
-    representation += getReferenceSourceSpecificationNode();
+    representation += getReferenceCellLocationSpecificationNode();
 
     if (hasExplicitOptions())
       representation += "(";
