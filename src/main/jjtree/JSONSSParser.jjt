@@ -291,10 +291,10 @@ void json_null() #JSONNull : {}
 
 void jsonss_reference(int defaultReferenceType) #Reference : {}
 {
-   <AT> jsonss_reference_source_specification()
+   <AT> jsonss_reference_cell_location_specification()
        (
          <OPEN_PAREN>
-            jsonss_reference_directive() ( jsonss_reference_directive() ) *
+            jsonss_reference_parameter() ( jsonss_reference_parameter() ) *
          <CLOSE_PAREN>
        )?
   {
@@ -306,7 +306,48 @@ void jsonss_reference(int defaultReferenceType) #Reference : {}
   }
 }
 
-void jsonss_reference_source_specification() #ReferenceSourceSpecification : 
+void jsonss_reference_parameter(): {}
+{
+  (  jsonss_reference_directive()
+   | jsonss_value_extraction_function()
+  ) 
+}
+
+void jsonss_reference_directive(): {}
+{
+  (  jsonss_reference_type_directive()
+   | jsonss_default_location_value_directive() 
+   | jsonss_default_literal_value_directive() 
+   | jsonss_empty_literal_directive()
+   | jsonss_empty_location_directive()
+   | jsonss_shift_directive()
+  ) 
+}
+
+void jsonss_range_reference(int defaultReferenceType) #RangeReference : {}
+{
+   <AT> jsonss_reference_location_specification() <COLON> jsonss_reference_location_specification() 
+       (
+         <OPEN_PAREN>
+            jsonss_range_reference_directive() ( jsonss_range_reference_directive() ) *
+         <CLOSE_PAREN>
+       )?
+  {
+  }
+}
+
+void jsonss_range_reference_directive(): {}
+{
+  (  jsonss_reference_type_directive()
+   | jsonss_default_location_value_directive() 
+   | jsonss_default_literal_value_directive() 
+   | jsonss_empty_literal_directive()
+   | jsonss_empty_location_directive()
+   | jsonss_shift_directive()
+  ) 
+}
+
+void jsonss_reference_cell_location_specification() #ReferenceCellLocationSpecification : 
 {
   String source = null;
   String location = null;
@@ -347,19 +388,6 @@ String jsonss_reference_location_specification() :
   t = <LOCATION_SPECIFICATION>
 
   { return t.image; }
-}
-
-
-void jsonss_reference_directive(): {}
-{
-  (  jsonss_reference_type_directive()
-   | jsonss_default_location_value_directive() 
-   | jsonss_default_literal_value_directive() 
-   | jsonss_empty_literal_directive()
-   | jsonss_empty_location_directive()
-   | jsonss_shift_directive()
-   | jsonss_value_extraction_function()
-  ) 
 }
 
 void jsonss_reference_type_directive() #ReferenceTypeDirective : 
