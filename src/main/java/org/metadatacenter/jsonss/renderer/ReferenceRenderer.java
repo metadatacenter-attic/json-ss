@@ -11,6 +11,4 @@ public interface ReferenceRenderer
 {
   Optional<? extends Rendering> renderReference(ReferenceNode referenceNode, CellRange enclosingCellRange,
     Optional<CellLocation> currentCellLocation) throws RendererException;
-
-  ReferenceRendererConfiguration getReferenceRendererConfiguration();
 }

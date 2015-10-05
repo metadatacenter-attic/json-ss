@@ -1,9 +1,11 @@
 package org.metadatacenter.jsonss.renderer;
 
-import org.metadatacenter.jsonss.core.ReferenceType;
-import org.metadatacenter.jsonss.parser.JSONSSParserConstants;
-import org.metadatacenter.jsonss.parser.node.ReferenceNode;
+import org.metadatacenter.jsonss.core.settings.EmptyCellLocationDirectiveSetting;
+import org.metadatacenter.jsonss.core.settings.EmptyLiteralValueDirectiveSetting;
+import org.metadatacenter.jsonss.core.settings.ReferenceDirectivesSettings;
+import org.metadatacenter.jsonss.core.settings.ReferenceTypeDirectiveSetting;
 import org.metadatacenter.jsonss.parser.node.ReferenceCellLocationSpecificationNode;
+import org.metadatacenter.jsonss.parser.node.ReferenceNode;
 import org.metadatacenter.jsonss.parser.node.StringLiteralNode;
 import org.metadatacenter.jsonss.parser.node.ValueExtractionFunctionArgumentNode;
 import org.metadatacenter.jsonss.parser.node.ValueExtractionFunctionNode;
@@ -21,14 +23,14 @@ import java.util.Optional;
 
 public class TextReferenceRenderer implements ReferenceRenderer
 {
-  private final ReferenceRendererConfiguration referenceRendererConfiguration;
+  private final ReferenceDirectivesSettings defaultReferenceDirectiveSettings;
   private final SpreadSheetDataSource dataSource;
 
   public TextReferenceRenderer(SpreadSheetDataSource dataSource,
-    ReferenceRendererConfiguration referenceRendererConfiguration)
+    ReferenceDirectivesSettings defaultReferenceDirectiveSettings)
   {
     this.dataSource = dataSource;
-    this.referenceRendererConfiguration = referenceRendererConfiguration;
+    this.defaultReferenceDirectiveSettings = defaultReferenceDirectiveSettings;
   }
 
   @Override public Optional<TextReferenceRendering> renderReference(ReferenceNode referenceNode,
@@ -36,7 +38,7 @@ public class TextReferenceRenderer implements ReferenceRenderer
   {
     ReferenceCellLocationSpecificationNode referenceCellLocationSpecificationNode = referenceNode
       .getReferenceCellLocationSpecificationNode();
-    ReferenceType referenceType = referenceNode.getReferenceTypeDirectiveNode().getReferenceType();
+    ReferenceTypeDirectiveSetting referenceType = referenceNode.getReferenceType();
 
     if (referenceCellLocationSpecificationNode.hasLiteral()) {
       String literalReferenceValue = referenceCellLocationSpecificationNode.getLiteral();
@@ -52,12 +54,12 @@ public class TextReferenceRenderer implements ReferenceRenderer
 
       resolvedReferenceValue = resolvedReferenceValue.replace("\"", "\\\"");
 
-      if (resolvedReferenceValue.isEmpty()
-        && referenceNode.getActualEmptyLocationDirective() == JSONSSParserConstants.SKIP_IF_EMPTY_LOCATION)
+      if (resolvedReferenceValue.isEmpty() && referenceNode.getActualEmptyCellLocationSetting()
+        == EmptyCellLocationDirectiveSetting.SKIP_IF_EMPTY_LOCATION)
         return Optional.empty();
 
-      if (resolvedReferenceValue.isEmpty()
-        && referenceNode.getActualEmptyLocationDirective() == JSONSSParserConstants.WARNING_IF_EMPTY_LOCATION) {
+      if (resolvedReferenceValue.isEmpty() && referenceNode.getActualEmptyCellLocationSetting()
+        == EmptyCellLocationDirectiveSetting.WARNING_IF_EMPTY_LOCATION) {
         // TODO Warn in log file
         return Optional.empty();
       }
@@ -66,12 +68,12 @@ public class TextReferenceRenderer implements ReferenceRenderer
         String literalReferenceValue = processLiteralReferenceValue(cellLocation, resolvedReferenceValue, referenceNode,
           enclosingCellRange, currentCellLocation);
 
-        if (literalReferenceValue.isEmpty()
-          && referenceNode.getActualEmptyLiteralDirective() == JSONSSParserConstants.SKIP_IF_EMPTY_LITERAL)
+        if (literalReferenceValue.isEmpty() && referenceNode.getActualEmptyLiteralValueDirectiveSetting()
+          == EmptyLiteralValueDirectiveSetting.SKIP_IF_EMPTY_LITERAL)
           return Optional.empty();
 
-        if (literalReferenceValue.isEmpty()
-          && referenceNode.getActualEmptyLiteralDirective() == JSONSSParserConstants.WARNING_IF_EMPTY_LITERAL) {
+        if (literalReferenceValue.isEmpty() && referenceNode.getActualEmptyLiteralValueDirectiveSetting()
+          == EmptyLiteralValueDirectiveSetting.WARNING_IF_EMPTY_LITERAL) {
           // TODO Warn in log file
           return Optional.empty();
         }
@@ -86,11 +88,6 @@ public class TextReferenceRenderer implements ReferenceRenderer
     }
   }
 
-  @Override public ReferenceRendererConfiguration getReferenceRendererConfiguration()
-  {
-    return this.referenceRendererConfiguration;
-  }
-
   private String processLiteralReferenceValue(CellLocation cellLocation, String rawLocationValue,
     ReferenceNode referenceNode, CellRange enclosingCellRange, Optional<CellLocation> currentCellLocation)
     throws RendererException
@@ -98,8 +95,8 @@ public class TextReferenceRenderer implements ReferenceRenderer
     String sourceValue = rawLocationValue.replace("\"", "\\\"");
     String processedReferenceValue;
 
-    if (sourceValue.isEmpty() && !referenceNode.getActualDefaultLiteral().isEmpty())
-      processedReferenceValue = referenceNode.getActualDefaultLiteral();
+    if (sourceValue.isEmpty() && !referenceNode.getActualDefaultLiteralValue().isEmpty())
+      processedReferenceValue = referenceNode.getActualDefaultLiteralValue();
     else
       processedReferenceValue = sourceValue;
 
@@ -107,9 +104,9 @@ public class TextReferenceRenderer implements ReferenceRenderer
       processedReferenceValue = generateReferenceValue(processedReferenceValue,
         referenceNode.getValueExtractionFunctionNode(), enclosingCellRange, currentCellLocation);
 
-    if (processedReferenceValue.isEmpty()
-      && referenceNode.getActualEmptyLiteralDirective() == JSONSSParserConstants.ERROR_IF_EMPTY_LITERAL)
-      throw new RendererException("empty literal in reference " + referenceNode + " at location " + cellLocation);
+    if (processedReferenceValue.isEmpty() && referenceNode.getActualEmptyLiteralValueDirectiveSetting()
+      == EmptyLiteralValueDirectiveSetting.ERROR_IF_EMPTY_LITERAL)
+      throw new RendererException("empty literal value in reference " + referenceNode + " at location " + cellLocation);
 
     return processedReferenceValue;
   }

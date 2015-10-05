@@ -1,37 +1,30 @@
 package org.metadatacenter.jsonss.parser.node;
 
+import org.metadatacenter.jsonss.core.settings.ShiftDirectiveSetting;
 import org.metadatacenter.jsonss.parser.ASTShiftDirective;
 import org.metadatacenter.jsonss.parser.ParseException;
 import org.metadatacenter.jsonss.parser.ParserUtil;
-import org.metadatacenter.jsonss.parser.JSONSSParserConstants;
 
-public class ShiftDirectiveNode implements JSONSSNode, JSONSSParserConstants
+public class ShiftDirectiveNode implements JSONSSNode
 {
-  private final int shiftSetting;
+  private final ShiftDirectiveSetting shiftDirectiveSetting;
 
   public ShiftDirectiveNode(ASTShiftDirective node) throws ParseException
   {
-    this.shiftSetting = node.shiftSetting;
+    this.shiftDirectiveSetting = node.shiftDirectiveSetting;
   }
 
-  public boolean isNoShift() { return this.shiftSetting == NO_SHIFT; }
+  public ShiftDirectiveSetting getShiftDirectiveSetting() { return this.shiftDirectiveSetting; }
 
-  public boolean isShiftLeft() { return this.shiftSetting == SHIFT_LEFT; }
-
-  public boolean isShiftRight() { return this.shiftSetting == SHIFT_RIGHT; }
-
-  public boolean isShiftUp() { return this.shiftSetting == SHIFT_UP; }
-
-  public boolean isShiftDown() { return this.shiftSetting == SHIFT_DOWN; }
-
-  public int getShiftSetting() { return this.shiftSetting; }
-
-  public String getShiftSettingName() { return ParserUtil.getTokenName(this.shiftSetting); }
+  public String getShiftDirectiveSettingName()
+  {
+    return ParserUtil.getTokenName(this.shiftDirectiveSetting.getConstant());
+  }
 
   @Override public String getNodeName()
   {
     return "ShiftDirective";
   }
 
-  public String toString() { return getShiftSettingName(); }
+  @Override public String toString() { return getShiftDirectiveSettingName(); }
 }

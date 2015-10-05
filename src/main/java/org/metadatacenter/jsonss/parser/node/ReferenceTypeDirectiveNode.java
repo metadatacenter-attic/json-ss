@@ -1,32 +1,22 @@
 package org.metadatacenter.jsonss.parser.node;
 
-import org.metadatacenter.jsonss.core.ReferenceType;
-import org.metadatacenter.jsonss.parser.ParseException;
+import org.metadatacenter.jsonss.core.settings.ReferenceTypeDirectiveSetting;
 import org.metadatacenter.jsonss.parser.ASTReferenceTypeDirective;
-import org.metadatacenter.jsonss.parser.JSONSSParserConstants;
+import org.metadatacenter.jsonss.parser.ParseException;
+import org.metadatacenter.jsonss.parser.ParserUtil;
 
-public class ReferenceTypeDirectiveNode implements JSONSSNode, JSONSSParserConstants
+public class ReferenceTypeDirectiveNode implements JSONSSNode
 {
-  private final ReferenceType referenceType;
+  private final ReferenceTypeDirectiveSetting referenceTypeDirectiveSetting;
 
   public ReferenceTypeDirectiveNode(ASTReferenceTypeDirective node) throws ParseException
   {
-    this.referenceType = new ReferenceType(node.referenceType);
+    this.referenceTypeDirectiveSetting = node.referenceTypeDirectiveSetting;
   }
 
-  public ReferenceTypeDirectiveNode(int type)
+  public ReferenceTypeDirectiveSetting getReferenceTypeDirectiveSetting()
   {
-    this.referenceType = new ReferenceType(type);
-  }
-
-  public ReferenceTypeDirectiveNode(ReferenceType referenceType)
-  {
-    this.referenceType = referenceType;
-  }
-
-  public ReferenceType getReferenceType()
-  {
-    return this.referenceType;
+    return this.referenceTypeDirectiveSetting;
   }
 
   @Override public String getNodeName()
@@ -34,8 +24,13 @@ public class ReferenceTypeDirectiveNode implements JSONSSNode, JSONSSParserConst
     return "ReferenceTypeDirective";
   }
 
-  public String toString()
+  public String getReferenceTypeDirectiveSettingName()
   {
-    return this.referenceType.toString();
+    return ParserUtil.getTokenName(this.referenceTypeDirectiveSetting.getConstant());
+  }
+
+  @Override public String toString()
+  {
+    return getReferenceTypeDirectiveSettingName();
   }
 }

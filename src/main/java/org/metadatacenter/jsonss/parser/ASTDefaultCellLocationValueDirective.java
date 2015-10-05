@@ -3,15 +3,15 @@
 package org.metadatacenter.jsonss.parser;
 
 public
-class ASTDefaultLocationValueDirective extends SimpleNode {
+class ASTDefaultCellLocationValueDirective extends SimpleNode {
 
-  public String defaultLocationValue; /* Manually added */
+  public String defaultCellLocationValue; /* Manually added */
 
-  public ASTDefaultLocationValueDirective(int id) {
+  public ASTDefaultCellLocationValueDirective(int id) {
     super(id);
   }
 
-  public ASTDefaultLocationValueDirective(JSONSSParser p, int id) {
+  public ASTDefaultCellLocationValueDirective(JSONSSParser p, int id) {
     super(p, id);
   }
 

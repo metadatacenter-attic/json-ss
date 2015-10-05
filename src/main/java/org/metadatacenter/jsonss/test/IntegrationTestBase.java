@@ -4,14 +4,13 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.metadatacenter.jsonss.core.settings.ReferenceSettings;
+import org.metadatacenter.jsonss.core.settings.ReferenceDirectivesSettings;
 import org.metadatacenter.jsonss.exceptions.JSONSSException;
 import org.metadatacenter.jsonss.parser.ASTJSONExpression;
 import org.metadatacenter.jsonss.parser.JSONSSParser;
 import org.metadatacenter.jsonss.parser.ParseException;
 import org.metadatacenter.jsonss.parser.SimpleNode;
 import org.metadatacenter.jsonss.parser.node.JSONExpressionNode;
-import org.metadatacenter.jsonss.renderer.ReferenceRendererConfiguration;
 import org.metadatacenter.jsonss.renderer.text.TextRenderer;
 import org.metadatacenter.jsonss.rendering.text.TextRendering;
 import org.metadatacenter.jsonss.ss.CellLocation;
@@ -32,7 +31,7 @@ public class IntegrationTestBase
   protected static final String DEFAULT_SHEET = SHEET1;
   protected static final Set<Label> EMPTY_CELL_SET = Collections.emptySet();
   protected static final CellLocation DEFAULT_CURRENT_CELL_LOCATION = new CellLocation(SHEET1, 1, 1);
-  protected static final ReferenceRendererConfiguration referenceRendererConfiguration = new ReferenceRendererConfiguration();
+  protected static final ReferenceDirectivesSettings referenceDirectivesSettings = new ReferenceDirectivesSettings();
 
   protected Workbook createWorkbook(String sheetName, Set<Label> cells) throws IOException
   {
@@ -59,9 +58,9 @@ public class IntegrationTestBase
     return new SpreadSheetDataSource(workbook);
   }
 
-  protected JSONExpressionNode parseJSONExpression(String expression, ReferenceSettings settings) throws ParseException
+  protected JSONExpressionNode parseJSONExpression(String expression, ReferenceDirectivesSettings settings) throws ParseException
   {
-    JSONSSParser parser = new JSONSSParser(new ByteArrayInputStream(expression.getBytes()), settings, -1);
+    JSONSSParser parser = new JSONSSParser(new ByteArrayInputStream(expression.getBytes()));
     SimpleNode simpleNode = parser.json_expression();
     JSONExpressionNode jsonExpressionNode = new JSONExpressionNode((ASTJSONExpression)simpleNode);
 
@@ -69,25 +68,25 @@ public class IntegrationTestBase
   }
 
   protected Optional<? extends TextRendering> createTextRendering(String sheetName, Set<Label> cells,
-    CellLocation currentCellLocation, String expression, ReferenceSettings settings)
+    CellLocation currentCellLocation, String expression, ReferenceDirectivesSettings settings)
     throws JSONSSException, IOException, ParseException
   {
     SpreadSheetDataSource dataSource = createSpreadsheetDataSource(sheetName, cells);
 
-    TextRenderer renderer = new TextRenderer(dataSource, referenceRendererConfiguration);
+    TextRenderer renderer = new TextRenderer(dataSource, referenceDirectivesSettings);
     JSONExpressionNode jsonExpressionNode = parseJSONExpression(expression, settings);
 
     return renderer.renderJSONExpression(jsonExpressionNode);
   }
 
-  protected Optional<? extends TextRendering> createTextRendering(String expression, ReferenceSettings settings)
+  protected Optional<? extends TextRendering> createTextRendering(String expression, ReferenceDirectivesSettings settings)
     throws JSONSSException, IOException, ParseException
   {
     return createTextRendering(DEFAULT_SHEET, EMPTY_CELL_SET, expression, settings);
   }
 
   protected Optional<? extends TextRendering> createTextRendering(String sheetName, Set<Label> cells, String expression,
-    ReferenceSettings settings) throws JSONSSException, IOException, ParseException
+    ReferenceDirectivesSettings settings) throws JSONSSException, IOException, ParseException
   {
     return createTextRendering(sheetName, cells, DEFAULT_CURRENT_CELL_LOCATION, expression, settings);
   }

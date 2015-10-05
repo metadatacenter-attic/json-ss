@@ -2,10 +2,12 @@
 /* JavaCCOptions:MULTI=true,NODE_USES_PARSER=false,VISITOR=false,TRACK_TOKENS=false,NODE_PREFIX=AST,NODE_EXTENDS=,NODE_FACTORY=,SUPPORT_CLASS_VISIBILITY_PUBLIC=true */
 package org.metadatacenter.jsonss.parser;
 
+import org.metadatacenter.jsonss.core.settings.ShiftDirectiveSetting;
+
 public
 class ASTShiftDirective extends SimpleNode {
 
-  public int shiftSetting; /* Manually added */
+  public ShiftDirectiveSetting shiftDirectiveSetting; /* Manually added */
 
   public ASTShiftDirective(int id) {
     super(id);

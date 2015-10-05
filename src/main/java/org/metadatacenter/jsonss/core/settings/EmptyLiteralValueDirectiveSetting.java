@@ -2,7 +2,7 @@ package org.metadatacenter.jsonss.core.settings;
 
 import org.metadatacenter.jsonss.parser.JSONSSParserConstants;
 
-public enum EmptyLiteralSetting
+public enum EmptyLiteralValueDirectiveSetting
 {
   ERROR_IF_EMPTY_LITERAL(JSONSSParserConstants.ERROR_IF_EMPTY_LITERAL),
   WARNING_IF_EMPTY_LITERAL(JSONSSParserConstants.WARNING_IF_EMPTY_LITERAL),
@@ -11,7 +11,7 @@ public enum EmptyLiteralSetting
 
   private int value;
 
-  private EmptyLiteralSetting(int value) {
+  private EmptyLiteralValueDirectiveSetting(int value) {
     this.value = value;
   }
 

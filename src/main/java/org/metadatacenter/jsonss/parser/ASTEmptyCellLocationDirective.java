@@ -2,16 +2,18 @@
 /* JavaCCOptions:MULTI=true,NODE_USES_PARSER=false,VISITOR=false,TRACK_TOKENS=false,NODE_PREFIX=AST,NODE_EXTENDS=,NODE_FACTORY=,SUPPORT_CLASS_VISIBILITY_PUBLIC=true */
 package org.metadatacenter.jsonss.parser;
 
+import org.metadatacenter.jsonss.core.settings.EmptyCellLocationDirectiveSetting;
+
 public
-class ASTEmptyLocationDirective extends SimpleNode {
+class ASTEmptyCellLocationDirective extends SimpleNode {
 
-  public int emptyLocationSetting; /* Manually added */
+  public EmptyCellLocationDirectiveSetting emptyCellLocationDirectiveSetting; /* Manually added */
 
-  public ASTEmptyLocationDirective(int id) {
+  public ASTEmptyCellLocationDirective(int id) {
     super(id);
   }
 
-  public ASTEmptyLocationDirective(JSONSSParser p, int id) {
+  public ASTEmptyCellLocationDirective(JSONSSParser p, int id) {
     super(p, id);
   }
 

@@ -1,35 +1,39 @@
 package org.metadatacenter.jsonss.parser.node;
 
-import org.metadatacenter.jsonss.core.ReferenceDirectives;
+import org.metadatacenter.jsonss.core.ReferenceDirectivesHandler;
+import org.metadatacenter.jsonss.core.settings.EmptyCellLocationDirectiveSetting;
+import org.metadatacenter.jsonss.core.settings.EmptyLiteralValueDirectiveSetting;
+import org.metadatacenter.jsonss.core.settings.ReferenceTypeDirectiveSetting;
+import org.metadatacenter.jsonss.core.settings.ShiftDirectiveSetting;
+import org.metadatacenter.jsonss.parser.ASTDefaultCellLocationValueDirective;
 import org.metadatacenter.jsonss.parser.ASTDefaultLiteralValueDirective;
-import org.metadatacenter.jsonss.parser.ASTDefaultLocationValueDirective;
-import org.metadatacenter.jsonss.parser.ASTEmptyLiteralDirective;
-import org.metadatacenter.jsonss.parser.ASTEmptyLocationDirective;
+import org.metadatacenter.jsonss.parser.ASTEmptyCellLocationDirective;
+import org.metadatacenter.jsonss.parser.ASTEmptyLiteralValueDirective;
 import org.metadatacenter.jsonss.parser.ASTReference;
 import org.metadatacenter.jsonss.parser.ASTReferenceCellLocationSpecification;
+import org.metadatacenter.jsonss.parser.ASTReferenceTypeDirective;
 import org.metadatacenter.jsonss.parser.ASTShiftDirective;
 import org.metadatacenter.jsonss.parser.ASTValueExtractionFunction;
 import org.metadatacenter.jsonss.parser.InternalParseException;
 import org.metadatacenter.jsonss.parser.JSONSSParserConstants;
+import org.metadatacenter.jsonss.parser.Node;
 import org.metadatacenter.jsonss.parser.ParseException;
 import org.metadatacenter.jsonss.parser.ParserUtil;
 import org.metadatacenter.jsonss.renderer.RendererException;
-import org.metadatacenter.jsonss.parser.ASTReferenceTypeDirective;
-import org.metadatacenter.jsonss.parser.Node;
 import org.metadatacenter.jsonss.ss.CellLocation;
 
 public class ReferenceNode implements JSONSSNode, JSONSSParserConstants
 {
   private ReferenceCellLocationSpecificationNode referenceCellLocationSpecificationNode;
   private ReferenceTypeDirectiveNode referenceTypeDirectiveNode;
-  private DefaultLocationValueDirectiveNode defaultLocationValueDirectiveNode;
+  private DefaultCellLocationValueDirectiveNode defaultCellLocationValueDirectiveNode;
   private DefaultLiteralValueDirectiveNode defaultLiteralValueDirectiveNode;
-  private EmptyLocationDirectiveNode emptyLocationDirectiveNode;
-  private EmptyLiteralDirectiveNode emptyLiteralDirectiveNode;
-  private ValueExtractionFunctionNode valueExtractionFunctionNode;
+  private EmptyCellLocationDirectiveNode emptyCellLocationDirectiveNode;
+  private EmptyLiteralValueDirectiveNode emptyLiteralValueDirectiveNode;
   private ShiftDirectiveNode shiftDirectiveNode;
+  private ValueExtractionFunctionNode valueExtractionFunctionNode;
 
-  private final ReferenceDirectives referenceDirectives;
+  private final ReferenceDirectivesHandler referenceDirectivesHandler;
 
   public ReferenceNode(ASTReference node) throws ParseException
   {
@@ -37,25 +41,30 @@ public class ReferenceNode implements JSONSSNode, JSONSSParserConstants
       Node child = node.jjtGetChild(i);
 
       if (ParserUtil.hasName(child, "ReferenceCellLocationSpecification")) {
-        this.referenceCellLocationSpecificationNode = new ReferenceCellLocationSpecificationNode((ASTReferenceCellLocationSpecification)child);
+        this.referenceCellLocationSpecificationNode = new ReferenceCellLocationSpecificationNode(
+          (ASTReferenceCellLocationSpecification)child);
       } else if (ParserUtil.hasName(child, "ReferenceTypeDirective")) {
         this.referenceTypeDirectiveNode = new ReferenceTypeDirectiveNode((ASTReferenceTypeDirective)child);
-      } else if (ParserUtil.hasName(child, "DefaultLocationValueDirective")) {
-        if (this.defaultLocationValueDirectiveNode != null)
-          throw new RendererException("only one default location value directive can be specified for a Reference");
-        this.defaultLocationValueDirectiveNode = new DefaultLocationValueDirectiveNode((ASTDefaultLocationValueDirective)child);
+      } else if (ParserUtil.hasName(child, "DefaultCellLocationValueDirective")) {
+        if (this.defaultCellLocationValueDirectiveNode != null)
+          throw new RendererException(
+            "only one default cell location value directive can be specified for a Reference");
+        this.defaultCellLocationValueDirectiveNode = new DefaultCellLocationValueDirectiveNode(
+          (ASTDefaultCellLocationValueDirective)child);
       } else if (ParserUtil.hasName(child, "DefaultLiteralValueDirective")) {
         if (this.defaultLiteralValueDirectiveNode != null)
-          throw new RendererException("only one default literal directive can be specified for a Reference");
-        this.defaultLiteralValueDirectiveNode = new DefaultLiteralValueDirectiveNode((ASTDefaultLiteralValueDirective)child);
-      } else if (ParserUtil.hasName(child, "EmptyLocationDirective")) {
-        if (this.emptyLocationDirectiveNode != null)
-          throw new RendererException("only one empty location directive can be specified for a Reference");
-        this.emptyLocationDirectiveNode = new EmptyLocationDirectiveNode((ASTEmptyLocationDirective)child);
-      } else if (ParserUtil.hasName(child, "EmptyLiteralDirective")) {
-        if (this.emptyLiteralDirectiveNode != null)
-          throw new RendererException("only one empty literal directive can be specified for a Reference");
-        this.emptyLiteralDirectiveNode = new EmptyLiteralDirectiveNode((ASTEmptyLiteralDirective)child);
+          throw new RendererException("only one default literal value directive can be specified for a Reference");
+        this.defaultLiteralValueDirectiveNode = new DefaultLiteralValueDirectiveNode(
+          (ASTDefaultLiteralValueDirective)child);
+      } else if (ParserUtil.hasName(child, "EmptyCellLocationDirective")) {
+        if (this.emptyCellLocationDirectiveNode != null)
+          throw new RendererException("only one empty cell location directive can be specified for a Reference");
+        this.emptyCellLocationDirectiveNode = new EmptyCellLocationDirectiveNode((ASTEmptyCellLocationDirective)child);
+      } else if (ParserUtil.hasName(child, "EmptyLiteralValueDirective")) {
+        if (this.emptyLiteralValueDirectiveNode != null)
+          throw new RendererException("only one empty literal value directive can be specified for a Reference");
+        this.emptyLiteralValueDirectiveNode = new EmptyLiteralValueDirectiveNode(
+          (ASTEmptyLiteralValueDirective)child);
       } else if (ParserUtil.hasName(child, "ShiftDirective")) {
         if (this.shiftDirectiveNode != null)
           throw new RendererException("only one shift directive can be specified for a Reference");
@@ -68,34 +77,34 @@ public class ReferenceNode implements JSONSSNode, JSONSSParserConstants
         throw new InternalParseException("invalid child node " + child + " for " + getNodeName());
     }
 
-    this.referenceDirectives = new ReferenceDirectives(node.defaultReferenceDirectives);
+    this.referenceDirectivesHandler = new ReferenceDirectivesHandler(node.defaultReferenceDirectivesSettings);
 
     if (this.referenceCellLocationSpecificationNode == null)
-      throw new RendererException("missing source specification in reference " + toString());
+      throw new RendererException("missing cell location specification in reference " + toString());
 
-    if (this.referenceTypeDirectiveNode == null) { // No entity type specified by the user - use default type
-      this.referenceTypeDirectiveNode = new ReferenceTypeDirectiveNode(node.defaultReferenceDirectives.getDefaultReferenceType());
-    } else
-      this.referenceDirectives.setExplicitlySpecifiedReferenceType(this.referenceTypeDirectiveNode.getReferenceType());
-
-    if (this.defaultLocationValueDirectiveNode != null)
-      this.referenceDirectives
-        .setExplicitlySpecifiedDefaultLocationValue(this.defaultLocationValueDirectiveNode.getDefaultLocationValue());
-
-    if (this.defaultLiteralValueDirectiveNode != null)
-      this.referenceDirectives.setExplicitlySpecifiedDefaultLiteral(
-        this.defaultLiteralValueDirectiveNode.getDefaultLiteralValue());
-
-    if (this.emptyLocationDirectiveNode != null)
-      this.referenceDirectives
-        .setHasExplicitlySpecifiedEmptyLocationDirective(this.emptyLocationDirectiveNode.getEmptyLocationSetting());
-
-    if (this.emptyLiteralDirectiveNode != null)
-      this.referenceDirectives
-        .setHasExplicitlySpecifiedEmptyLiteralDirective(this.emptyLiteralDirectiveNode.getEmptyLiteralSetting());
+    if (this.referenceTypeDirectiveNode != null)
+      this.referenceDirectivesHandler
+        .setReferenceTypeDirective(this.referenceTypeDirectiveNode.getReferenceTypeDirectiveSetting());
 
     if (this.shiftDirectiveNode != null)
-      this.referenceDirectives.setHasExplicitlySpecifiedShiftDirective(this.shiftDirectiveNode.getShiftSetting());
+      this.referenceDirectivesHandler.setShiftDirective(this.shiftDirectiveNode.getShiftDirectiveSetting());
+
+    if (this.emptyCellLocationDirectiveNode != null)
+      this.referenceDirectivesHandler
+        .setEmptyCellLocationDirective(this.emptyCellLocationDirectiveNode.getEmptyCellLocationDirectiveSetting());
+
+    if (this.emptyLiteralValueDirectiveNode != null)
+      this.referenceDirectivesHandler
+        .setEmptyLiteralDirective(this.emptyLiteralValueDirectiveNode.getEmptyLiteralValueDirectiveSetting());
+
+    if (this.defaultCellLocationValueDirectiveNode != null)
+      this.referenceDirectivesHandler
+        .setDefaultCellLocationValue(this.defaultCellLocationValueDirectiveNode.getDefaultCellLocationValue());
+
+    if (this.defaultLiteralValueDirectiveNode != null)
+      this.referenceDirectivesHandler
+        .setDefaultLiteralValue(this.defaultLiteralValueDirectiveNode.getDefaultLiteralValue());
+
   }
 
   @Override public String getNodeName()
@@ -103,95 +112,64 @@ public class ReferenceNode implements JSONSSNode, JSONSSParserConstants
     return "Reference";
   }
 
-  public ReferenceCellLocationSpecificationNode getReferenceCellLocationSpecificationNode()
+  public ReferenceTypeDirectiveSetting getReferenceType()
   {
-    return this.referenceCellLocationSpecificationNode;
-  }
-
-  public ReferenceTypeDirectiveNode getReferenceTypeDirectiveNode()
-  {
-    return this.referenceTypeDirectiveNode;
-  }
-
-  public DefaultLiteralValueDirectiveNode getDefaultLiteralValueDirectiveNode()
-  {
-    return this.defaultLiteralValueDirectiveNode;
-  }
-
-
-  public ShiftDirectiveNode getShiftDirectiveNode()
-  {
-    return this.shiftDirectiveNode;
-  }
-
-  public EmptyLiteralDirectiveNode getEmptyLiteralDirectiveNode()
-  {
-    return this.emptyLiteralDirectiveNode;
-  }
-
-  public EmptyLocationDirectiveNode getEmptyLocationDirectiveNode()
-  {
-    return this.emptyLocationDirectiveNode;
+    return this.referenceDirectivesHandler.getActualReferenceTypeDirectiveSetting();
   }
 
   public boolean hasExplicitlySpecifiedReferenceType()
   {
-    return this.referenceDirectives.hasExplicitlySpecifiedReferenceType();
+    return this.referenceDirectivesHandler.hasExplicitlySpecifiedReferenceTypeDirective();
   }
 
-  public boolean hasExplicitlySpecifiedDefaultLocationValue()
+  public boolean hasExplicitlySpecifiedDefaultCellLocationValue()
   {
-    return this.referenceDirectives.hasExplicitlySpecifiedDefaultLocationValue();
+    return this.referenceDirectivesHandler.hasExplicitlySpecifiedDefaultCellLocationValue();
   }
 
-  public boolean hasExplicitlySpecifiedDefaultLiteral()
+  public boolean hasExplicitlySpecifiedDefaultLiteralValue()
   {
-    return this.referenceDirectives.hasExplicitlySpecifiedDefaultLiteral();
+    return this.referenceDirectivesHandler.hasExplicitlySpecifiedDefaultLiteralValue();
   }
 
   public boolean hasExplicitlySpecifiedEmptyLiteralDirective()
   {
-    return this.referenceDirectives.hasExplicitlySpecifiedEmptyLiteralDirective();
+    return this.referenceDirectivesHandler.hasExplicitlySpecifiedEmptyLiteralDirective();
   }
 
-  public boolean hasExplicitlySpecifiedEmptyLocationDirective()
+  public boolean hasExplicitlySpecifiedEmptyCellLocationDirective()
   {
-    return this.referenceDirectives.hasExplicitlySpecifiedEmptyLocationDirective();
+    return this.referenceDirectivesHandler.hasExplicitlySpecifiedEmptyCellLocationDirective();
   }
 
   public boolean hasExplicitlySpecifiedShiftDirective()
   {
-    return this.referenceDirectives.hasExplicitlySpecifiedShiftDirective();
+    return this.referenceDirectivesHandler.hasExplicitlySpecifiedShiftDirective();
   }
 
-  public int getActualEmptyLocationDirective()
+  public EmptyCellLocationDirectiveSetting getActualEmptyCellLocationSetting()
   {
-    return this.referenceDirectives.getActualEmptyLocationDirective();
+    return this.referenceDirectivesHandler.getActualEmptyCellLocationDirectiveSetting();
   }
 
-  public int getActualEmptyLiteralDirective()
+  public EmptyLiteralValueDirectiveSetting getActualEmptyLiteralValueDirectiveSetting()
   {
-    return this.referenceDirectives.getActualEmptyLiteralDirective();
+    return this.referenceDirectivesHandler.getActualEmptyLiteralDirectiveSetting();
   }
 
-  public int getActualShiftDirective()
+  public ShiftDirectiveSetting getActualShiftDirectiveSetting()
   {
-    return this.referenceDirectives.getActualShiftDirective();
+    return this.referenceDirectivesHandler.getActualShiftDirectiveSetting();
   }
 
-  public String getActualDefaultLocationValue()
+  public String getActualDefaultCellLocationValue()
   {
-    return this.referenceDirectives.getActualDefaultLocationValue();
+    return this.referenceDirectivesHandler.getActualDefaultCellLocationValue();
   }
 
-  public String getActualDefaultLiteral()
+  public String getActualDefaultLiteralValue()
   {
-    return this.referenceDirectives.getActualDefaultLiteral();
-  }
-
-  public DefaultLocationValueDirectiveNode getDefaultLocationValueDirectiveNode()
-  {
-    return this.defaultLocationValueDirectiveNode;
+    return this.referenceDirectivesHandler.getActualDefaultLiteralValue();
   }
 
   public boolean hasValueExtractionFunctionNode()
@@ -206,30 +184,35 @@ public class ReferenceNode implements JSONSSNode, JSONSSParserConstants
 
   public boolean hasShiftedCellLocation()
   {
-    return this.referenceDirectives.getShiftedCellLocation() != null;
+    return this.referenceDirectivesHandler.getShiftedCellLocation() != null;
   }
 
   public void setShiftedCellLocation(CellLocation cellLocation)
   {
-    this.referenceDirectives.setShiftedCellLocation(cellLocation);
+    this.referenceDirectivesHandler.setShiftedCellLocation(cellLocation);
   }
 
   public CellLocation getShiftedLocation()
   {
-    return this.referenceDirectives.getShiftedCellLocation();
+    return this.referenceDirectivesHandler.getShiftedCellLocation();
   }
 
   public boolean hasExplicitOptions()
   {
-    return this.referenceDirectives.hasExplicitlySpecifiedOptions();
+    return this.referenceDirectivesHandler.hasExplicitlySpecifiedOptions();
   }
 
-	@Override public String toString()
+  public ReferenceCellLocationSpecificationNode getReferenceCellLocationSpecificationNode()
+  {
+    return this.referenceCellLocationSpecificationNode;
+  }
+
+  @Override public String toString()
   {
     String representation = "";
     boolean atLeastOneOptionProcessed = false;
 
-    representation += getReferenceCellLocationSpecificationNode();
+    representation += this.referenceCellLocationSpecificationNode;
 
     if (hasExplicitOptions())
       representation += "(";
@@ -247,31 +230,31 @@ public class ReferenceNode implements JSONSSNode, JSONSSParserConstants
       representation += this.valueExtractionFunctionNode;
     }
 
-    if (hasExplicitlySpecifiedDefaultLocationValue()) {
+    if (hasExplicitlySpecifiedDefaultCellLocationValue()) {
       if (atLeastOneOptionProcessed)
         representation += " ";
-      representation += this.defaultLocationValueDirectiveNode;
+      representation += this.defaultCellLocationValueDirectiveNode;
       atLeastOneOptionProcessed = true;
     }
 
-    if (hasExplicitlySpecifiedDefaultLiteral()) {
+    if (hasExplicitlySpecifiedDefaultLiteralValue()) {
       if (atLeastOneOptionProcessed)
         representation += " ";
       representation += this.defaultLiteralValueDirectiveNode;
       atLeastOneOptionProcessed = true;
     }
 
-    if (hasExplicitlySpecifiedEmptyLocationDirective()) {
+    if (hasExplicitlySpecifiedEmptyCellLocationDirective()) {
       if (atLeastOneOptionProcessed)
         representation += " ";
-      representation += this.emptyLocationDirectiveNode;
+      representation += this.emptyCellLocationDirectiveNode;
       atLeastOneOptionProcessed = true;
     }
 
     if (hasExplicitlySpecifiedEmptyLiteralDirective()) {
       if (atLeastOneOptionProcessed)
         representation += " ";
-      representation += this.emptyLiteralDirectiveNode;
+      representation += this.emptyLiteralValueDirectiveNode;
       atLeastOneOptionProcessed = true;
     }
 

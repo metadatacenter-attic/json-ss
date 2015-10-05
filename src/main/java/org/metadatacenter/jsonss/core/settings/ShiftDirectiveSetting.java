@@ -2,7 +2,7 @@ package org.metadatacenter.jsonss.core.settings;
 
 import org.metadatacenter.jsonss.parser.JSONSSParserConstants;
 
-public enum ShiftSetting
+public enum ShiftDirectiveSetting
 {
   NO_SHIFT(JSONSSParserConstants.NO_SHIFT),
   SHIFT_UP(JSONSSParserConstants.SHIFT_UP),
@@ -12,7 +12,7 @@ public enum ShiftSetting
 
   private int value;
 
-  private ShiftSetting(int value) {
+  private ShiftDirectiveSetting(int value) {
     this.value = value;
   }
 

@@ -1,5 +1,6 @@
 package org.metadatacenter.jsonss.renderer.text;
 
+import org.metadatacenter.jsonss.core.settings.ReferenceDirectivesSettings;
 import org.metadatacenter.jsonss.parser.node.JSONArrayNode;
 import org.metadatacenter.jsonss.parser.node.JSONBooleanNode;
 import org.metadatacenter.jsonss.parser.node.JSONExpressionNode;
@@ -10,7 +11,6 @@ import org.metadatacenter.jsonss.parser.node.JSONStringNode;
 import org.metadatacenter.jsonss.parser.node.JSONValueNode;
 import org.metadatacenter.jsonss.renderer.InternalRendererException;
 import org.metadatacenter.jsonss.renderer.JSONSSRenderer;
-import org.metadatacenter.jsonss.renderer.ReferenceRendererConfiguration;
 import org.metadatacenter.jsonss.renderer.RendererException;
 import org.metadatacenter.jsonss.renderer.TextReferenceRenderer;
 import org.metadatacenter.jsonss.rendering.text.TextRendering;
@@ -28,9 +28,9 @@ public class TextRenderer implements JSONSSRenderer
   private final CellRange enclosingCellRange;
   private Optional<CellLocation> currentCellLocation;
 
-  public TextRenderer(SpreadSheetDataSource dataSource, ReferenceRendererConfiguration referenceRendererConfiguration)
+  public TextRenderer(SpreadSheetDataSource dataSource, ReferenceDirectivesSettings referenceDirectivesSettings)
   {
-    this.referenceRenderer = new TextReferenceRenderer(dataSource, referenceRendererConfiguration);
+    this.referenceRenderer = new TextReferenceRenderer(dataSource, referenceDirectivesSettings);
     this.enclosingCellRange = dataSource.getDefaultEnclosingCellRange();
     this.currentCellLocation = Optional.of(this.enclosingCellRange.getStartRange());
   }

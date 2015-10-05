@@ -22,13 +22,13 @@ public class ReferenceUtil implements JSONSSParserConstants
     String referenceValue;
 
     if (rawLocationValue == null || rawLocationValue.isEmpty()) {
-      referenceValue = referenceNode.getActualDefaultLocationValue();
+      referenceValue = referenceNode.getActualDefaultCellLocationValue();
     } else {
       referenceValue = rawLocationValue;
     }
 
     if (referenceValue.isEmpty()) {
-      switch (referenceNode.getActualEmptyLocationDirective()) {
+      switch (referenceNode.getActualEmptyCellLocationSetting()) {
       case ERROR_IF_EMPTY_LOCATION:
         throw new RendererException("empty location " + cellLocation + " in reference " + referenceNode);
       case WARNING_IF_EMPTY_LOCATION: // NO-OP

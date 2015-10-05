@@ -5,10 +5,10 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.metadatacenter.jsonss.core.DataSource;
+import org.metadatacenter.jsonss.core.settings.ShiftDirectiveSetting;
 import org.metadatacenter.jsonss.exceptions.JSONSSException;
-import org.metadatacenter.jsonss.parser.JSONSSParserConstants;
-import org.metadatacenter.jsonss.parser.node.ReferenceNode;
 import org.metadatacenter.jsonss.parser.node.ReferenceCellLocationSpecificationNode;
+import org.metadatacenter.jsonss.parser.node.ReferenceNode;
 import org.metadatacenter.jsonss.renderer.InternalRendererException;
 import org.metadatacenter.jsonss.renderer.RendererException;
 
@@ -32,7 +32,8 @@ public class SpreadSheetDataSource implements DataSource
       sheetMap.put(workbook.getSheetName(i), workbook.getSheetAt(i));
   }
 
-  @Override public CellLocation resolveCellLocation(ReferenceCellLocationSpecificationNode referenceCellLocationSpecificationNode,
+  @Override public CellLocation resolveCellLocation(
+    ReferenceCellLocationSpecificationNode referenceCellLocationSpecificationNode,
     Optional<CellLocation> currentCellLocation) throws RendererException
   {
     Pattern p = Pattern.compile("(\\*|[a-zA-Z]+)(\\*|[0-9]+)"); // ( \* | [a-zA-z]+ ) ( \* | [0-9]+ )
@@ -67,7 +68,8 @@ public class SpreadSheetDataSource implements DataSource
       String rowSpecification = m.group(2);
 
       if (columnSpecification == null) {
-        throw new RendererException("missing column specification in location " + referenceCellLocationSpecificationNode);
+        throw new RendererException(
+          "missing column specification in location " + referenceCellLocationSpecificationNode);
       }
       if (rowSpecification == null) {
         throw new RendererException("missing row specification in location " + referenceCellLocationSpecificationNode);
@@ -101,7 +103,7 @@ public class SpreadSheetDataSource implements DataSource
   @Override public String getCellLocationValue(CellLocation cellLocation, ReferenceNode referenceNode)
     throws RendererException
   {
-    if (referenceNode.getActualShiftDirective() != JSONSSParserConstants.NO_SHIFT)
+    if (referenceNode.getActualShiftDirectiveSetting() != ShiftDirectiveSetting.NO_SHIFT)
       return getCellLocationValueWithShifting(cellLocation, referenceNode);
     else
       return getCellLocationValue(cellLocation);
@@ -146,8 +148,8 @@ public class SpreadSheetDataSource implements DataSource
     String shiftedLocationValue = getCellLocationValue(cellLocation);
 
     if (shiftedLocationValue == null || shiftedLocationValue.isEmpty()) {
-      switch (referenceNode.getActualShiftDirective()) {
-      case JSONSSParserConstants.SHIFT_LEFT:
+      switch (referenceNode.getActualShiftDirectiveSetting()) {
+      case SHIFT_LEFT:
         int firstColumnNumber = 1;
         for (int currentColumn = cellLocation.getPhysicalColumnNumber();
              currentColumn >= firstColumnNumber; currentColumn--) {
@@ -158,7 +160,7 @@ public class SpreadSheetDataSource implements DataSource
           }
         }
         return shiftedLocationValue;
-      case JSONSSParserConstants.SHIFT_RIGHT:
+      case SHIFT_RIGHT:
         int lastColumnNumber = sheet.getRow(cellLocation.getRowNumber()).getLastCellNum();
         for (int currentColumn = cellLocation.getPhysicalColumnNumber();
              currentColumn <= lastColumnNumber; currentColumn++) {
@@ -169,7 +171,7 @@ public class SpreadSheetDataSource implements DataSource
           }
         }
         return shiftedLocationValue;
-      case JSONSSParserConstants.SHIFT_DOWN:
+      case SHIFT_DOWN:
         int lastRowNumber = sheet.getLastRowNum() + 1;
         for (int currentRow = cellLocation.getPhysicalRowNumber(); currentRow <= lastRowNumber; currentRow++) {
           shiftedLocationValue = getCellLocationValue(
@@ -179,7 +181,7 @@ public class SpreadSheetDataSource implements DataSource
           }
         }
         return shiftedLocationValue;
-      case JSONSSParserConstants.SHIFT_UP:
+      case SHIFT_UP:
         int firstRowNumber = 1;
         for (int currentRow = cellLocation.getPhysicalRowNumber(); currentRow >= firstRowNumber; currentRow--) {
           shiftedLocationValue = getCellLocationValue(
@@ -190,7 +192,7 @@ public class SpreadSheetDataSource implements DataSource
         }
         return shiftedLocationValue;
       default:
-        throw new InternalRendererException("Unknown shift setting " + referenceNode.getActualShiftDirective());
+        throw new InternalRendererException("Unknown shift setting " + referenceNode.getActualShiftDirectiveSetting());
       }
     } else {
       referenceNode.setShiftedCellLocation(cellLocation);
