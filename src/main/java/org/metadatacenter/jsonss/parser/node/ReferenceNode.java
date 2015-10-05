@@ -28,6 +28,7 @@ public class ReferenceNode implements JSONSSNode, JSONSSParserConstants
   private EmptyLiteralDirectiveNode emptyLiteralDirectiveNode;
   private ValueExtractionFunctionNode valueExtractionFunctionNode;
   private ShiftDirectiveNode shiftDirectiveNode;
+
   private final ReferenceDirectives referenceDirectives;
 
   public ReferenceNode(ASTReference node) throws ParseException

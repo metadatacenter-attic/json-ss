@@ -2,58 +2,66 @@ package org.metadatacenter.jsonss.core.settings;
 
 public class ReferenceSettings
 {
-  private String defaultLocationValue = "";
-  private String defaultLiteralValue = "";
-  private ReferenceTypeSetting referenceTypeSetting = ReferenceTypeSetting.JSON_STRING;
-  private EmptyLocationSetting emptyLocationSetting = EmptyLocationSetting.PROCESS_IF_EMPTY_LOCATION;
-  private EmptyLiteralSetting emptyLiteralSetting = EmptyLiteralSetting.PROCESS_IF_EMPTY_LITERAL;
-  private ShiftSetting shiftSetting = ShiftSetting.NO_SHIFT;
+  private final ReferenceTypeSetting referenceTypeSetting;
+  private final EmptyLocationSetting emptyLocationSetting;
+  private final EmptyLiteralSetting emptyLiteralSetting;
+  private final ShiftSetting shiftSetting;
+  private final String defaultLocationValue;
+  private final String defaultLiteralValue;
+
+  public ReferenceSettings()
+  {
+    this.referenceTypeSetting = ReferenceTypeSetting.JSON_STRING;
+    this.emptyLocationSetting = EmptyLocationSetting.PROCESS_IF_EMPTY_LOCATION;
+    this.emptyLiteralSetting = EmptyLiteralSetting.PROCESS_IF_EMPTY_LITERAL;
+    this.shiftSetting = ShiftSetting.NO_SHIFT;
+    this.defaultLocationValue = "";
+    this.defaultLiteralValue = "";
+  }
+
+  public ReferenceSettings(ReferenceTypeSetting referenceTypeSetting, EmptyLocationSetting emptyLocationSetting,
+      EmptyLiteralSetting emptyLiteralSetting, ShiftSetting shiftSetting, String defaultLocationValue,
+      String defaultLiteralValue)
+  {
+    this.referenceTypeSetting = referenceTypeSetting;
+    this.emptyLocationSetting = emptyLocationSetting;
+    this.emptyLiteralSetting = emptyLiteralSetting;
+    this.shiftSetting = shiftSetting;
+    this.defaultLocationValue = defaultLocationValue;
+    this.defaultLiteralValue = defaultLiteralValue;
+  }
+
+  public ReferenceSettings(ReferenceSettings referenceSettings)
+  {
+    this.referenceTypeSetting = referenceSettings.referenceTypeSetting;
+    this.emptyLocationSetting = referenceSettings.emptyLocationSetting;
+    this.emptyLiteralSetting = referenceSettings.emptyLiteralSetting;
+    this.shiftSetting = referenceSettings.shiftSetting;
+    this.defaultLocationValue = referenceSettings.defaultLocationValue;
+    this.defaultLiteralValue = referenceSettings.defaultLiteralValue;
+  }
 
   public ReferenceTypeSetting getReferenceTypeSetting()
   {
-    return referenceTypeSetting;
+    return this.referenceTypeSetting;
   }
-
-  public void setReferenceTypeSetting(ReferenceTypeSetting value)
-  {
-    referenceTypeSetting = value;
-  }
-
-  public String getDefaultLocationValue() { return this.defaultLocationValue; }
-
-  public void setDefaultLocationValue(String defaultLocationValue) { this.defaultLocationValue = defaultLocationValue; }
-
-  public String getDefaultLiteralValue() { return this.defaultLiteralValue; }
-
-  public void setDefaultLiteralValue(String defaultLiteralValue) { this.defaultLiteralValue = defaultLiteralValue; }
 
   public EmptyLocationSetting getEmptyLocationSetting()
   {
     return emptyLocationSetting;
   }
 
-  public void setEmptyLocationSetting(EmptyLocationSetting value)
-  {
-    this.emptyLocationSetting = value;
-  }
-
   public EmptyLiteralSetting getEmptyLiteralSetting()
   {
-    return emptyLiteralSetting;
-  }
-
-  public void setEmptyLiteralSetting(EmptyLiteralSetting value)
-  {
-    this.emptyLiteralSetting = value;
+    return this.emptyLiteralSetting;
   }
 
   public ShiftSetting getShiftSetting()
   {
-    return shiftSetting;
+    return this.shiftSetting;
   }
 
-  public void setShiftSetting(ShiftSetting value)
-  {
-    this.shiftSetting = value;
-  }
+  public String getDefaultLocationValue() { return this.defaultLocationValue; }
+
+  public String getDefaultLiteralValue() { return this.defaultLiteralValue; }
 }

@@ -15,33 +15,13 @@ PARSER_BEGIN(JSONSSParser)
 
 package org.metadatacenter.jsonss.parser;
 
-import org.metadatacenter.jsonss.core.settings.ReferenceSettings;
-
 import java.util.*;
 
 public class JSONSSParser 
 {
-  private int defaultReferenceType;
-  private String defaultLocationValue;
-  private String defaultLiteralValue;
-  private int defaultEmptyLocationSetting;
-  private int defaultEmptyLiteralSetting;
-  private int defaultShiftSetting;
-  
-  public JSONSSParser(java.io.InputStream stream, ReferenceSettings referenceSettings, int unused)
+  public JSONSSParser(java.io.InputStream stream)
   {
     this(stream);
-    updateDefaultReferenceSettings(referenceSettings);
-  }
-
-  public void updateDefaultReferenceSettings(ReferenceSettings referenceSettings)
-  {
-    defaultLocationValue = referenceSettings.getDefaultLocationValue();
-    defaultLiteralValue = referenceSettings.getDefaultLiteralValue();
-    defaultReferenceType = referenceSettings.getReferenceTypeSetting().getConstant();
-    defaultShiftSetting = referenceSettings.getShiftSetting().getConstant();
-    defaultEmptyLocationSetting = referenceSettings.getEmptyLocationSetting().getConstant();
-    defaultEmptyLiteralSetting = referenceSettings.getEmptyLiteralSetting().getConstant();
   }
 }
 
@@ -202,7 +182,7 @@ void json_value() #JSONValue: {}
      | json_string()
      | json_number()
      | json_null()
-     | jsonss_reference(defaultReferenceType)
+     | jsonss_reference()
     )
 }
 
@@ -289,28 +269,21 @@ void json_null() #JSONNull : {}
   <NULL>
 }
 
-void jsonss_reference(int defaultReferenceType) #Reference : {}
+void jsonss_reference() #Reference : {}
 {
    <AT> jsonss_reference_cell_location_specification()
        (
          <OPEN_PAREN>
-            jsonss_reference_parameter() ( jsonss_reference_parameter() ) *
+            ( jsonss_reference_directives() )?  ( jsonss_value_extraction_function() )?
          <CLOSE_PAREN>
        )?
   {
-    jjtThis.defaultReferenceDirectives = new DefaultReferenceDirectives(
-                        defaultReferenceType,
-                        defaultLocationValue, defaultLiteralValue,
-                        defaultShiftSetting, defaultEmptyLocationSetting,
-                        defaultEmptyLiteralSetting);
   }
 }
 
-void jsonss_reference_parameter(): {}
+void jsonss_reference_directives(): {}
 {
-  (  jsonss_reference_directive()
-   | jsonss_value_extraction_function()
-  ) 
+  jsonss_reference_directive() ( jsonss_reference_directive() )?
 }
 
 void jsonss_reference_directive(): {}
@@ -324,7 +297,7 @@ void jsonss_reference_directive(): {}
   ) 
 }
 
-void jsonss_range_reference(int defaultReferenceType) #RangeReference : {}
+void jsonss_range_reference() #RangeReference : {}
 {
    <AT> jsonss_reference_location_specification() <COLON> jsonss_reference_location_specification() 
        (
@@ -521,7 +494,7 @@ void jsonss_value_extraction_function() #ValueExtractionFunction:
 
 void jsonss_value_extraction_function_argument() #ValueExtractionFunctionArgument : {}
 {
-  jsonss_reference(JSON_STRING) | string_literal()
+  jsonss_reference() | string_literal()
 }
 
 String string_literal() #StringLiteral: 

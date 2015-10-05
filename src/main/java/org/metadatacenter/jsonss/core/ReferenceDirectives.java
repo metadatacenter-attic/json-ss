@@ -7,23 +7,21 @@ import org.metadatacenter.jsonss.ss.CellLocation;
 public class ReferenceDirectives implements JSONSSParserConstants
 {
   private final DefaultReferenceDirectives defaultReferenceDirectives;
+
   private boolean hasExplicitlySpecifiedReferenceType;
-  private boolean hasExplicitlySpecifiedDefaultLocationValue;
-  private boolean hasExplicitlySpecifiedDefaultLiteral;
+  private boolean hasExplicitlySpecifiedDefaultCellLocationValue;
+  private boolean hasExplicitlySpecifiedDefaultLiteralValue;
   private boolean hasExplicitlySpecifiedShiftDirective;
   private boolean hasExplicitlySpecifiedEmptyLocationDirective;
   private boolean hasExplicitlySpecifiedEmptyLiteralDirective;
+
   private ReferenceType explicitlySpecifiedReferenceType;
-  private String explicitlySpecifiedDefaultLocationValue;
-  private String explicitlySpecifiedDefaultLiteral;
   private int explicitlySpecifiedShiftDirective = -1;
   private int explicitlySpecifiedEmptyLocationDirective = -1;
   private int explicitlySpecifiedEmptyLiteralDirective = -1;
-
-  private boolean usesLocationEncoding;
   private CellLocation shiftedCellLocation;
-
-  private boolean hasExplicitlySpecifiedOptions;
+  private String explicitlySpecifiedDefaultLocationValue;
+  private String explicitlySpecifiedDefaultLiteral;
 
   public ReferenceDirectives(DefaultReferenceDirectives defaultReferenceDirectives)
   {
@@ -32,17 +30,9 @@ public class ReferenceDirectives implements JSONSSParserConstants
 
   public boolean hasExplicitlySpecifiedOptions()
   {
-    return this.hasExplicitlySpecifiedOptions;
-  }
-
-  public void setUsesLocationEncoding()
-  {
-    this.usesLocationEncoding = true;
-  }
-
-  public boolean usesLocationEncoding()
-  {
-    return this.usesLocationEncoding;
+    return this.hasExplicitlySpecifiedReferenceType || this.hasExplicitlySpecifiedDefaultCellLocationValue
+        || this.hasExplicitlySpecifiedDefaultLiteralValue || this.hasExplicitlySpecifiedShiftDirective
+        || this.hasExplicitlySpecifiedEmptyLocationDirective || this.hasExplicitlySpecifiedEmptyLiteralDirective;
   }
 
   public int getDefaultShiftDirective()
@@ -63,53 +53,50 @@ public class ReferenceDirectives implements JSONSSParserConstants
   public void setExplicitlySpecifiedReferenceType(ReferenceType referenceType)
   {
     this.explicitlySpecifiedReferenceType = referenceType;
-    this.hasExplicitlySpecifiedOptions = true;
     this.hasExplicitlySpecifiedReferenceType = true;
   }
 
   public ReferenceType getActualReferenceType()
   {
     return hasExplicitlySpecifiedReferenceType() ?
-      this.explicitlySpecifiedReferenceType :
-      this.defaultReferenceDirectives.getDefaultReferenceType();
+        this.explicitlySpecifiedReferenceType :
+        this.defaultReferenceDirectives.getDefaultReferenceType();
   }
 
   public boolean hasExplicitlySpecifiedDefaultLocationValue()
   {
-    return this.hasExplicitlySpecifiedDefaultLocationValue;
+    return this.hasExplicitlySpecifiedDefaultCellLocationValue;
   }
 
   public void setExplicitlySpecifiedDefaultLocationValue(String locationValue)
   {
-    this.hasExplicitlySpecifiedOptions = true;
-    this.hasExplicitlySpecifiedDefaultLocationValue = true;
+    this.hasExplicitlySpecifiedDefaultCellLocationValue = true;
     this.explicitlySpecifiedDefaultLocationValue = locationValue;
   }
 
   public String getActualDefaultLocationValue()
   {
     return hasExplicitlySpecifiedDefaultLocationValue() ?
-      this.explicitlySpecifiedDefaultLocationValue :
-      this.defaultReferenceDirectives.getDefaultCellLocationValue();
+        this.explicitlySpecifiedDefaultLocationValue :
+        this.defaultReferenceDirectives.getDefaultCellLocationValue();
   }
 
   public boolean hasExplicitlySpecifiedDefaultLiteral()
   {
-    return this.hasExplicitlySpecifiedDefaultLiteral;
+    return this.hasExplicitlySpecifiedDefaultLiteralValue;
   }
 
   public void setExplicitlySpecifiedDefaultLiteral(String literal)
   {
-    this.hasExplicitlySpecifiedOptions = true;
-    this.hasExplicitlySpecifiedDefaultLiteral = true;
+    this.hasExplicitlySpecifiedDefaultLiteralValue = true;
     this.explicitlySpecifiedDefaultLiteral = literal;
   }
 
   public String getActualDefaultLiteral()
   {
     return hasExplicitlySpecifiedDefaultLiteral() ?
-      this.explicitlySpecifiedDefaultLiteral :
-      this.defaultReferenceDirectives.getDefaultLiteralValue();
+        this.explicitlySpecifiedDefaultLiteral :
+        this.defaultReferenceDirectives.getDefaultLiteralValue();
   }
 
   public boolean hasExplicitlySpecifiedShiftDirective()
@@ -119,7 +106,6 @@ public class ReferenceDirectives implements JSONSSParserConstants
 
   public void setHasExplicitlySpecifiedShiftDirective(int shiftDirective)
   {
-    this.hasExplicitlySpecifiedOptions = true;
     this.hasExplicitlySpecifiedShiftDirective = true;
     this.explicitlySpecifiedShiftDirective = shiftDirective;
   }
@@ -127,8 +113,8 @@ public class ReferenceDirectives implements JSONSSParserConstants
   public int getActualShiftDirective()
   {
     return hasExplicitlySpecifiedShiftDirective() ?
-      this.explicitlySpecifiedShiftDirective :
-      this.defaultReferenceDirectives.getDefaultShiftDirective();
+        this.explicitlySpecifiedShiftDirective :
+        this.defaultReferenceDirectives.getDefaultShiftDirective();
   }
 
   public boolean hasExplicitlySpecifiedEmptyLocationDirective()
@@ -138,7 +124,6 @@ public class ReferenceDirectives implements JSONSSParserConstants
 
   public void setHasExplicitlySpecifiedEmptyLocationDirective(int emptyLocationDirective)
   {
-    this.hasExplicitlySpecifiedOptions = true;
     this.hasExplicitlySpecifiedEmptyLocationDirective = true;
     this.explicitlySpecifiedEmptyLocationDirective = emptyLocationDirective;
   }
@@ -146,8 +131,8 @@ public class ReferenceDirectives implements JSONSSParserConstants
   public int getActualEmptyLocationDirective()
   {
     return hasExplicitlySpecifiedEmptyLocationDirective() ?
-      this.explicitlySpecifiedEmptyLocationDirective :
-      this.defaultReferenceDirectives.getDefaultEmptyCellLocationDirective();
+        this.explicitlySpecifiedEmptyLocationDirective :
+        this.defaultReferenceDirectives.getDefaultEmptyCellLocationDirective();
   }
 
   public boolean hasExplicitlySpecifiedEmptyLiteralDirective()
@@ -157,7 +142,6 @@ public class ReferenceDirectives implements JSONSSParserConstants
 
   public void setHasExplicitlySpecifiedEmptyLiteralDirective(int emptyLiteralDirective)
   {
-    this.hasExplicitlySpecifiedOptions = true;
     this.hasExplicitlySpecifiedEmptyLiteralDirective = true;
     this.explicitlySpecifiedEmptyLiteralDirective = emptyLiteralDirective;
   }
@@ -165,8 +149,8 @@ public class ReferenceDirectives implements JSONSSParserConstants
   public int getActualEmptyLiteralDirective()
   {
     return hasExplicitlySpecifiedEmptyLiteralDirective() ?
-      this.explicitlySpecifiedEmptyLiteralDirective :
-      this.defaultReferenceDirectives.getDefaultEmptyLiteralDirective();
+        this.explicitlySpecifiedEmptyLiteralDirective :
+        this.defaultReferenceDirectives.getDefaultEmptyLiteralDirective();
   }
 
   public CellLocation getShiftedCellLocation()
