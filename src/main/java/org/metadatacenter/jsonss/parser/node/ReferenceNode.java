@@ -15,14 +15,13 @@ import org.metadatacenter.jsonss.parser.ASTReferenceTypeDirective;
 import org.metadatacenter.jsonss.parser.ASTShiftDirective;
 import org.metadatacenter.jsonss.parser.ASTValueExtractionFunction;
 import org.metadatacenter.jsonss.parser.InternalParseException;
-import org.metadatacenter.jsonss.parser.JSONSSParserConstants;
 import org.metadatacenter.jsonss.parser.Node;
 import org.metadatacenter.jsonss.parser.ParseException;
 import org.metadatacenter.jsonss.parser.ParserUtil;
 import org.metadatacenter.jsonss.renderer.RendererException;
 import org.metadatacenter.jsonss.ss.CellLocation;
 
-public class ReferenceNode implements JSONSSNode, JSONSSParserConstants
+public class ReferenceNode implements JSONSSNode
 {
   private ReferenceCellLocationSpecificationNode referenceCellLocationSpecificationNode;
   private ReferenceTypeDirectiveNode referenceTypeDirectiveNode;
@@ -63,8 +62,7 @@ public class ReferenceNode implements JSONSSNode, JSONSSParserConstants
       } else if (ParserUtil.hasName(child, "EmptyLiteralValueDirective")) {
         if (this.emptyLiteralValueDirectiveNode != null)
           throw new RendererException("only one empty literal value directive can be specified for a Reference");
-        this.emptyLiteralValueDirectiveNode = new EmptyLiteralValueDirectiveNode(
-          (ASTEmptyLiteralValueDirective)child);
+        this.emptyLiteralValueDirectiveNode = new EmptyLiteralValueDirectiveNode((ASTEmptyLiteralValueDirective)child);
       } else if (ParserUtil.hasName(child, "ShiftDirective")) {
         if (this.shiftDirectiveNode != null)
           throw new RendererException("only one shift directive can be specified for a Reference");
@@ -117,36 +115,6 @@ public class ReferenceNode implements JSONSSNode, JSONSSParserConstants
     return this.referenceDirectivesHandler.getActualReferenceTypeDirectiveSetting();
   }
 
-  public boolean hasExplicitlySpecifiedReferenceType()
-  {
-    return this.referenceDirectivesHandler.hasExplicitlySpecifiedReferenceTypeDirective();
-  }
-
-  public boolean hasExplicitlySpecifiedDefaultCellLocationValue()
-  {
-    return this.referenceDirectivesHandler.hasExplicitlySpecifiedDefaultCellLocationValue();
-  }
-
-  public boolean hasExplicitlySpecifiedDefaultLiteralValue()
-  {
-    return this.referenceDirectivesHandler.hasExplicitlySpecifiedDefaultLiteralValue();
-  }
-
-  public boolean hasExplicitlySpecifiedEmptyLiteralDirective()
-  {
-    return this.referenceDirectivesHandler.hasExplicitlySpecifiedEmptyLiteralDirective();
-  }
-
-  public boolean hasExplicitlySpecifiedEmptyCellLocationDirective()
-  {
-    return this.referenceDirectivesHandler.hasExplicitlySpecifiedEmptyCellLocationDirective();
-  }
-
-  public boolean hasExplicitlySpecifiedShiftDirective()
-  {
-    return this.referenceDirectivesHandler.hasExplicitlySpecifiedShiftDirective();
-  }
-
   public EmptyCellLocationDirectiveSetting getActualEmptyCellLocationSetting()
   {
     return this.referenceDirectivesHandler.getActualEmptyCellLocationDirectiveSetting();
@@ -195,11 +163,6 @@ public class ReferenceNode implements JSONSSNode, JSONSSParserConstants
   public CellLocation getShiftedLocation()
   {
     return this.referenceDirectivesHandler.getShiftedCellLocation();
-  }
-
-  public boolean hasExplicitOptions()
-  {
-    return this.referenceDirectivesHandler.hasExplicitlySpecifiedOptions();
   }
 
   public ReferenceCellLocationSpecificationNode getReferenceCellLocationSpecificationNode()
@@ -269,5 +232,40 @@ public class ReferenceNode implements JSONSSNode, JSONSSParserConstants
       representation += ")";
 
     return representation;
+  }
+
+  private boolean hasExplicitOptions()
+  {
+    return this.referenceDirectivesHandler.hasExplicitlySpecifiedOptions();
+  }
+
+  private boolean hasExplicitlySpecifiedReferenceType()
+  {
+    return this.referenceDirectivesHandler.hasExplicitlySpecifiedReferenceTypeDirective();
+  }
+
+  private boolean hasExplicitlySpecifiedDefaultCellLocationValue()
+  {
+    return this.referenceDirectivesHandler.hasExplicitlySpecifiedDefaultCellLocationValue();
+  }
+
+  private boolean hasExplicitlySpecifiedDefaultLiteralValue()
+  {
+    return this.referenceDirectivesHandler.hasExplicitlySpecifiedDefaultLiteralValue();
+  }
+
+  private boolean hasExplicitlySpecifiedEmptyLiteralDirective()
+  {
+    return this.referenceDirectivesHandler.hasExplicitlySpecifiedEmptyLiteralDirective();
+  }
+
+  private boolean hasExplicitlySpecifiedEmptyCellLocationDirective()
+  {
+    return this.referenceDirectivesHandler.hasExplicitlySpecifiedEmptyCellLocationDirective();
+  }
+
+  private boolean hasExplicitlySpecifiedShiftDirective()
+  {
+    return this.referenceDirectivesHandler.hasExplicitlySpecifiedShiftDirective();
   }
 }

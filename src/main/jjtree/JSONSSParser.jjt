@@ -15,6 +15,7 @@ PARSER_BEGIN(JSONSSParser)
 
 package org.metadatacenter.jsonss.parser;
 
+import org.metadatacenter.jsonss.core.settings.ReferenceDirectivesSettings;
 import org.metadatacenter.jsonss.core.settings.ReferenceTypeDirectiveSetting;
 import org.metadatacenter.jsonss.core.settings.ShiftDirectiveSetting;
 import org.metadatacenter.jsonss.core.settings.EmptyLiteralValueDirectiveSetting;
@@ -24,9 +25,12 @@ import java.util.*;
 
 public class JSONSSParser 
 {
-  public JSONSSParser(java.io.InputStream stream, int dum)
+  ReferenceDirectivesSettings defaultReferenceDirectivesSettings;
+
+  public JSONSSParser(java.io.InputStream stream, ReferenceDirectivesSettings defaultReferenceDirectivesSettings, int dummy)
   {
-    this(stream, null);
+    this(stream);
+    this.defaultReferenceDirectivesSettings = defaultReferenceDirectivesSettings;
   }
 }
 
@@ -198,7 +202,10 @@ void json_array() #JSONArray : {}
 
 void json_object() #JSONObject : {}
 {
-   <OPEN_BRACE> ( json_key_value_pair() ( <COMMA> json_key_value_pair() )* )? <CLOSE_BRACE>
+   <OPEN_BRACE>
+      ( jsonss_range_reference() ) ?
+      ( json_key_value_pair() ( <COMMA> json_key_value_pair() )* )?
+   <CLOSE_BRACE>
 }
 
 void json_key_value_pair() #JSONKeyValuePair: {}
@@ -283,6 +290,7 @@ void jsonss_reference() #Reference : {}
          <CLOSE_PAREN>
        )?
   {
+     jjtThis.defaultReferenceDirectivesSettings = this.defaultReferenceDirectivesSettings;
   }
 }
 
@@ -311,6 +319,7 @@ void jsonss_range_reference() #RangeReference : {}
          <CLOSE_PAREN>
        )?
   {
+     jjtThis.defaultReferenceDirectivesSettings = this.defaultReferenceDirectivesSettings;
   }
 }
 

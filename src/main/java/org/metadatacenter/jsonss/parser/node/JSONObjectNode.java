@@ -2,6 +2,7 @@ package org.metadatacenter.jsonss.parser.node;
 
 import org.metadatacenter.jsonss.parser.ASTJSONKeyValuePair;
 import org.metadatacenter.jsonss.parser.ASTJSONObject;
+import org.metadatacenter.jsonss.parser.ASTRangeReference;
 import org.metadatacenter.jsonss.parser.InternalParseException;
 import org.metadatacenter.jsonss.parser.Node;
 import org.metadatacenter.jsonss.parser.ParseException;
@@ -14,6 +15,7 @@ import java.util.Map;
 public class JSONObjectNode implements JSONSSNode
 {
   private final Map<String, JSONValueNode> keyValuePairs = new LinkedHashMap<>();
+  private RangeReferenceNode rangeReferenceNode;
 
   public JSONObjectNode(ASTJSONObject node) throws ParseException
   {
@@ -24,6 +26,8 @@ public class JSONObjectNode implements JSONSSNode
         String key = jsonKeyValuePairNode.getKey();
         JSONValueNode jsonValueNode = jsonKeyValuePairNode.getJSONValueNode();
         this.keyValuePairs.put(key, jsonValueNode);
+      } else if (ParserUtil.hasName(child, "RangeReference")) {
+        this.rangeReferenceNode = new RangeReferenceNode((ASTRangeReference)child);
       } else
         throw new InternalParseException("unexpected child node " + child + " for " + getNodeName());
     }
@@ -33,6 +37,10 @@ public class JSONObjectNode implements JSONSSNode
   {
     return "JSONObject";
   }
+
+  public boolean hasRangeReferenceNode() { return this.rangeReferenceNode != null; }
+
+  public RangeReferenceNode getRangeReferenceNode() { return this.rangeReferenceNode; }
 
   public Map<String, JSONValueNode> getKeyValuePairs() { return Collections.unmodifiableMap(this.keyValuePairs); }
 
