@@ -20,6 +20,7 @@ import org.metadatacenter.jsonss.ss.CellLocation;
 import org.metadatacenter.jsonss.ss.CellRange;
 import org.metadatacenter.jsonss.ss.SpreadSheetDataSource;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -50,51 +51,68 @@ public class TextRenderer implements JSONSSRenderer
   }
 
   @Override public Optional<? extends TextRendering> renderJSONObject(JSONObjectNode jsonObjectNode,
-    ReferenceRendererContext referenceRendererContext) throws RendererException
+    ReferenceRendererContext enclosingReferenceRendererContext) throws RendererException
   {
     if (jsonObjectNode.hasRangeReferenceNode()) {
       RangeReferenceNode rangeReferenceNode = jsonObjectNode.getRangeReferenceNode();
       CellLocation startCellLocation = this.dataSource
         .getCellLocation(rangeReferenceNode.getStartCellLocationSpecificationNode(),
-          referenceRendererContext.getCurrentCellLocation());
+          enclosingReferenceRendererContext.getCurrentCellLocation());
       CellLocation finishCellLocation = this.dataSource
         .getCellLocation(rangeReferenceNode.getFinishCellLocationSpecificationNode(),
-          referenceRendererContext.getCurrentCellLocation());
-      CellRange currentCellRange = new CellRange(startCellLocation, finishCellLocation);
-      CellLocation currentCellLocation = currentCellRange.getStartCellLocation();
-      ReferenceDirectivesSettings currentReferenceDirectivesSettings = rangeReferenceNode
-        .getCurrentReferenceDirectivesSettings(referenceRendererContext.getReferenceDirectivesSettings());
-      ReferenceRendererContext currentReferenceRenderContext = new ReferenceRendererContext(
-        currentReferenceDirectivesSettings, currentCellRange);
+          enclosingReferenceRendererContext.getCurrentCellLocation());
+      CellRange cellRange = new CellRange(startCellLocation, finishCellLocation);
+      ReferenceDirectivesSettings referenceDirectivesSettings = rangeReferenceNode
+        .getCurrentReferenceDirectivesSettings(enclosingReferenceRendererContext.getReferenceDirectivesSettings());
 
-      // TODO
-      return Optional.empty();
-
-    } else {
-      Map<String, JSONValueNode> keyValuePairs = jsonObjectNode.getKeyValuePairs();
-
-      StringBuffer sb = new StringBuffer("{");
       boolean isFirst = true;
-
-      for (String key : keyValuePairs.keySet()) {
-        JSONValueNode jsonValueNode = keyValuePairs.get(key);
-        Optional<? extends TextRendering> jsonValueRendering = renderJSONValue(jsonValueNode, referenceRendererContext);
-
-        if (jsonValueRendering.isPresent()) {
-          if (!isFirst)
-            sb.append(", ");
-          sb.append("\"" + key + "\": " + jsonValueRendering.get().getRendering());
-          isFirst = false;
-        }
+      StringBuffer sb = new StringBuffer("[");
+      Iterator<CellLocation> cellLocationIterator = cellRange.iterator();
+      while (cellLocationIterator.hasNext()) {
+        CellLocation currentCellLocation = cellLocationIterator.next();
+        ReferenceRendererContext currentReferenceRenderContext = new ReferenceRendererContext(
+          referenceDirectivesSettings, cellRange, currentCellLocation);
+        if (!isFirst)
+          sb.append(", ");
+        sb.append(getRendering(jsonObjectNode, currentReferenceRenderContext));
+        isFirst = false;
       }
-      sb.append("}");
+
+      sb.append("]");
 
       return Optional.of(new TextRendering(sb.toString()));
+    } else {
+      return Optional.of(new TextRendering(getRendering(jsonObjectNode, enclosingReferenceRendererContext).toString()));
     }
   }
 
+  private StringBuffer getRendering(JSONObjectNode jsonObjectNode,
+    ReferenceRendererContext enclosingReferenceRendererContext) throws RendererException
+  {
+    Map<String, JSONValueNode> keyValuePairs = jsonObjectNode.getKeyValuePairs();
+
+    StringBuffer sb = new StringBuffer("{");
+    boolean isFirst = true;
+
+    for (String key : keyValuePairs.keySet()) {
+      JSONValueNode jsonValueNode = keyValuePairs.get(key);
+      Optional<? extends TextRendering> jsonValueRendering = renderJSONValue(jsonValueNode,
+        enclosingReferenceRendererContext);
+
+      if (jsonValueRendering.isPresent()) {
+        if (!isFirst)
+          sb.append(", ");
+        sb.append("\"" + key + "\": " + jsonValueRendering.get().getRendering());
+        isFirst = false;
+      }
+    }
+    sb.append("}");
+
+    return sb;
+  }
+
   @Override public Optional<? extends TextRendering> renderJSONArray(JSONArrayNode jsonArrayNode,
-    ReferenceRendererContext referenceRendererContext) throws RendererException
+    ReferenceRendererContext enclosingReferenceRendererContext) throws RendererException
   {
     List<JSONValueNode> jsonValues = jsonArrayNode.getElements();
 
@@ -102,7 +120,8 @@ public class TextRenderer implements JSONSSRenderer
     boolean isFirst = true;
 
     for (JSONValueNode jsonValueNode : jsonValues) {
-      Optional<? extends TextRendering> jsonValueRendering = renderJSONValue(jsonValueNode, referenceRendererContext);
+      Optional<? extends TextRendering> jsonValueRendering = renderJSONValue(jsonValueNode,
+        enclosingReferenceRendererContext);
 
       if (jsonValueRendering.isPresent()) {
         if (!isFirst)
@@ -117,12 +136,12 @@ public class TextRenderer implements JSONSSRenderer
   }
 
   @Override public Optional<? extends TextRendering> renderJSONValue(JSONValueNode jsonValueNode,
-    ReferenceRendererContext referenceRendererContext) throws RendererException
+    ReferenceRendererContext enclosingReferenceRendererContext) throws RendererException
   {
     if (jsonValueNode.isJSONArray())
-      return renderJSONArray(jsonValueNode.getJSONArrayNode(), referenceRendererContext);
+      return renderJSONArray(jsonValueNode.getJSONArrayNode(), enclosingReferenceRendererContext);
     else if (jsonValueNode.isJSONObject())
-      return renderJSONObject(jsonValueNode.getJSONObjectNode(), referenceRendererContext);
+      return renderJSONObject(jsonValueNode.getJSONObjectNode(), enclosingReferenceRendererContext);
     else if (jsonValueNode.isJSONString())
       return renderJSONString(jsonValueNode.getJSONStringNode());
     else if (jsonValueNode.isJSONNumber())
@@ -132,7 +151,7 @@ public class TextRenderer implements JSONSSRenderer
     else if (jsonValueNode.isJSONNull())
       return renderJSONNull(jsonValueNode.getJSONNullNode());
     else if (jsonValueNode.isReference())
-      return referenceRenderer.renderReference(jsonValueNode.getReferenceNode(), referenceRendererContext);
+      return referenceRenderer.renderReference(jsonValueNode.getReferenceNode(), enclosingReferenceRendererContext);
     else
       throw new InternalRendererException("unknown " + jsonValueNode.getNodeName() + " node type");
   }

@@ -1,8 +1,10 @@
 package org.metadatacenter.jsonss.ss;
 
+import java.util.Iterator;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
-public class CellRange
+public class CellRange implements Iterable<CellLocation>
 {
   private final CellLocation startCellLocation;
   private final CellLocation finishCellLocation;
@@ -24,7 +26,6 @@ public class CellRange
     else {
       int columnNumber = currentCellLocation.getColumnNumber();
       int rowNumber = currentCellLocation.getRowNumber();
-
 
       if (columnNumber < this.startCellLocation.getColumnNumber())
         return Optional.empty();
@@ -48,5 +49,42 @@ public class CellRange
   @Override public String toString()
   {
     return startCellLocation.getFullyQualifiedCellLocation() + ":" + finishCellLocation.getCellLocation();
+  }
+
+  @Override public Iterator<CellLocation> iterator()
+  {
+    return new CellRangeIterator(this);
+  }
+
+  private static final class CellRangeIterator implements Iterator<CellLocation>
+  {
+    private final CellRange enclosingCellRange;
+    private CellLocation cursor;
+
+    public CellRangeIterator(CellRange enclosingCellRange)
+    {
+      this.enclosingCellRange = enclosingCellRange;
+      this.cursor = enclosingCellRange.getStartCellLocation();
+    }
+
+    public boolean hasNext()
+    {
+      return this.enclosingCellRange.nextCellLocation(this.cursor).isPresent();
+    }
+
+    public CellLocation next()
+    {
+      if (this.hasNext()) {
+        CellLocation current = cursor;
+        cursor = this.enclosingCellRange.nextCellLocation(cursor).get();
+        return current;
+      } else
+        throw new NoSuchElementException();
+    }
+
+    public void remove()
+    {
+      throw new UnsupportedOperationException();
+    }
   }
 }
