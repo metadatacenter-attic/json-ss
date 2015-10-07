@@ -47,8 +47,11 @@ public class JSONObjectNode implements JSONSSNode
   @Override public String toString()
   {
     StringBuffer sb = new StringBuffer("{");
-    boolean isFirst = true;
 
+    if (hasRangeReferenceNode())
+      sb.append(this.rangeReferenceNode.toString() + " ");
+
+    boolean isFirst = true;
     for (String key : this.keyValuePairs.keySet()) {
       if (!isFirst)
         sb.append(", ");

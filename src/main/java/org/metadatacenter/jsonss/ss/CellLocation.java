@@ -79,6 +79,11 @@ public class CellLocation
     return getColumnName() + getPhysicalRowNumber();
   }
 
+  public String getFullyQualifiedCellLocation()
+  {
+    return "'" + getSheetName() + "'!" + getCellLocation();
+  }
+
   @Override public boolean equals(Object o)
   {
     if (this == o)
@@ -104,13 +109,8 @@ public class CellLocation
     return result;
   }
 
-  public String getFullyQualifiedLocation()
-  {
-    return "'" + getSheetName() + "'!" + getCellLocation();
-  }
-
   public String toString()
   {
-    return getFullyQualifiedLocation();
+    return getFullyQualifiedCellLocation();
   }
 }

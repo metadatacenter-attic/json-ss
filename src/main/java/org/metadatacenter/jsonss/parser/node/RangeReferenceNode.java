@@ -3,6 +3,7 @@ package org.metadatacenter.jsonss.parser.node;
 import org.metadatacenter.jsonss.core.ReferenceDirectivesHandler;
 import org.metadatacenter.jsonss.core.settings.EmptyCellLocationDirectiveSetting;
 import org.metadatacenter.jsonss.core.settings.EmptyLiteralValueDirectiveSetting;
+import org.metadatacenter.jsonss.core.settings.ReferenceDirectivesSettings;
 import org.metadatacenter.jsonss.core.settings.ReferenceTypeDirectiveSetting;
 import org.metadatacenter.jsonss.core.settings.ShiftDirectiveSetting;
 import org.metadatacenter.jsonss.parser.ASTDefaultCellLocationValueDirective;
@@ -24,6 +25,7 @@ public class RangeReferenceNode implements JSONSSNode, JSONSSParserConstants
 {
   private ReferenceCellLocationSpecificationNode startCellLocationSpecificationNode;
   private ReferenceCellLocationSpecificationNode finishCellLocationSpecificationNode;
+
   private ReferenceTypeDirectiveNode referenceTypeDirectiveNode;
   private DefaultCellLocationValueDirectiveNode defaultCellLocationValueDirectiveNode;
   private DefaultLiteralValueDirectiveNode defaultLiteralValueDirectiveNode;
@@ -40,8 +42,8 @@ public class RangeReferenceNode implements JSONSSNode, JSONSSParserConstants
 
       if (ParserUtil.hasName(child, "ReferenceCellLocationSpecification")) {
         if (this.startCellLocationSpecificationNode == null)
-        this.startCellLocationSpecificationNode = new ReferenceCellLocationSpecificationNode(
-          (ASTReferenceCellLocationSpecification)child);
+          this.startCellLocationSpecificationNode = new ReferenceCellLocationSpecificationNode(
+            (ASTReferenceCellLocationSpecification)child);
         else if (this.finishCellLocationSpecificationNode == null)
           this.finishCellLocationSpecificationNode = new ReferenceCellLocationSpecificationNode(
             (ASTReferenceCellLocationSpecification)child);
@@ -125,19 +127,19 @@ public class RangeReferenceNode implements JSONSSNode, JSONSSParserConstants
     return this.finishCellLocationSpecificationNode;
   }
 
-  public ReferenceTypeDirectiveSetting getReferenceType()
+  public ReferenceTypeDirectiveSetting getActualReferenceTypeDirectiveSetting()
   {
     return this.referenceDirectivesHandler.getActualReferenceTypeDirectiveSetting();
   }
 
-  public EmptyCellLocationDirectiveSetting getActualEmptyCellLocationSetting()
+  public EmptyCellLocationDirectiveSetting getActualEmptyCellLocationDirectiveSetting()
   {
     return this.referenceDirectivesHandler.getActualEmptyCellLocationDirectiveSetting();
   }
 
   public EmptyLiteralValueDirectiveSetting getActualEmptyLiteralValueDirectiveSetting()
   {
-    return this.referenceDirectivesHandler.getActualEmptyLiteralDirectiveSetting();
+    return this.referenceDirectivesHandler.getActualEmptyLiteralValueDirectiveSetting();
   }
 
   public ShiftDirectiveSetting getActualShiftDirectiveSetting()
@@ -153,6 +155,37 @@ public class RangeReferenceNode implements JSONSSNode, JSONSSParserConstants
   public String getActualDefaultLiteralValue()
   {
     return this.referenceDirectivesHandler.getActualDefaultLiteralValue();
+  }
+
+  /**
+   * Take a reference directives settings and override any that have been explicitly specified by the range
+   * reference.
+   */
+  public ReferenceDirectivesSettings getCurrentReferenceDirectivesSettings(
+    ReferenceDirectivesSettings enclosingRangeReferenceDirectivesSettings)
+  {
+    ReferenceTypeDirectiveSetting referenceTypeDirectiveSetting = hasExplicitlySpecifiedReferenceType() ?
+      getActualReferenceTypeDirectiveSetting() :
+      enclosingRangeReferenceDirectivesSettings.getReferenceTypeDirectiveSetting();
+    EmptyCellLocationDirectiveSetting emptyCellLocationDirectiveSetting =
+      hasExplicitlySpecifiedEmptyCellLocationDirective() ?
+        getActualEmptyCellLocationDirectiveSetting() :
+        enclosingRangeReferenceDirectivesSettings.getEmptyCellLocationDirectiveSetting();
+    EmptyLiteralValueDirectiveSetting emptyLiteralValueDirectiveSetting = hasExplicitlySpecifiedEmptyLiteralDirective() ?
+      getActualEmptyLiteralValueDirectiveSetting() :
+      enclosingRangeReferenceDirectivesSettings.getEmptyLiteralValueDirectiveSetting();
+    ShiftDirectiveSetting shiftDirectiveSetting = hasExplicitlySpecifiedShiftDirective() ?
+      getActualShiftDirectiveSetting() :
+      enclosingRangeReferenceDirectivesSettings.getShiftDirectiveSetting();
+    String defaultCellLocationValue = hasExplicitlySpecifiedDefaultCellLocationValue() ?
+      getActualDefaultCellLocationValue() :
+      enclosingRangeReferenceDirectivesSettings.getDefaultCellLocationValue();
+    String defaultLiteralValue = hasExplicitlySpecifiedDefaultLiteralValue() ?
+      getActualDefaultLiteralValue() :
+      enclosingRangeReferenceDirectivesSettings.getDefaultLiteralValue();
+
+    return new ReferenceDirectivesSettings(referenceTypeDirectiveSetting, emptyCellLocationDirectiveSetting,
+      emptyLiteralValueDirectiveSetting, shiftDirectiveSetting, defaultLiteralValue, defaultCellLocationValue);
   }
 
   @Override public String toString()

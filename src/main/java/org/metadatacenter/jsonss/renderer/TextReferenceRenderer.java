@@ -2,7 +2,6 @@ package org.metadatacenter.jsonss.renderer;
 
 import org.metadatacenter.jsonss.core.settings.EmptyCellLocationDirectiveSetting;
 import org.metadatacenter.jsonss.core.settings.EmptyLiteralValueDirectiveSetting;
-import org.metadatacenter.jsonss.core.settings.ReferenceDirectivesSettings;
 import org.metadatacenter.jsonss.core.settings.ReferenceTypeDirectiveSetting;
 import org.metadatacenter.jsonss.parser.node.ReferenceCellLocationSpecificationNode;
 import org.metadatacenter.jsonss.parser.node.ReferenceNode;
@@ -22,14 +21,11 @@ import java.util.Optional;
 
 public class TextReferenceRenderer implements ReferenceRenderer
 {
-  private final ReferenceDirectivesSettings defaultReferenceDirectiveSettings;
   private final SpreadSheetDataSource dataSource;
 
-  public TextReferenceRenderer(SpreadSheetDataSource dataSource,
-      ReferenceDirectivesSettings defaultReferenceDirectiveSettings)
+  public TextReferenceRenderer(SpreadSheetDataSource dataSource)
   {
     this.dataSource = dataSource;
-    this.defaultReferenceDirectiveSettings = defaultReferenceDirectiveSettings;
   }
 
   @Override public Optional<TextReferenceRendering> renderReference(ReferenceNode referenceNode,
@@ -37,7 +33,7 @@ public class TextReferenceRenderer implements ReferenceRenderer
   {
     ReferenceCellLocationSpecificationNode referenceCellLocationSpecificationNode = referenceNode
         .getReferenceCellLocationSpecificationNode();
-    ReferenceTypeDirectiveSetting referenceType = referenceNode.getReferenceType();
+    ReferenceTypeDirectiveSetting referenceType = referenceNode.getActualReferenceTypeDirectiveSetting();
 
     if (referenceCellLocationSpecificationNode.hasLiteral()) {
       String literalReferenceValue = referenceCellLocationSpecificationNode.getLiteral();
@@ -47,18 +43,18 @@ public class TextReferenceRenderer implements ReferenceRenderer
       return Optional.of(new TextReferenceRendering(literalReferenceValue, referenceType));
     } else {
       CellLocation cellLocation = this.dataSource
-          .resolveCellLocation(referenceNode.getReferenceCellLocationSpecificationNode(),
-              referenceRendererContext.getCurrentCellLocation());
+          .getCellLocation(referenceNode.getReferenceCellLocationSpecificationNode(),
+            referenceRendererContext.getCurrentCellLocation());
       String resolvedReferenceValue = ReferenceUtil
           .resolveReferenceValue(dataSource, referenceNode, referenceRendererContext.getCurrentCellLocation());
 
       resolvedReferenceValue = resolvedReferenceValue.replace("\"", "\\\"");
 
-      if (resolvedReferenceValue.isEmpty() && referenceNode.getActualEmptyCellLocationSetting()
+      if (resolvedReferenceValue.isEmpty() && referenceNode.getActualEmptyCellLocationDirectiveSetting()
           == EmptyCellLocationDirectiveSetting.SKIP_IF_EMPTY_LOCATION)
         return Optional.empty();
 
-      if (resolvedReferenceValue.isEmpty() && referenceNode.getActualEmptyCellLocationSetting()
+      if (resolvedReferenceValue.isEmpty() && referenceNode.getActualEmptyCellLocationDirectiveSetting()
           == EmptyCellLocationDirectiveSetting.WARNING_IF_EMPTY_LOCATION) {
         // TODO Warn in log file
         return Optional.empty();

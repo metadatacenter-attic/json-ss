@@ -31,11 +31,19 @@ public class ReferenceDirectivesHandler
     this.defaultReferenceDirectiveSettings = defaultReferenceDirectiveSettings;
   }
 
+  public ReferenceDirectivesSettings getActualReferenceDirectivesSettings()
+  {
+    return new ReferenceDirectivesSettings(getActualReferenceTypeDirectiveSetting(),
+      getActualEmptyCellLocationDirectiveSetting(), getActualEmptyLiteralValueDirectiveSetting(),
+      getActualShiftDirectiveSetting(), getActualDefaultCellLocationValue(), getActualDefaultLiteralValue());
+  }
+
   public boolean hasExplicitlySpecifiedOptions()
   {
-    return this.hasExplicitlySpecifiedReferenceTypeDirective || this.hasExplicitlySpecifiedDefaultCellLocationValueDirective
-        || this.hasExplicitlySpecifiedDefaultLiteralValueDirective || this.hasExplicitlySpecifiedShiftDirective
-        || this.hasExplicitlySpecifiedEmptyCellLocationDirective || this.hasExplicitlySpecifiedEmptyLiteralDirective;
+    return this.hasExplicitlySpecifiedReferenceTypeDirective
+      || this.hasExplicitlySpecifiedDefaultCellLocationValueDirective
+      || this.hasExplicitlySpecifiedDefaultLiteralValueDirective || this.hasExplicitlySpecifiedShiftDirective
+      || this.hasExplicitlySpecifiedEmptyCellLocationDirective || this.hasExplicitlySpecifiedEmptyLiteralDirective;
   }
 
   public boolean hasExplicitlySpecifiedReferenceTypeDirective()
@@ -52,8 +60,8 @@ public class ReferenceDirectivesHandler
   public ReferenceTypeDirectiveSetting getActualReferenceTypeDirectiveSetting()
   {
     return hasExplicitlySpecifiedReferenceTypeDirective() ?
-        this.explicitlySpecifiedReferenceTypeDirectiveSetting :
-        this.defaultReferenceDirectiveSettings.getReferenceTypeDirectiveSetting();
+      this.explicitlySpecifiedReferenceTypeDirectiveSetting :
+      this.defaultReferenceDirectiveSettings.getReferenceTypeDirectiveSetting();
   }
 
   public boolean hasExplicitlySpecifiedShiftDirective()
@@ -70,8 +78,8 @@ public class ReferenceDirectivesHandler
   public ShiftDirectiveSetting getActualShiftDirectiveSetting()
   {
     return hasExplicitlySpecifiedShiftDirective() ?
-        this.explicitlySpecifiedShiftDirectiveSetting :
-        this.defaultReferenceDirectiveSettings.getShiftDirectiveSetting();
+      this.explicitlySpecifiedShiftDirectiveSetting :
+      this.defaultReferenceDirectiveSettings.getShiftDirectiveSetting();
   }
 
   public boolean hasExplicitlySpecifiedEmptyCellLocationDirective()
@@ -88,8 +96,8 @@ public class ReferenceDirectivesHandler
   public EmptyCellLocationDirectiveSetting getActualEmptyCellLocationDirectiveSetting()
   {
     return hasExplicitlySpecifiedEmptyCellLocationDirective() ?
-        this.explicitlySpecifiedEmptyCellLocationDirectiveSetting :
-        this.defaultReferenceDirectiveSettings.getEmptyCellLocationDirectiveSetting();
+      this.explicitlySpecifiedEmptyCellLocationDirectiveSetting :
+      this.defaultReferenceDirectiveSettings.getEmptyCellLocationDirectiveSetting();
   }
 
   public boolean hasExplicitlySpecifiedEmptyLiteralDirective()
@@ -103,11 +111,11 @@ public class ReferenceDirectivesHandler
     this.explicitlySpecifiedEmptyLiteralValueDirectiveSetting = emptyLiteralValueDirectiveSetting;
   }
 
-  public EmptyLiteralValueDirectiveSetting getActualEmptyLiteralDirectiveSetting()
+  public EmptyLiteralValueDirectiveSetting getActualEmptyLiteralValueDirectiveSetting()
   {
     return hasExplicitlySpecifiedEmptyLiteralDirective() ?
-        this.explicitlySpecifiedEmptyLiteralValueDirectiveSetting :
-        this.defaultReferenceDirectiveSettings.getEmptyLiteralValueDirectiveSetting();
+      this.explicitlySpecifiedEmptyLiteralValueDirectiveSetting :
+      this.defaultReferenceDirectiveSettings.getEmptyLiteralValueDirectiveSetting();
   }
 
   public CellLocation getShiftedCellLocation()

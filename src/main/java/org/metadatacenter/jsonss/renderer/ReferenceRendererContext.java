@@ -4,34 +4,49 @@ import org.metadatacenter.jsonss.core.settings.ReferenceDirectivesSettings;
 import org.metadatacenter.jsonss.ss.CellLocation;
 import org.metadatacenter.jsonss.ss.CellRange;
 
-import java.util.Optional;
+import java.util.NoSuchElementException;
 
 public class ReferenceRendererContext
 {
-  private final ReferenceDirectivesSettings directivesSettings;
+  private final ReferenceDirectivesSettings referenceDirectivesSettings;
   private final CellRange enclosingCellRange;
-  private final Optional<CellLocation> currentCellLocation;
 
-  public ReferenceRendererContext(ReferenceDirectivesSettings directivesSettings, CellRange enclosingCellRange,
-      Optional<CellLocation> currentCellLocation)
+  private CellLocation currentCellLocation;
+
+  public ReferenceRendererContext(ReferenceDirectivesSettings referenceDirectivesSettings, CellRange enclosingCellRange)
   {
-    this.directivesSettings = directivesSettings;
+    this.referenceDirectivesSettings = referenceDirectivesSettings;
     this.enclosingCellRange = enclosingCellRange;
-    this.currentCellLocation = currentCellLocation;
+    this.currentCellLocation = enclosingCellRange.getStartCellLocation();
   }
 
-  public ReferenceDirectivesSettings getDirectivesSettings()
+  public boolean hasNext()
   {
-    return directivesSettings;
+    return this.enclosingCellRange.nextCellLocation(currentCellLocation).isPresent();
+  }
+
+  public CellLocation next()
+  {
+     if (this.enclosingCellRange.nextCellLocation(currentCellLocation).isPresent())
+       throw new NoSuchElementException("next() called after end of cell range " + this.enclosingCellRange);
+
+    this.currentCellLocation = this.enclosingCellRange.nextCellLocation(this.currentCellLocation).get();
+
+    return this.currentCellLocation;
+  }
+
+  public ReferenceDirectivesSettings getReferenceDirectivesSettings()
+  {
+    return this.referenceDirectivesSettings;
   }
 
   public CellRange getEnclosingCellRange()
   {
-    return enclosingCellRange;
+    return this.enclosingCellRange;
   }
 
-  public Optional<CellLocation> getCurrentCellLocation()
+  public CellLocation getCurrentCellLocation()
   {
-    return currentCellLocation;
+    return this.currentCellLocation;
   }
 }

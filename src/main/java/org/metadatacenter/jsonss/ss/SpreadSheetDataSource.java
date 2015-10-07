@@ -14,7 +14,6 @@ import org.metadatacenter.jsonss.renderer.RendererException;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -32,17 +31,14 @@ public class SpreadSheetDataSource implements DataSource
       sheetMap.put(workbook.getSheetName(i), workbook.getSheetAt(i));
   }
 
-  @Override public CellLocation resolveCellLocation(
-    ReferenceCellLocationSpecificationNode referenceCellLocationSpecificationNode,
-    Optional<CellLocation> currentCellLocation) throws RendererException
+  @Override public CellLocation getCellLocation(
+    ReferenceCellLocationSpecificationNode referenceCellLocationSpecificationNode, CellLocation currentCellLocation)
+    throws RendererException
   {
     Pattern p = Pattern.compile("(\\*|[a-zA-Z]+)(\\*|[0-9]+)"); // ( \* | [a-zA-z]+ ) ( \* | [0-9]+ )
     Matcher m = p.matcher(referenceCellLocationSpecificationNode.getLocation());
     CellLocation resolvedCellLocation;
     Sheet sheet;
-
-    if (!currentCellLocation.isPresent())
-      throw new RendererException("current location not set");
 
     if (referenceCellLocationSpecificationNode.hasSource()) {
       String sheetName = referenceCellLocationSpecificationNode.getSource();
@@ -56,7 +52,7 @@ public class SpreadSheetDataSource implements DataSource
         throw new RendererException("invalid sheet name '" + sheetName + "'");
 
     } else { // No sheet name specified - use the sheet name from the current location
-      String sheetName = currentCellLocation.get().getSheetName();
+      String sheetName = currentCellLocation.getSheetName();
       sheet = getWorkbook().getSheet(sheetName);
 
       if (sheet == null)
@@ -80,12 +76,12 @@ public class SpreadSheetDataSource implements DataSource
 
       try {
         if (isColumnWildcard) {
-          columnNumber = currentCellLocation.get().getPhysicalColumnNumber();
+          columnNumber = currentCellLocation.getPhysicalColumnNumber();
         } else {
           columnNumber = SpreadSheetUtil.getColumnNumber(sheet, columnSpecification);
         }
         if (isRowWildcard) {
-          rowNumber = currentCellLocation.get().getPhysicalRowNumber();
+          rowNumber = currentCellLocation.getPhysicalRowNumber();
         } else {
           rowNumber = SpreadSheetUtil.getRowNumber(sheet, rowSpecification);
         }

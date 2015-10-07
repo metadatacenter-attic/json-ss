@@ -64,4 +64,16 @@ public class ReferenceDirectivesSettings
   public String getDefaultCellLocationValue() { return this.defaultCellLocationValue; }
 
   public String getDefaultLiteralValue() { return this.defaultLiteralValue; }
+
+  @Override public String toString()
+  {
+    return "ReferenceDirectivesSettings(" +
+      "referenceTypeDirectiveSetting=" + referenceTypeDirectiveSetting +
+      ", emptyCellLocationDirectiveSetting=" + emptyCellLocationDirectiveSetting +
+      ", emptyLiteralValueDirectiveSetting=" + emptyLiteralValueDirectiveSetting +
+      ", shiftDirectiveSetting=" + shiftDirectiveSetting +
+      ", defaultCellLocationValue='" + defaultCellLocationValue + '\'' +
+      ", defaultLiteralValue='" + defaultLiteralValue + '\'' +
+      ')';
+  }
 }
