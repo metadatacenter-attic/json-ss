@@ -32,8 +32,8 @@ public class SpreadSheetDataSource implements DataSource
   }
 
   @Override public CellLocation getCellLocation(
-    ReferenceCellLocationSpecificationNode referenceCellLocationSpecificationNode, CellLocation currentCellLocation)
-    throws RendererException
+      ReferenceCellLocationSpecificationNode referenceCellLocationSpecificationNode, CellLocation currentCellLocation)
+      throws RendererException
   {
     Pattern p = Pattern.compile("(\\*|[a-zA-Z]+)(\\*|[0-9]+)"); // ( \* | [a-zA-z]+ ) ( \* | [0-9]+ )
     Matcher m = p.matcher(referenceCellLocationSpecificationNode.getLocation());
@@ -65,7 +65,7 @@ public class SpreadSheetDataSource implements DataSource
 
       if (columnSpecification == null) {
         throw new RendererException(
-          "missing column specification in location " + referenceCellLocationSpecificationNode);
+            "missing column specification in location " + referenceCellLocationSpecificationNode);
       }
       if (rowSpecification == null) {
         throw new RendererException("missing row specification in location " + referenceCellLocationSpecificationNode);
@@ -87,7 +87,7 @@ public class SpreadSheetDataSource implements DataSource
         }
       } catch (JSONSSException e) {
         throw new RendererException(
-          "invalid source specification " + referenceCellLocationSpecificationNode + " - " + e.getMessage());
+            "invalid source specification " + referenceCellLocationSpecificationNode + " - " + e.getMessage());
       }
       resolvedCellLocation = new CellLocation(sheet.getSheetName(), columnNumber, rowNumber);
     } else {
@@ -97,7 +97,7 @@ public class SpreadSheetDataSource implements DataSource
   }
 
   @Override public String getCellLocationValue(CellLocation cellLocation, ReferenceNode referenceNode)
-    throws RendererException
+      throws RendererException
   {
     if (referenceNode.getActualShiftDirectiveSetting() != ShiftDirectiveSetting.NO_SHIFT)
       return getCellLocationValueWithShifting(cellLocation, referenceNode);
@@ -107,7 +107,21 @@ public class SpreadSheetDataSource implements DataSource
 
   @Override public CellRange getDefaultEnclosingCellRange()
   {
-    return null; // TODO
+    Sheet firstSheet = this.workbook.getSheetAt(0);
+    String firstSheetName = firstSheet.getSheetName();
+    int firstRow = firstSheet.getFirstRowNum();
+    int lastRow = firstSheet.getLastRowNum();
+    int firstColumn = 0;
+    int lastColumn = 0;
+
+    for (int currentRow = firstRow; currentRow < lastRow; currentRow++) {
+      int currentNumberOfColumns = firstSheet.getRow(0).getLastCellNum();
+      if (lastColumn < currentNumberOfColumns)
+        lastColumn = currentNumberOfColumns;
+    }
+
+    return new CellRange(new CellLocation(firstSheetName, firstColumn, firstRow),
+        new CellLocation(firstSheetName, lastColumn, lastRow));
   }
 
   private Workbook getWorkbook()
@@ -129,15 +143,15 @@ public class SpreadSheetDataSource implements DataSource
     Row row = sheet.getRow(rowNumber);
     if (row == null) {
       throw new RendererException(
-        "invalid source specification @" + cellLocation + " - row " + cellLocation.getPhysicalRowNumber()
-          + " is out of range");
+          "invalid source specification @" + cellLocation + " - row " + cellLocation.getPhysicalRowNumber()
+              + " is out of range");
     }
     Cell cell = row.getCell(columnNumber);
     return getStringValue(cell);
   }
 
   private String getCellLocationValueWithShifting(CellLocation cellLocation, ReferenceNode referenceNode)
-    throws RendererException
+      throws RendererException
   {
     String sheetName = cellLocation.getSheetName();
     Sheet sheet = this.workbook.getSheet(sheetName);
@@ -150,7 +164,7 @@ public class SpreadSheetDataSource implements DataSource
         for (int currentColumn = cellLocation.getPhysicalColumnNumber();
              currentColumn >= firstColumnNumber; currentColumn--) {
           shiftedLocationValue = getCellLocationValue(
-            new CellLocation(sheetName, currentColumn, cellLocation.getPhysicalRowNumber()));
+              new CellLocation(sheetName, currentColumn, cellLocation.getPhysicalRowNumber()));
           if (shiftedLocationValue != null && !shiftedLocationValue.isEmpty()) {
             break;
           }
@@ -161,7 +175,7 @@ public class SpreadSheetDataSource implements DataSource
         for (int currentColumn = cellLocation.getPhysicalColumnNumber();
              currentColumn <= lastColumnNumber; currentColumn++) {
           shiftedLocationValue = getCellLocationValue(
-            new CellLocation(sheetName, currentColumn, cellLocation.getPhysicalRowNumber()));
+              new CellLocation(sheetName, currentColumn, cellLocation.getPhysicalRowNumber()));
           if (shiftedLocationValue != null && !shiftedLocationValue.isEmpty()) {
             break;
           }
@@ -171,7 +185,7 @@ public class SpreadSheetDataSource implements DataSource
         int lastRowNumber = sheet.getLastRowNum() + 1;
         for (int currentRow = cellLocation.getPhysicalRowNumber(); currentRow <= lastRowNumber; currentRow++) {
           shiftedLocationValue = getCellLocationValue(
-            new CellLocation(sheetName, cellLocation.getPhysicalColumnNumber(), currentRow));
+              new CellLocation(sheetName, cellLocation.getPhysicalColumnNumber(), currentRow));
           if (shiftedLocationValue != null && !shiftedLocationValue.isEmpty()) {
             break;
           }
@@ -181,7 +195,7 @@ public class SpreadSheetDataSource implements DataSource
         int firstRowNumber = 1;
         for (int currentRow = cellLocation.getPhysicalRowNumber(); currentRow >= firstRowNumber; currentRow--) {
           shiftedLocationValue = getCellLocationValue(
-            new CellLocation(sheetName, cellLocation.getPhysicalColumnNumber(), currentRow));
+              new CellLocation(sheetName, cellLocation.getPhysicalColumnNumber(), currentRow));
           if (shiftedLocationValue != null && !shiftedLocationValue.isEmpty()) {
             break;
           }
