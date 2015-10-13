@@ -115,7 +115,7 @@ public class SpreadSheetDataSource implements DataSource
     int lastColumn = 0;
 
     for (int currentRow = firstRow; currentRow < lastRow; currentRow++) {
-      int currentNumberOfColumns = firstSheet.getRow(0).getLastCellNum();
+      int currentNumberOfColumns = firstSheet.getRow(currentRow).getLastCellNum();
       if (lastColumn < currentNumberOfColumns)
         lastColumn = currentNumberOfColumns;
     }
