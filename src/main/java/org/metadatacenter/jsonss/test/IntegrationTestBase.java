@@ -58,9 +58,11 @@ public class IntegrationTestBase
     return new SpreadSheetDataSource(workbook);
   }
 
-  protected JSONExpressionNode parseJSONExpression(String expression, ReferenceDirectivesSettings settings) throws ParseException
+  protected JSONExpressionNode parseJSONExpression(String expression,
+    ReferenceDirectivesSettings defaultReferenceDirectivesSettings) throws ParseException
   {
-    JSONSSParser parser = new JSONSSParser(new ByteArrayInputStream(expression.getBytes()));
+    JSONSSParser parser = new JSONSSParser(new ByteArrayInputStream(expression.getBytes()),
+      defaultReferenceDirectivesSettings, 0);
     SimpleNode simpleNode = parser.json_expression();
     JSONExpressionNode jsonExpressionNode = new JSONExpressionNode((ASTJSONExpression)simpleNode);
 
@@ -79,8 +81,8 @@ public class IntegrationTestBase
     return renderer.renderJSONExpression(jsonExpressionNode);
   }
 
-  protected Optional<? extends TextRendering> createTextRendering(String expression, ReferenceDirectivesSettings settings)
-    throws JSONSSException, IOException, ParseException
+  protected Optional<? extends TextRendering> createTextRendering(String expression,
+    ReferenceDirectivesSettings settings) throws JSONSSException, IOException, ParseException
   {
     return createTextRendering(DEFAULT_SHEET, EMPTY_CELL_SET, expression, settings);
   }
