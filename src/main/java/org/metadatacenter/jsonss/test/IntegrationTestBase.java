@@ -30,7 +30,7 @@ public class IntegrationTestBase
   protected static final String SHEET1 = "Sheet1";
   protected static final String DEFAULT_SHEET = SHEET1;
   protected static final Set<Label> EMPTY_CELL_SET = Collections.emptySet();
-  protected static final CellLocation DEFAULT_CURRENT_CELL_LOCATION = new CellLocation(SHEET1, 1, 1);
+  protected static final CellLocation DEFAULT_CURRENT_CELL_LOCATION = new CellLocation(SHEET1, 0, 0);
   protected static final ReferenceDirectivesSettings referenceDirectivesSettings = new ReferenceDirectivesSettings();
 
   protected Workbook createWorkbook(String sheetName, Set<Label> cells) throws IOException

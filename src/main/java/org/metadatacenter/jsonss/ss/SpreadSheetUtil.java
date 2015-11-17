@@ -34,6 +34,12 @@ public class SpreadSheetUtil
     }
   }
 
+  /**
+   *
+   * @param columnName
+   * @return 1-based column number
+   * @throws JSONSSException
+   */
   static public int columnName2Number(String columnName) throws JSONSSException
   {
     int pos = 0;
@@ -51,23 +57,28 @@ public class SpreadSheetUtil
     return pos;
   }
 
-  // TODO Check column and row
-  static public String columnRow2Name(int column, int row)
-  {
-    return columnNumber2Name(column) + row;
-  }
-
-  static public String columnNumber2Name(int pos) // 1-based
+  /**
+   *
+   * @param columnNumber 1-based
+   * @return
+   */
+  static public String columnNumber2Name(int columnNumber)
   {
     String col = "";
-    while (pos > 0) {
-      pos--;
-      col = (char)(pos % 26 + 65) + col;
-      pos = pos / 26;
+    while (columnNumber > 0) {
+      columnNumber--;
+      col = (char)(columnNumber % 26 + 65) + col;
+      columnNumber = columnNumber / 26;
     }
     return col;
   }
 
+  /**
+   *
+   * @param row 1-based
+   * @return
+   * @throws JSONSSException
+   */
   static public int row2Number(String row) throws JSONSSException
   {
     if (row.isEmpty())
@@ -80,6 +91,13 @@ public class SpreadSheetUtil
     }
   }
 
+  /**
+   *
+   * @param sheet
+   * @param columnSpecification
+   * @return 1-basec column number
+   * @throws JSONSSException
+   */
   public static int getColumnNumber(Sheet sheet, String columnSpecification) throws JSONSSException
   {
     checkColumnSpecification(columnSpecification);
@@ -87,6 +105,13 @@ public class SpreadSheetUtil
     return columnNumber; // 0-indexed
   }
 
+  /**
+   *
+   * @param sheet
+   * @param rowSpecification
+   * @return 1-based row number
+   * @throws JSONSSException
+   */
   public static int getRowNumber(Sheet sheet, String rowSpecification) throws JSONSSException
   {
     checkRowSpecification(rowSpecification);

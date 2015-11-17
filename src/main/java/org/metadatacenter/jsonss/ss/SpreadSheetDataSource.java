@@ -76,14 +76,14 @@ public class SpreadSheetDataSource implements DataSource
 
       try {
         if (isColumnWildcard) {
-          columnNumber = currentCellLocation.getPhysicalColumnNumber();
+          columnNumber = currentCellLocation.getColumnNumber();
         } else {
-          columnNumber = SpreadSheetUtil.getColumnNumber(sheet, columnSpecification);
+          columnNumber = SpreadSheetUtil.getColumnNumber(sheet, columnSpecification) - 1;
         }
         if (isRowWildcard) {
-          rowNumber = currentCellLocation.getPhysicalRowNumber();
+          rowNumber = currentCellLocation.getRowNumber();
         } else {
-          rowNumber = SpreadSheetUtil.getRowNumber(sheet, rowSpecification);
+          rowNumber = SpreadSheetUtil.getRowNumber(sheet, rowSpecification) - 1;
         }
       } catch (JSONSSException e) {
         throw new RendererException(
@@ -120,8 +120,10 @@ public class SpreadSheetDataSource implements DataSource
         lastColumn = currentNumberOfColumns;
     }
 
-    return new CellRange(new CellLocation(firstSheetName, firstColumn, firstRow),
-        new CellLocation(firstSheetName, lastColumn, lastRow));
+    CellLocation startRange = new CellLocation(firstSheetName, firstColumn, firstRow);
+    CellLocation finishRange = new CellLocation(firstSheetName, lastColumn, lastRow);
+
+    return new CellRange(startRange, finishRange);
   }
 
   private Workbook getWorkbook()
@@ -143,8 +145,7 @@ public class SpreadSheetDataSource implements DataSource
     Row row = sheet.getRow(rowNumber);
     if (row == null) {
       throw new RendererException(
-          "invalid source specification @" + cellLocation + " - row " + cellLocation.getPhysicalRowNumber()
-              + " is out of range");
+          "invalid source specification @" + cellLocation + " - row is out of range");
     }
     Cell cell = row.getCell(columnNumber);
     return getStringValue(cell);
@@ -160,11 +161,11 @@ public class SpreadSheetDataSource implements DataSource
     if (shiftedLocationValue == null || shiftedLocationValue.isEmpty()) {
       switch (referenceNode.getActualShiftDirectiveSetting()) {
       case SHIFT_LEFT:
-        int firstColumnNumber = 1;
-        for (int currentColumn = cellLocation.getPhysicalColumnNumber();
+        int firstColumnNumber = 0;
+        for (int currentColumn = cellLocation.getColumnNumber();
              currentColumn >= firstColumnNumber; currentColumn--) {
           shiftedLocationValue = getCellLocationValue(
-              new CellLocation(sheetName, currentColumn, cellLocation.getPhysicalRowNumber()));
+              new CellLocation(sheetName, currentColumn, cellLocation.getRowNumber()));
           if (shiftedLocationValue != null && !shiftedLocationValue.isEmpty()) {
             break;
           }
@@ -172,30 +173,30 @@ public class SpreadSheetDataSource implements DataSource
         return shiftedLocationValue;
       case SHIFT_RIGHT:
         int lastColumnNumber = sheet.getRow(cellLocation.getRowNumber()).getLastCellNum();
-        for (int currentColumn = cellLocation.getPhysicalColumnNumber();
+        for (int currentColumn = cellLocation.getColumnNumber();
              currentColumn <= lastColumnNumber; currentColumn++) {
           shiftedLocationValue = getCellLocationValue(
-              new CellLocation(sheetName, currentColumn, cellLocation.getPhysicalRowNumber()));
+              new CellLocation(sheetName, currentColumn, cellLocation.getRowNumber()));
           if (shiftedLocationValue != null && !shiftedLocationValue.isEmpty()) {
             break;
           }
         }
         return shiftedLocationValue;
       case SHIFT_DOWN:
-        int lastRowNumber = sheet.getLastRowNum() + 1;
-        for (int currentRow = cellLocation.getPhysicalRowNumber(); currentRow <= lastRowNumber; currentRow++) {
+        int lastRowNumber = sheet.getLastRowNum();
+        for (int currentRow = cellLocation.getRowNumber(); currentRow <= lastRowNumber; currentRow++) {
           shiftedLocationValue = getCellLocationValue(
-              new CellLocation(sheetName, cellLocation.getPhysicalColumnNumber(), currentRow));
+              new CellLocation(sheetName, cellLocation.getColumnNumber(), currentRow));
           if (shiftedLocationValue != null && !shiftedLocationValue.isEmpty()) {
             break;
           }
         }
         return shiftedLocationValue;
       case SHIFT_UP:
-        int firstRowNumber = 1;
-        for (int currentRow = cellLocation.getPhysicalRowNumber(); currentRow >= firstRowNumber; currentRow--) {
+        int firstRowNumber = 0;
+        for (int currentRow = cellLocation.getRowNumber(); currentRow >= firstRowNumber; currentRow--) {
           shiftedLocationValue = getCellLocationValue(
-              new CellLocation(sheetName, cellLocation.getPhysicalColumnNumber(), currentRow));
+              new CellLocation(sheetName, cellLocation.getColumnNumber(), currentRow));
           if (shiftedLocationValue != null && !shiftedLocationValue.isEmpty()) {
             break;
           }
