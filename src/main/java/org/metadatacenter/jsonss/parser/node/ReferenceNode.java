@@ -11,7 +11,7 @@ import org.metadatacenter.jsonss.parser.ASTDefaultLiteralValueDirective;
 import org.metadatacenter.jsonss.parser.ASTEmptyCellLocationDirective;
 import org.metadatacenter.jsonss.parser.ASTEmptyLiteralValueDirective;
 import org.metadatacenter.jsonss.parser.ASTReference;
-import org.metadatacenter.jsonss.parser.ASTReferenceCellLocationSpecification;
+import org.metadatacenter.jsonss.parser.ASTReferenceQualifiedCellLocationSpecification;
 import org.metadatacenter.jsonss.parser.ASTReferenceTypeDirective;
 import org.metadatacenter.jsonss.parser.ASTShiftDirective;
 import org.metadatacenter.jsonss.parser.ASTValueExtractionFunction;
@@ -24,7 +24,7 @@ import org.metadatacenter.jsonss.ss.CellLocation;
 
 public class ReferenceNode implements JSONSSNode
 {
-  private ReferenceCellLocationSpecificationNode referenceCellLocationSpecificationNode;
+  private ReferenceQualifiedCellLocationSpecificationNode referenceQualifiedCellLocationSpecificationNode;
   private ReferenceTypeDirectiveNode referenceTypeDirectiveNode;
   private DefaultCellLocationValueDirectiveNode defaultCellLocationValueDirectiveNode;
   private DefaultLiteralValueDirectiveNode defaultLiteralValueDirectiveNode;
@@ -40,9 +40,9 @@ public class ReferenceNode implements JSONSSNode
     for (int i = 0; i < node.jjtGetNumChildren(); i++) {
       Node child = node.jjtGetChild(i);
 
-      if (ParserUtil.hasName(child, "ReferenceCellLocationSpecification")) {
-        this.referenceCellLocationSpecificationNode = new ReferenceCellLocationSpecificationNode(
-          (ASTReferenceCellLocationSpecification)child);
+      if (ParserUtil.hasName(child, "ReferenceQualifiedCellLocationSpecification")) {
+        this.referenceQualifiedCellLocationSpecificationNode = new ReferenceQualifiedCellLocationSpecificationNode(
+          (ASTReferenceQualifiedCellLocationSpecification)child);
       } else if (ParserUtil.hasName(child, "ReferenceTypeDirective")) {
         this.referenceTypeDirectiveNode = new ReferenceTypeDirectiveNode((ASTReferenceTypeDirective)child);
       } else if (ParserUtil.hasName(child, "DefaultCellLocationValueDirective")) {
@@ -78,7 +78,7 @@ public class ReferenceNode implements JSONSSNode
 
     this.referenceDirectivesHandler = new ReferenceDirectivesHandler(node.defaultReferenceDirectivesSettings);
 
-    if (this.referenceCellLocationSpecificationNode == null)
+    if (this.referenceQualifiedCellLocationSpecificationNode == null)
       throw new RendererException("missing cell location specification in reference " + toString());
 
     if (this.referenceTypeDirectiveNode != null)
@@ -166,9 +166,9 @@ public class ReferenceNode implements JSONSSNode
     return this.referenceDirectivesHandler.getShiftedCellLocation();
   }
 
-  public ReferenceCellLocationSpecificationNode getReferenceCellLocationSpecificationNode()
+  public ReferenceQualifiedCellLocationSpecificationNode getReferenceQualifiedCellLocationSpecificationNode()
   {
-    return this.referenceCellLocationSpecificationNode;
+    return this.referenceQualifiedCellLocationSpecificationNode;
   }
 
   /**
@@ -206,7 +206,7 @@ public class ReferenceNode implements JSONSSNode
     String representation = "";
     boolean atLeastOneOptionProcessed = false;
 
-    representation += this.referenceCellLocationSpecificationNode;
+    representation += this.referenceQualifiedCellLocationSpecificationNode;
 
     if (hasExplicitOptions())
       representation += "(";

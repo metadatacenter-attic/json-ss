@@ -173,7 +173,7 @@ TOKEN:
 | 
   <#NONZERO_DIGIT: ["1"-"9"] >
 | 
-  <LOCATION_SPECIFICATION: (<LETTER> | <DIGIT> | "_" | "-" | "#" | "." | ":" | "/" | "*" )+ | "'" (~["'"])* "'"> 
+  <CELL_LOCATION_SPECIFICATION: (<LETTER> | <DIGIT> | "_" | "-" | "#" | "." | "*" )+ | "'" (~["'"])* "'"> 
 }
 
 SimpleNode json_expression() #JSONExpression : {}
@@ -203,9 +203,62 @@ void json_array() #JSONArray : {}
 void json_object() #JSONObject : {}
 {
    <OPEN_BRACE>
-      ( jsonss_range_reference() ) ?
+      ( jsonss_range_reference() )?
       ( json_key_value_pair() ( <COMMA> json_key_value_pair() )* )?
    <CLOSE_BRACE>
+}
+
+void jsonss_range_reference() #RangeReference :
+{
+  String finishCellLocationSpecification = null;
+}
+{
+   <AT> jsonss_reference_qualified_cell_location_specification() <COLON> finishCellLocationSpecification = jsonss_reference_cell_location_specification() 
+       (
+         <OPEN_PAREN>
+            jsonss_range_reference_directive() ( jsonss_range_reference_directive() ) *
+         <CLOSE_PAREN>
+       )?
+  {
+     jjtThis.defaultReferenceDirectivesSettings = this.defaultReferenceDirectivesSettings;
+     jjtThis.finishCellLocationSpecification = finishCellLocationSpecification;
+  }
+}
+
+void jsonss_reference_qualified_cell_location_specification() #ReferenceQualifiedCellLocationSpecification : 
+{
+  String sourceSpecification = null;
+  String cellLocationSpecification = null;
+  String literal = null;
+  Token t;
+}
+{ 
+  (
+     (
+       ( sourceSpecification = jsonss_reference_source_specification() <EXCLAMATION_POINT> )?
+       ( cellLocationSpecification = jsonss_reference_cell_location_specification()  )
+     )
+   | literal = string_literal()
+  )
+  
+  { 
+     jjtThis.sourceSpecification = sourceSpecification;
+     jjtThis.cellLocationSpecification = cellLocationSpecification;
+     jjtThis.literal = literal;
+  }
+}
+
+String jsonss_reference_source_specification() : 
+{
+  Token t;
+}
+{
+  t = <QUOTED_NAME_LITERAL> 
+
+  {
+    String s = t.image;
+    return s.substring(1, s.length() - 1);
+  }
 }
 
 void json_key_value_pair() #JSONKeyValuePair: {}
@@ -283,7 +336,7 @@ void json_null() #JSONNull : {}
 
 void jsonss_reference() #Reference : {}
 {
-   <AT> jsonss_reference_cell_location_specification()
+   <AT> jsonss_reference_qualified_cell_location_specification()
        (
          <OPEN_PAREN>
             ( jsonss_reference_directives() )?  ( jsonss_value_extraction_function() )?
@@ -310,18 +363,6 @@ void jsonss_reference_directive(): {}
   ) 
 }
 
-void jsonss_range_reference() #RangeReference : {}
-{
-   <AT> jsonss_reference_location_specification() <COLON> jsonss_reference_location_specification() 
-       (
-         <OPEN_PAREN>
-            jsonss_range_reference_directive() ( jsonss_range_reference_directive() ) *
-         <CLOSE_PAREN>
-       )?
-  {
-     jjtThis.defaultReferenceDirectivesSettings = this.defaultReferenceDirectivesSettings;
-  }
-}
 
 void jsonss_range_reference_directive(): {}
 {
@@ -334,45 +375,12 @@ void jsonss_range_reference_directive(): {}
   ) 
 }
 
-void jsonss_reference_cell_location_specification() #ReferenceCellLocationSpecification : 
-{
-  String source = null;
-  String location = null;
-  String literal = null;
-  Token t;
-}
-{ 
-  (
-     ( ( source = jsonss_reference_source_name() <EXCLAMATION_POINT> )? ( location = jsonss_reference_location_specification()  ) )
-   | literal = string_literal()
-  )
-  
-  { 
-     jjtThis.source = source;
-     jjtThis.location = location;
-     jjtThis.literal = literal;
-  }
-}
-
-String jsonss_reference_source_name() : 
+String jsonss_reference_cell_location_specification() :
 {
   Token t;
 }
 {
-  t = <QUOTED_NAME_LITERAL> 
-
-  {
-    String s = t.image;
-    return s.substring(1, s.length() - 1);
-  }
-}
-
-String jsonss_reference_location_specification() :
-{
-  Token t;
-}
-{
-  t = <LOCATION_SPECIFICATION>
+  t = <CELL_LOCATION_SPECIFICATION>
 
   { return t.image; }
 }

@@ -16,7 +16,7 @@ public class ReferenceUtil implements JSONSSParserConstants
     CellLocation currentCellLocation) throws RendererException
   {
     CellLocation cellLocation = dataSource
-      .getCellLocation(referenceNode.getReferenceCellLocationSpecificationNode(), currentCellLocation);
+      .getCellLocation(referenceNode.getReferenceQualifiedCellLocationSpecificationNode(), currentCellLocation);
     String rawLocationValue = dataSource.getCellLocationValue(cellLocation, referenceNode); // Deals with shifting
     String referenceValue;
 

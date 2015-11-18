@@ -59,7 +59,7 @@ public class TextRenderer implements JSONSSRenderer
         .getCellLocation(rangeReferenceNode.getStartCellLocationSpecificationNode(),
           enclosingReferenceRendererContext.getCurrentCellLocation());
       CellLocation finishCellLocation = this.dataSource
-        .getCellLocation(rangeReferenceNode.getFinishCellLocationSpecificationNode(),
+        .getCellLocation(rangeReferenceNode.getFinishCellLocationSpecification(),
           enclosingReferenceRendererContext.getCurrentCellLocation());
       CellRange cellRange = new CellRange(startCellLocation, finishCellLocation);
       ReferenceDirectivesSettings referenceDirectivesSettings = rangeReferenceNode

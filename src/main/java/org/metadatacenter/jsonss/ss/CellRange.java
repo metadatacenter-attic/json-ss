@@ -42,7 +42,8 @@ public class CellRange implements Iterable<CellLocation>
         } else
           return Optional.empty();
       }
-      return Optional.of(new CellLocation(currentCellLocation.getSheetName(), rowNumber, columnNumber));
+      CellLocation nextCellLocation = new CellLocation(currentCellLocation.getSheetName(), columnNumber, rowNumber);
+      return Optional.of(nextCellLocation);
     }
   }
 
@@ -59,24 +60,24 @@ public class CellRange implements Iterable<CellLocation>
   private static final class CellRangeIterator implements Iterator<CellLocation>
   {
     private final CellRange enclosingCellRange;
-    private CellLocation cursor;
+    private Optional<CellLocation> cursor;
 
     public CellRangeIterator(CellRange enclosingCellRange)
     {
       this.enclosingCellRange = enclosingCellRange;
-      this.cursor = enclosingCellRange.getStartCellLocation();
+      this.cursor = Optional.of(enclosingCellRange.getStartCellLocation());
     }
 
     public boolean hasNext()
     {
-      return this.enclosingCellRange.nextCellLocation(this.cursor).isPresent();
+      return this.cursor.isPresent();
     }
 
     public CellLocation next()
     {
-      if (this.hasNext()) {
-        CellLocation current = cursor;
-        cursor = this.enclosingCellRange.nextCellLocation(cursor).get();
+      if (this.cursor.isPresent()) {
+        CellLocation current = cursor.get();
+        cursor = this.enclosingCellRange.nextCellLocation(cursor.get());
         return current;
       } else
         throw new NoSuchElementException();

@@ -3,17 +3,17 @@
 package org.metadatacenter.jsonss.parser;
 
 public
-class ASTReferenceCellLocationSpecification extends SimpleNode {
+class ASTReferenceQualifiedCellLocationSpecification extends SimpleNode {
 
-  public String source; /* Manually added */
-  public String location; /* Manually added */
+  public String sourceSpecification; /* Manually added */
+  public String cellLocationSpecification; /* Manually added */
   public String literal; /* Manually added */
 
-public ASTReferenceCellLocationSpecification(int id) {
+public ASTReferenceQualifiedCellLocationSpecification(int id) {
     super(id);
   }
 
-  public ASTReferenceCellLocationSpecification(JSONSSParser p, int id) {
+  public ASTReferenceQualifiedCellLocationSpecification(JSONSSParser p, int id) {
     super(p, id);
   }
 

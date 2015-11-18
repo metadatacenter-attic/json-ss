@@ -7,8 +7,8 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.metadatacenter.jsonss.core.DataSource;
 import org.metadatacenter.jsonss.core.settings.ShiftDirectiveSetting;
 import org.metadatacenter.jsonss.exceptions.JSONSSException;
-import org.metadatacenter.jsonss.parser.node.ReferenceCellLocationSpecificationNode;
 import org.metadatacenter.jsonss.parser.node.ReferenceNode;
+import org.metadatacenter.jsonss.parser.node.ReferenceQualifiedCellLocationSpecificationNode;
 import org.metadatacenter.jsonss.renderer.InternalRendererException;
 import org.metadatacenter.jsonss.renderer.RendererException;
 
@@ -31,17 +31,27 @@ public class SpreadSheetDataSource implements DataSource
       sheetMap.put(workbook.getSheetName(i), workbook.getSheetAt(i));
   }
 
-  @Override public CellLocation getCellLocation(
-      ReferenceCellLocationSpecificationNode referenceCellLocationSpecificationNode, CellLocation currentCellLocation)
-      throws RendererException
+  @Override public CellLocation getCellLocation(String cellLocationSpecification, CellLocation currentCellLocation)
+    throws RendererException
   {
-    Pattern p = Pattern.compile("(\\*|[a-zA-Z]+)(\\*|[0-9]+)"); // ( \* | [a-zA-z]+ ) ( \* | [0-9]+ )
-    Matcher m = p.matcher(referenceCellLocationSpecificationNode.getLocation());
-    CellLocation resolvedCellLocation;
+    String sheetName = currentCellLocation.getSheetName();
+    Sheet sheet = getWorkbook().getSheet(sheetName);
+
+    if (sheet == null)
+      throw new RendererException("invalid current sheet name '" + sheetName + "'");
+
+    return getCellLocation(sheet, cellLocationSpecification, currentCellLocation);
+  }
+
+  @Override public CellLocation getCellLocation(
+    ReferenceQualifiedCellLocationSpecificationNode referenceQualifiedCellLocationSpecificationNode,
+    CellLocation currentCellLocation) throws RendererException
+  {
+    String cellLocationSpecification = referenceQualifiedCellLocationSpecificationNode.getCellLocationSpecification();
     Sheet sheet;
 
-    if (referenceCellLocationSpecificationNode.hasSource()) {
-      String sheetName = referenceCellLocationSpecificationNode.getSource();
+    if (referenceQualifiedCellLocationSpecificationNode.hasSourceSpecification()) {
+      String sheetName = referenceQualifiedCellLocationSpecificationNode.getSourceSpecification();
 
       if (!hasWorkbook()) {
         throw new RendererException("sheet name '" + sheetName + "' specified but there is no active workbook");
@@ -58,46 +68,11 @@ public class SpreadSheetDataSource implements DataSource
       if (sheet == null)
         throw new RendererException("invalid sheet name '" + sheetName + "'");
     }
-
-    if (m.find()) {
-      String columnSpecification = m.group(1);
-      String rowSpecification = m.group(2);
-
-      if (columnSpecification == null) {
-        throw new RendererException(
-            "missing column specification in location " + referenceCellLocationSpecificationNode);
-      }
-      if (rowSpecification == null) {
-        throw new RendererException("missing row specification in location " + referenceCellLocationSpecificationNode);
-      }
-      boolean isColumnWildcard = "*".equals(columnSpecification);
-      boolean isRowWildcard = "*".equals(rowSpecification);
-      int columnNumber, rowNumber;
-
-      try {
-        if (isColumnWildcard) {
-          columnNumber = currentCellLocation.getColumnNumber();
-        } else {
-          columnNumber = SpreadSheetUtil.getColumnNumber(sheet, columnSpecification) - 1;
-        }
-        if (isRowWildcard) {
-          rowNumber = currentCellLocation.getRowNumber();
-        } else {
-          rowNumber = SpreadSheetUtil.getRowNumber(sheet, rowSpecification) - 1;
-        }
-      } catch (JSONSSException e) {
-        throw new RendererException(
-            "invalid source specification " + referenceCellLocationSpecificationNode + " - " + e.getMessage());
-      }
-      resolvedCellLocation = new CellLocation(sheet.getSheetName(), columnNumber, rowNumber);
-    } else {
-      throw new RendererException("invalid source specification " + referenceCellLocationSpecificationNode);
-    }
-    return resolvedCellLocation;
+    return getCellLocation(sheet, cellLocationSpecification, currentCellLocation);
   }
 
   @Override public String getCellLocationValue(CellLocation cellLocation, ReferenceNode referenceNode)
-      throws RendererException
+    throws RendererException
   {
     if (referenceNode.getActualShiftDirectiveSetting() != ShiftDirectiveSetting.NO_SHIFT)
       return getCellLocationValueWithShifting(cellLocation, referenceNode);
@@ -126,6 +101,49 @@ public class SpreadSheetDataSource implements DataSource
     return new CellRange(startRange, finishRange);
   }
 
+  private CellLocation getCellLocation(Sheet sheet, String cellLocationSpecification, CellLocation currentCellLocation)
+    throws RendererException
+  {
+    Pattern p = Pattern.compile("(\\*|[a-zA-Z]+)(\\*|[0-9]+)"); // ( \* | [a-zA-z]+ ) ( \* | [0-9]+ )
+    Matcher m = p.matcher(cellLocationSpecification);
+    CellLocation resolvedCellLocation;
+
+    if (m.find()) {
+      String columnSpecification = m.group(1);
+      String rowSpecification = m.group(2);
+
+      if (columnSpecification == null) {
+        throw new RendererException("missing column specification in location " + cellLocationSpecification);
+      }
+      if (rowSpecification == null) {
+        throw new RendererException("missing row specification in location " + cellLocationSpecification);
+      }
+      boolean isColumnWildcard = "*".equals(columnSpecification);
+      boolean isRowWildcard = "*".equals(rowSpecification);
+      int columnNumber, rowNumber;
+
+      try {
+        if (isColumnWildcard) {
+          columnNumber = currentCellLocation.getColumnNumber();
+        } else {
+          columnNumber = SpreadSheetUtil.getColumnNumber(sheet, columnSpecification) - 1;
+        }
+        if (isRowWildcard) {
+          rowNumber = currentCellLocation.getRowNumber();
+        } else {
+          rowNumber = SpreadSheetUtil.getRowNumber(sheet, rowSpecification) - 1;
+        }
+      } catch (JSONSSException e) {
+        throw new RendererException(
+          "invalid source specification " + cellLocationSpecification + " - " + e.getMessage());
+      }
+      resolvedCellLocation = new CellLocation(sheet.getSheetName(), columnNumber, rowNumber);
+    } else {
+      throw new RendererException("invalid source specification " + cellLocationSpecification);
+    }
+    return resolvedCellLocation;
+  }
+
   private Workbook getWorkbook()
   {
     return workbook;
@@ -144,15 +162,14 @@ public class SpreadSheetDataSource implements DataSource
     Sheet sheet = workbook.getSheet(cellLocation.getSheetName());
     Row row = sheet.getRow(rowNumber);
     if (row == null) {
-      throw new RendererException(
-          "invalid source specification @" + cellLocation + " - row is out of range");
+      throw new RendererException("invalid source specification @" + cellLocation + " - row is out of range");
     }
     Cell cell = row.getCell(columnNumber);
     return getStringValue(cell);
   }
 
   private String getCellLocationValueWithShifting(CellLocation cellLocation, ReferenceNode referenceNode)
-      throws RendererException
+    throws RendererException
   {
     String sheetName = cellLocation.getSheetName();
     Sheet sheet = this.workbook.getSheet(sheetName);
@@ -162,10 +179,9 @@ public class SpreadSheetDataSource implements DataSource
       switch (referenceNode.getActualShiftDirectiveSetting()) {
       case SHIFT_LEFT:
         int firstColumnNumber = 0;
-        for (int currentColumn = cellLocation.getColumnNumber();
-             currentColumn >= firstColumnNumber; currentColumn--) {
+        for (int currentColumn = cellLocation.getColumnNumber(); currentColumn >= firstColumnNumber; currentColumn--) {
           shiftedLocationValue = getCellLocationValue(
-              new CellLocation(sheetName, currentColumn, cellLocation.getRowNumber()));
+            new CellLocation(sheetName, currentColumn, cellLocation.getRowNumber()));
           if (shiftedLocationValue != null && !shiftedLocationValue.isEmpty()) {
             break;
           }
@@ -173,10 +189,9 @@ public class SpreadSheetDataSource implements DataSource
         return shiftedLocationValue;
       case SHIFT_RIGHT:
         int lastColumnNumber = sheet.getRow(cellLocation.getRowNumber()).getLastCellNum();
-        for (int currentColumn = cellLocation.getColumnNumber();
-             currentColumn <= lastColumnNumber; currentColumn++) {
+        for (int currentColumn = cellLocation.getColumnNumber(); currentColumn <= lastColumnNumber; currentColumn++) {
           shiftedLocationValue = getCellLocationValue(
-              new CellLocation(sheetName, currentColumn, cellLocation.getRowNumber()));
+            new CellLocation(sheetName, currentColumn, cellLocation.getRowNumber()));
           if (shiftedLocationValue != null && !shiftedLocationValue.isEmpty()) {
             break;
           }
@@ -186,7 +201,7 @@ public class SpreadSheetDataSource implements DataSource
         int lastRowNumber = sheet.getLastRowNum();
         for (int currentRow = cellLocation.getRowNumber(); currentRow <= lastRowNumber; currentRow++) {
           shiftedLocationValue = getCellLocationValue(
-              new CellLocation(sheetName, cellLocation.getColumnNumber(), currentRow));
+            new CellLocation(sheetName, cellLocation.getColumnNumber(), currentRow));
           if (shiftedLocationValue != null && !shiftedLocationValue.isEmpty()) {
             break;
           }
@@ -196,7 +211,7 @@ public class SpreadSheetDataSource implements DataSource
         int firstRowNumber = 0;
         for (int currentRow = cellLocation.getRowNumber(); currentRow >= firstRowNumber; currentRow--) {
           shiftedLocationValue = getCellLocationValue(
-              new CellLocation(sheetName, cellLocation.getColumnNumber(), currentRow));
+            new CellLocation(sheetName, cellLocation.getColumnNumber(), currentRow));
           if (shiftedLocationValue != null && !shiftedLocationValue.isEmpty()) {
             break;
           }

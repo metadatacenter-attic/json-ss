@@ -8,6 +8,7 @@ public
 class ASTRangeReference extends SimpleNode {
 
   public ReferenceDirectivesSettings defaultReferenceDirectivesSettings; /* Manually added */
+  public String finishCellLocationSpecification; /* Manually added; start location is a node */
 
   public ASTRangeReference(int id) {
     super(id);

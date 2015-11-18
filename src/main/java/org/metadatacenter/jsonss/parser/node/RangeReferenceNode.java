@@ -11,7 +11,7 @@ import org.metadatacenter.jsonss.parser.ASTDefaultLiteralValueDirective;
 import org.metadatacenter.jsonss.parser.ASTEmptyCellLocationDirective;
 import org.metadatacenter.jsonss.parser.ASTEmptyLiteralValueDirective;
 import org.metadatacenter.jsonss.parser.ASTRangeReference;
-import org.metadatacenter.jsonss.parser.ASTReferenceCellLocationSpecification;
+import org.metadatacenter.jsonss.parser.ASTReferenceQualifiedCellLocationSpecification;
 import org.metadatacenter.jsonss.parser.ASTReferenceTypeDirective;
 import org.metadatacenter.jsonss.parser.ASTShiftDirective;
 import org.metadatacenter.jsonss.parser.InternalParseException;
@@ -23,8 +23,8 @@ import org.metadatacenter.jsonss.renderer.RendererException;
 
 public class RangeReferenceNode implements JSONSSNode, JSONSSParserConstants
 {
-  private ReferenceCellLocationSpecificationNode startCellLocationSpecificationNode;
-  private ReferenceCellLocationSpecificationNode finishCellLocationSpecificationNode;
+  private ReferenceQualifiedCellLocationSpecificationNode startCellLocationSpecificationNode;
+  private String finishCellLocationSpecification;
 
   private ReferenceTypeDirectiveNode referenceTypeDirectiveNode;
   private DefaultCellLocationValueDirectiveNode defaultCellLocationValueDirectiveNode;
@@ -40,15 +40,12 @@ public class RangeReferenceNode implements JSONSSNode, JSONSSParserConstants
     for (int i = 0; i < node.jjtGetNumChildren(); i++) {
       Node child = node.jjtGetChild(i);
 
-      if (ParserUtil.hasName(child, "ReferenceCellLocationSpecification")) {
+      if (ParserUtil.hasName(child, "ReferenceQualifiedCellLocationSpecification")) {
         if (this.startCellLocationSpecificationNode == null)
-          this.startCellLocationSpecificationNode = new ReferenceCellLocationSpecificationNode(
-            (ASTReferenceCellLocationSpecification)child);
-        else if (this.finishCellLocationSpecificationNode == null)
-          this.finishCellLocationSpecificationNode = new ReferenceCellLocationSpecificationNode(
-            (ASTReferenceCellLocationSpecification)child);
+          this.startCellLocationSpecificationNode = new ReferenceQualifiedCellLocationSpecificationNode(
+            (ASTReferenceQualifiedCellLocationSpecification)child);
         else
-          throw new ParseException("only more than two cell location specifications in range reference");
+          throw new ParseException("only one cell location specifications allowed in range reference");
       } else if (ParserUtil.hasName(child, "ReferenceTypeDirective")) {
         this.referenceTypeDirectiveNode = new ReferenceTypeDirectiveNode((ASTReferenceTypeDirective)child);
       } else if (ParserUtil.hasName(child, "DefaultCellLocationValueDirective")) {
@@ -80,12 +77,13 @@ public class RangeReferenceNode implements JSONSSNode, JSONSSParserConstants
     }
 
     this.referenceDirectivesHandler = new ReferenceDirectivesHandler(node.defaultReferenceDirectivesSettings);
+    this.finishCellLocationSpecification = node.finishCellLocationSpecification;
 
     if (this.startCellLocationSpecificationNode == null)
       throw new RendererException("missing start cell location specification in reference " + toString());
 
-    if (this.finishCellLocationSpecificationNode == null)
-      throw new RendererException("missing finish cell location specification in reference " + toString());
+    if (this.finishCellLocationSpecification == null)
+      throw new RendererException("missing finish cell location in reference " + toString());
 
     if (this.referenceTypeDirectiveNode != null)
       this.referenceDirectivesHandler
@@ -117,14 +115,14 @@ public class RangeReferenceNode implements JSONSSNode, JSONSSParserConstants
     return "RangeReference";
   }
 
-  public ReferenceCellLocationSpecificationNode getStartCellLocationSpecificationNode()
+  public ReferenceQualifiedCellLocationSpecificationNode getStartCellLocationSpecificationNode()
   {
     return this.startCellLocationSpecificationNode;
   }
 
-  public ReferenceCellLocationSpecificationNode getFinishCellLocationSpecificationNode()
+  public String getFinishCellLocationSpecification()
   {
-    return this.finishCellLocationSpecificationNode;
+    return this.finishCellLocationSpecification;
   }
 
   public ReferenceTypeDirectiveSetting getActualReferenceTypeDirectiveSetting()
@@ -193,7 +191,7 @@ public class RangeReferenceNode implements JSONSSNode, JSONSSParserConstants
     String representation = "";
     boolean atLeastOneOptionProcessed = false;
 
-    representation += this.startCellLocationSpecificationNode + ":" + this.finishCellLocationSpecificationNode;
+    representation += this.startCellLocationSpecificationNode + ":" + this.finishCellLocationSpecification;
 
     if (hasExplicitOptions())
       representation += "(";
